@@ -1,0 +1,78 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+
+/*
+ * Tokens de diseño PROVISIONALES (Fase 2: wireframe en grises).
+ * TODO: reemplazar por los colores oficiales de la Universidad de La Sabana
+ * (pendiente, ver PLAN.md §9). La fuente Inter es un placeholder.
+ * Los componentes solo usan estas utilidades (bg-surface, text-ink, border-border…),
+ * nunca colores fijos: al cambiar los tokens cambia todo el sitio.
+ */
+@theme {
+  /* Tipografía (placeholder: @fontsource-variable/inter) */
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+
+  /* Grises provisionales */
+  --color-surface: #ffffff;
+  --color-surface-muted: #f4f4f5;
+  --color-surface-sunken: #e4e4e7;
+  --color-border: #d4d4d8;
+  --color-border-strong: #a1a1aa;
+  --color-placeholder: #a1a1aa;
+  --color-skeleton: #d4d4d8;
+  --color-ink-muted: #52525b;
+  --color-ink: #18181b;
+  --color-on-accent: #ffffff;
+
+  /* Acento provisional (único) */
+  --color-accent: #3f3f46;
+  --color-accent-hover: #18181b;
+  --color-focus: #2563eb;
+
+  /* Layout */
+  --container-page: 72rem;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background-color: var(--color-surface);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-surface);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--container-page);
+  padding-inline: 1rem;
+
+  @media (width >= 48rem) {
+    padding-inline: 2rem;
+  }
+}

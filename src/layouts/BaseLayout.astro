@@ -1,0 +1,43 @@
+---
+import '../styles/global.css';
+import Seo from '../components/layout/Seo.astro';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import { sitio } from '../data/sitio';
+import type { JsonLd } from '../lib/seo';
+
+export interface Props {
+  /** Título de la página; se completa como "{title} | Pulso Democrático". */
+  title?: string;
+  description?: string;
+  image?: string;
+  jsonLd?: JsonLd | JsonLd[];
+  noindex?: boolean;
+}
+
+const props = Astro.props;
+---
+
+<!doctype html>
+<html lang={sitio.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <Seo {...props} />
+  </head>
+  <body class="flex min-h-screen flex-col bg-surface text-ink antialiased">
+    <a
+      href="#contenido"
+      class="sr-only z-50 bg-accent px-4 py-2 text-on-accent focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+    >
+      Saltar al contenido
+    </a>
+    <Header />
+    <main id="contenido" tabindex="-1" class="flex-1 focus:outline-none">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

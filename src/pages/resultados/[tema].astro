@@ -1,0 +1,80 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHeader from '../../components/ui/SectionHeader.astro';
+import TopicTabs from '../../components/ui/TopicTabs.astro';
+import StatsRow from '../../components/ui/StatsRow.astro';
+import FindingsGrid from '../../components/results/FindingsGrid.astro';
+import { temas, temaHref, type Tema } from '../../data/temas';
+import { breadcrumbJsonLd } from '../../lib/seo';
+
+export const getStaticPaths = (() =>
+  temas.map((tema) => ({ params: { tema: tema.slug }, props: { tema } }))) satisfies GetStaticPaths;
+
+interface Props {
+  tema: Tema;
+}
+
+const { tema } = Astro.props;
+const breadcrumb = breadcrumbJsonLd(
+  [
+    { name: 'Inicio', path: '/' },
+    { name: 'Resultados', path: '/resultados' },
+    { name: tema.titulo, path: temaHref(tema.slug) },
+  ],
+  Astro.site,
+);
+---
+
+<BaseLayout title={tema.titulo} description={tema.descripcion} jsonLd={breadcrumb}>
+  <div class="container-page py-10 md:py-14">
+    <nav aria-label="Ruta de navegación" class="mb-6 text-sm text-ink-muted">
+      <ol class="flex flex-wrap items-center gap-2">
+        <li>
+          <a href="/" class="underline-offset-4 hover:underline">
+            Inicio
+          </a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li>
+          <a href="/resultados" class="underline-offset-4 hover:underline">
+            Resultados
+          </a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li>
+          <span aria-current="page" class="text-ink">
+            {tema.titulo}
+          </span>
+        </li>
+      </ol>
+    </nav>
+
+    <SectionHeader title={tema.titulo} lead={tema.pregunta} />
+
+    <div class="mt-8">
+      <TopicTabs active={tema.slug} />
+    </div>
+
+    <section aria-labelledby="cifras-titulo" class="mt-8">
+      <h2 id="cifras-titulo" class="sr-only">
+        La encuesta en cifras
+      </h2>
+      <StatsRow variant="boxed" />
+    </section>
+
+    <section aria-labelledby="hallazgos-titulo" class="mt-12">
+      <h2 id="hallazgos-titulo" class="text-2xl font-bold md:text-3xl">
+        Hallazgos sobre {tema.titulo}
+      </h2>
+      <p class="mt-2 text-ink-muted">
+        La cantidad de preguntas, y por tanto de gráficos, varía según el tema.
+      </p>
+      <div class="mt-6">
+        {/* TODO Fase 3: todos los indicadores del tema (dataKey) agrupados por `familia`.
+             Jóvenes (dataKey null): cruces por edad 18–30 vs. resto, solo significativos. */}
+        <FindingsGrid placeholders={6} label={`Hallazgos sobre ${tema.titulo}`} />
+      </div>
+    </section>
+  </div>
+</BaseLayout>

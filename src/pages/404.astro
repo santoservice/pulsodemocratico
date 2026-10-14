@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeader from '../components/ui/SectionHeader.astro';
+import LinkButton from '../components/ui/LinkButton.astro';
+import { temas, temaHref } from '../data/temas';
+---
+
+<BaseLayout
+  title="Página no encontrada"
+  description="La página que buscas no existe o cambió de dirección."
+  noindex
+>
+  <div class="container-page py-16 md:py-24">
+    <SectionHeader
+      eyebrow="Error 404"
+      title="Página no encontrada"
+      lead="La página que buscas no existe o cambió de dirección."
+    />
+    <div class="mt-8 flex flex-wrap gap-3">
+      <LinkButton href="/" variant="primary">
+        Volver al inicio
+      </LinkButton>
+      <LinkButton href="/resultados" icon="lucide:arrow-right">
+        Ver resultados
+      </LinkButton>
+    </div>
+    <h2 class="mt-12 text-xl font-bold">Temas</h2>
+    <ul class="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+      {temas.map((t) => (
+        <li>
+          <a href={temaHref(t.slug)} class="underline underline-offset-4">
+            {t.titulo}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</BaseLayout>

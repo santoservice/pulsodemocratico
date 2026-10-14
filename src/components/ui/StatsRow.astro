@@ -1,0 +1,22 @@
+---
+import StatCard from './StatCard.astro';
+import { cifrasEncuesta, type Cifra } from '../../data/sitio';
+
+export interface Props {
+  /** Por defecto: cifras provisionales de sitio.ts (TODO Fase 3: derivar de tablero.json). */
+  stats?: Cifra[];
+  variant?: 'plain' | 'boxed';
+  /** Título accesible de la lista. */
+  label?: string;
+}
+
+const { stats = cifrasEncuesta, variant = 'plain', label = 'La encuesta en cifras' } = Astro.props;
+---
+
+<ul aria-label={label} class="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
+  {stats.map((s) => (
+    <li>
+      <StatCard {...s} variant={variant} />
+    </li>
+  ))}
+</ul>

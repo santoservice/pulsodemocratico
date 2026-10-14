@@ -1,0 +1,39 @@
+---
+import { Icon } from 'astro-icon/components';
+
+/** Cifra clave: icono + número + etiqueta. `boxed` = fondo gris (página de resultados). */
+export interface Props {
+  value: string;
+  label: string;
+  /** Icono lucide; si no hay, se muestra un Placeholder "Vector". */
+  icon?: string;
+  variant?: 'plain' | 'boxed';
+  /** Marca el valor como pendiente de confirmar (TODO del cliente). */
+  pending?: boolean;
+}
+
+const { value, label, icon, variant = 'plain', pending = false } = Astro.props;
+---
+
+<div
+  class:list={[
+    'flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4',
+    variant === 'boxed' && 'h-full bg-surface-muted p-4 md:p-5',
+  ]}
+>
+  <span
+    class="flex h-12 w-12 shrink-0 items-center justify-center border border-border-strong bg-surface-sunken text-ink-muted"
+    aria-hidden="true"
+  >
+    {icon ? <Icon name={icon} class="h-6 w-6" /> : null}
+  </span>
+  <p class="flex flex-col">
+    <span class="text-2xl leading-tight font-bold">
+      {value}
+      {pending && (
+        <span class="ml-1 align-middle text-xs font-normal text-ink-muted">(por confirmar)</span>
+      )}
+    </span>
+    <span class="text-sm leading-snug text-ink-muted">{label}</span>
+  </p>
+</div>

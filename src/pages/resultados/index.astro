@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHeader from '../../components/ui/SectionHeader.astro';
+import TopicTabs from '../../components/ui/TopicTabs.astro';
+import StatsRow from '../../components/ui/StatsRow.astro';
+import FindingsGrid from '../../components/results/FindingsGrid.astro';
+
+const lead =
+  'Explora los hallazgos sobre las percepciones, opiniones y actitudes de los colombianos durante la campaña presidencial de 2026.';
+---
+
+<BaseLayout
+  title="Resultados de la encuesta"
+  description="Principales hallazgos de la encuesta panel CNEP Colombia 2026: polarización, populismo, desinformación, inteligencia artificial, consumo mediático y jóvenes."
+>
+  <div class="container-page py-10 md:py-14">
+    <SectionHeader title="Resultados de la encuesta" lead={lead} />
+
+    <div class="mt-8">
+      <TopicTabs active="principales" />
+    </div>
+
+    <section aria-labelledby="cifras-titulo" class="mt-8">
+      <h2 id="cifras-titulo" class="sr-only">
+        La encuesta en cifras
+      </h2>
+      <StatsRow variant="boxed" />
+    </section>
+
+    <section aria-labelledby="hallazgos-titulo" class="mt-12">
+      <SectionHeader
+        as="h2"
+        id="hallazgos-titulo"
+        eyebrow={false}
+        title="Principales hallazgos"
+        lead="Una mirada global a los resultados de la encuesta. Selecciona un tema para ver los resultados detallados."
+      />
+      <div class="mt-6">
+        {/* TODO Fase 3: 1–2 indicadores `destacado: true` por tema (con link a su tema). */}
+        <FindingsGrid placeholders={8} label="Principales hallazgos" />
+      </div>
+    </section>
+  </div>
+</BaseLayout>
