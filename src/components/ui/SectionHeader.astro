@@ -1,5 +1,10 @@
 ---
-/** Encabezado de sección: antetítulo ("COLOMBIA 2026"), título h1/h2 y bajada. */
+import { titulo } from '../../lib/format';
+
+/**
+ * Encabezado de sección: antetítulo ("COLOMBIA 2026"), título h1/h2 y bajada.
+ * El título se escribe con `titulo()` (regla del cliente: mayúscula inicial en cada palabra).
+ */
 export interface Props {
   title: string;
   eyebrow?: string | false;
@@ -20,16 +25,16 @@ const {
 } = Astro.props;
 const titleClass =
   Tag === 'h1'
-    ? 'font-display text-4xl leading-tight font-bold tracking-tight sm:text-5xl md:text-6xl'
-    : 'font-display text-2xl leading-tight font-bold tracking-tight md:text-3xl';
+    ? 'font-display text-4xl leading-tight font-bold tracking-tight text-brand sm:text-5xl md:text-6xl'
+    : 'font-display text-2xl leading-tight font-bold tracking-tight text-brand md:text-3xl';
 ---
 
 <div class:list={['max-w-3xl', className]}>
   {eyebrow && (
-    <p class="mb-3 text-xs font-medium tracking-[0.25em] text-ink-muted uppercase">{eyebrow}</p>
+    <p class="mb-3 text-xs font-semibold tracking-[0.25em] text-accent uppercase">{eyebrow}</p>
   )}
   <Tag id={id} class={titleClass}>
-    {title}
+    {titulo(title)}
   </Tag>
   {lead && <p class="mt-4 text-lg leading-relaxed text-ink-muted">{lead}</p>}
   <slot />

@@ -6,10 +6,10 @@ import { isActive, isCurrent, nav, sitio } from '../../data/sitio';
 const path = Astro.url.pathname;
 ---
 
-<header class="relative z-30 border-b border-border-strong bg-surface">
+<header class="relative z-30 border-t-4 border-b border-t-brand border-b-border bg-surface">
   <div class="container-page flex h-16 items-center justify-between gap-6 md:h-20">
     <!-- TODO (cliente): sin logo; va el texto "Pulso Democrático" -->
-    <a href="/" class="text-lg font-bold tracking-tight text-ink md:text-xl">
+    <a href="/" class="text-lg font-bold tracking-tight text-brand md:text-xl">
       {sitio.nombre}
     </a>
 
@@ -19,7 +19,9 @@ const path = Astro.url.pathname;
           const active = isActive(path, item.href);
           const linkClass = [
             'inline-flex items-center gap-1 border-b-2 px-2 py-2 text-[0.95rem] text-ink',
-            active ? 'border-ink font-semibold' : 'border-transparent hover:border-border-strong',
+            active
+              ? 'border-accent font-semibold text-brand'
+              : 'border-transparent hover:border-brand-light',
           ].join(' ');
           if (!item.children) {
             return (

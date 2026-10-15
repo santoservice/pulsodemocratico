@@ -9,6 +9,7 @@ import {
   numero,
   pct,
   pctOrMedia,
+  titulo,
 } from '../../src/lib/format';
 
 const pctInd = { stat: 'pct' } as const;
@@ -49,5 +50,42 @@ describe('format es-CO', () => {
     expect(numero(mediaInd, 7)).toBe('7,0');
     expect(deltaSegunStat(pctInd, 3.4)).toBe('+3');
     expect(deltaSegunStat(mediaInd, -0.36)).toBe(`${SIGNO_MENOS}0,4`);
+  });
+});
+
+describe('titulo (regla del cliente: mayúscula inicial salvo palabras menores)', () => {
+  it.each([
+    ['Resultados de la encuesta', 'Resultados de la Encuesta'],
+    ['¿Cómo se hizo la encuesta?', '¿Cómo se Hizo la Encuesta?'],
+    ['Sobre el proyecto', 'Sobre el Proyecto'],
+    ['Equipo de trabajo', 'Equipo de Trabajo'],
+    ['Ficha técnica', 'Ficha Técnica'],
+    ['Así funciona el panel', 'Así Funciona el Panel'],
+    ['Explora los temas principales', 'Explora los Temas Principales'],
+    ['Principales hallazgos', 'Principales Hallazgos'],
+    ['inteligencia artificial', 'Inteligencia Artificial'],
+    ['consumo mediático', 'Consumo Mediático'],
+  ])('%s → %s', (entrada, salida) => {
+    expect(titulo(entrada)).toBe(salida);
+  });
+
+  it('la primera palabra siempre va en mayúscula, aunque sea menor', () => {
+    expect(titulo('el panel y la muestra')).toBe('El Panel y la Muestra');
+    expect(titulo('¿por qué es importante?')).toBe('¿Por Qué Es Importante?');
+  });
+
+  it('pone en minúscula las palabras menores escritas con mayúscula', () => {
+    expect(titulo('Resultados De La Encuesta')).toBe('Resultados de la Encuesta');
+  });
+
+  it('respeta siglas, guiones y signos', () => {
+    expect(titulo('datos del CNEP')).toBe('Datos del CNEP');
+    expect(titulo('región amazonía-orinoquía')).toBe('Región Amazonía-Orinoquía');
+    expect(titulo('qué puede decir: la encuesta')).toBe('Qué Puede Decir: La Encuesta');
+  });
+
+  it('es idempotente', () => {
+    const t = titulo('¿Cómo se hizo la encuesta?');
+    expect(titulo(t)).toBe(t);
   });
 });

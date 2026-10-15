@@ -4,24 +4,22 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionHeader from '../components/ui/SectionHeader.astro';
 import LinkButton from '../components/ui/LinkButton.astro';
 import { cnep } from '../data/sitio';
-import { fichaTecnica, rondas, type ItemFicha } from '../data/ficha-tecnica';
-import { entero } from '../lib/format';
+import { PANEL_COMPLETO, fichaTecnica, rondas } from '../data/ficha-tecnica';
+import { entero, titulo } from '../lib/format';
 import { datasetJsonLd } from '../lib/seo';
 import { getIndicadores } from '../lib/tablero';
 
 const intro =
-  'Seguimos a un mismo grupo de personas adultas en Colombia en tres momentos de la campaña presidencial de 2026 para entender cómo se informan, qué piensan y cómo cambian sus opiniones. La encuesta hace parte del Comparative National Elections Project (CNEP).';
+  'Seguimos a un mismo grupo de colombianos en tres momentos de la campaña presidencial de 2026 para entender cómo se informan, qué piensan y cómo cambian sus opiniones.';
 
 const dataset = datasetJsonLd(
   { variables: getIndicadores().map((i) => i.titulo), path: '/como-se-hizo' },
   Astro.site,
 );
-const ficha: readonly ItemFicha[] = fichaTecnica;
-const textos = (t: string | readonly string[]) => (typeof t === 'string' ? [t] : t);
 ---
 
 <BaseLayout
-  title="¿Cómo se hizo la encuesta?"
+  title={titulo('¿Cómo se hizo la encuesta?')}
   description="Ficha técnica y metodología de la encuesta panel CNEP Colombia 2026: tres rondas en línea con las mismas personas durante la campaña presidencial."
   jsonLd={dataset}
 >
@@ -30,42 +28,22 @@ const textos = (t: string | readonly string[]) => (typeof t === 'string' ? [t] :
 
     <!-- Ficha técnica -->
     <section aria-labelledby="ficha-titulo" class="mt-12 bg-surface-muted p-5 md:p-8">
-      <h2 id="ficha-titulo" class="text-2xl font-bold md:text-3xl">
-        Ficha técnica
+      <h2 id="ficha-titulo" class="text-2xl font-bold text-brand md:text-3xl">
+        {titulo('Ficha técnica')}
       </h2>
       <p class="mt-2 text-ink-muted">Los datos clave del estudio.</p>
       <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {ficha.map((item) => (
-          <li
-            class:list={[
-              'flex gap-4 border bg-surface p-4',
-              item.pendiente ? 'border-dashed border-border-strong' : 'border-border',
-            ]}
-          >
+        {fichaTecnica.map((item) => (
+          <li class="flex gap-4 border border-border bg-surface p-4">
             <span
-              class="flex h-11 w-11 shrink-0 items-center justify-center border border-border-strong bg-surface-sunken text-ink-muted"
+              class="flex h-11 w-11 shrink-0 items-center justify-center bg-surface-sunken text-accent"
               aria-hidden="true"
             >
               <Icon name={`lucide:${item.icono}`} class="h-5 w-5" />
             </span>
             <div>
-              <h3 class="font-semibold">{item.titulo}</h3>
-              {item.pendiente && (
-                <p class="my-1 inline-flex items-center gap-1 border border-dashed border-border-strong px-1.5 py-0.5 text-xs font-medium text-ink">
-                  <Icon name="lucide:circle-alert" class="h-3.5 w-3.5" aria-hidden="true" />
-                  Pendiente de confirmar
-                </p>
-              )}
-              {textos(item.texto).map((t) => (
-                <p
-                  class:list={[
-                    'text-sm leading-relaxed',
-                    item.pendiente ? 'font-semibold text-ink italic' : 'text-ink-muted',
-                  ]}
-                >
-                  {t}
-                </p>
-              ))}
+              <h3 class="font-semibold text-brand">{item.titulo}</h3>
+              <p class="mt-1 text-sm leading-relaxed text-ink-muted">{item.texto}</p>
             </div>
           </li>
         ))}
@@ -74,8 +52,8 @@ const textos = (t: string | readonly string[]) => (typeof t === 'string' ? [t] :
 
     <!-- Panel -->
     <section aria-labelledby="panel-titulo" class="mt-16">
-      <h2 id="panel-titulo" class="text-2xl font-bold md:text-3xl">
-        Así funciona el panel
+      <h2 id="panel-titulo" class="text-2xl font-bold text-brand md:text-3xl">
+        {titulo('Así funciona el panel')}
       </h2>
       <p class="mt-2 text-ink-muted">
         Consultamos a las mismas personas antes, durante y después de las dos vueltas
@@ -84,22 +62,24 @@ const textos = (t: string | readonly string[]) => (typeof t === 'string' ? [t] :
       <ol class="mt-8 flex flex-col items-stretch gap-2 md:flex-row md:items-center md:gap-3">
         {rondas.map((r, i) => (
           <>
-            <li class="flex flex-1 items-center gap-4 border border-border bg-surface p-4 md:p-5">
+            <li class="flex flex-1 items-start gap-4 border border-border bg-surface p-4 md:p-5">
               <span
-                class="flex h-14 w-16 shrink-0 items-center justify-center border border-border-strong bg-surface-sunken text-ink-muted"
+                class="flex h-14 w-14 shrink-0 items-center justify-center bg-surface-sunken text-accent"
                 aria-hidden="true"
               >
                 <Icon name="lucide:clipboard-check" class="h-6 w-6" />
               </span>
               <div>
-                <h3 class="text-lg font-bold">Ronda {r.n}</h3>
-                <p class="text-sm font-semibold">{r.fechas}</p>
-                <p class="text-sm font-semibold">{entero(r.personas)} personas</p>
-                <p class="text-sm text-ink-muted">{r.nota}</p>
+                <h3 class="text-lg font-bold text-brand">Ronda {r.n}</h3>
+                <p class="text-sm text-ink">{r.nota}</p>
+                <p class="mt-1 text-sm text-ink-muted">Fecha de aplicación: {r.fechas}</p>
+                <p class="mt-1 text-sm font-semibold text-ink">
+                  {entero(r.personas)} participantes · {entero(r.preguntas)} preguntas
+                </p>
               </div>
             </li>
             {i < rondas.length - 1 && (
-              <li aria-hidden="true" class="flex justify-center text-ink">
+              <li aria-hidden="true" class="flex justify-center text-accent">
                 <Icon name="lucide:arrow-down" class="h-6 w-6 md:hidden" />
                 <Icon name="lucide:arrow-right" class="hidden h-6 w-6 md:block" />
               </li>
@@ -107,31 +87,33 @@ const textos = (t: string | readonly string[]) => (typeof t === 'string' ? [t] :
           </>
         ))}
       </ol>
-      <!-- Corchete "Mismas personas" (horizontal en escritorio) -->
-      <div class="mt-4 flex items-center gap-3 md:mx-[12%]">
-        <span
-          class="hidden h-4 flex-1 border-b border-l border-ink md:block"
-          aria-hidden="true"
-        ></span>
-        <p class="mx-auto flex items-center gap-2 text-center text-ink md:mx-0 md:translate-y-2">
-          <Icon name="lucide:users" class="h-4 w-4 md:hidden" aria-hidden="true" />
-          Mismas personas en las tres rondas
+      <div class="mt-8 max-w-3xl space-y-3 leading-relaxed text-ink-muted">
+        <p class="border-l-4 border-accent bg-surface-highlight px-4 py-3 text-ink">
+          <strong class="font-semibold">
+            {entero(PANEL_COMPLETO)} personas respondieron las tres rondas;
+          </strong>
+          las demás participaron en una o dos.
         </p>
-        <span
-          class="hidden h-4 flex-1 border-r border-b border-ink md:block"
-          aria-hidden="true"
-        ></span>
+        <p>
+          En las encuestas tipo panel es normal que algunas personas dejen de participar entre una
+          ronda y otra, por falta de tiempo, porque no ven la invitación o porque deciden no
+          continuar. Por eso el número de participantes baja de una ronda a la siguiente.
+        </p>
+        <p>
+          El número de preguntas también varía: cada ronda combina un núcleo común, que permite
+          comparar los cambios, con preguntas propias de cada momento de la campaña.
+        </p>
       </div>
     </section>
 
-    <!-- Qué puede y qué no puede decir -->
+    <!-- Qué puede y qué no puede decir (propuesta de diseño) -->
     <section aria-labelledby="alcance-titulo" class="mt-16 border border-border p-5 md:p-8">
-      <h2 id="alcance-titulo" class="text-2xl font-bold md:text-3xl">
-        Qué puede y qué no puede decir esta encuesta
+      <h2 id="alcance-titulo" class="text-2xl font-bold text-brand md:text-3xl">
+        {titulo('Qué puede y qué no puede decir esta encuesta')}
       </h2>
       <div class="mt-6 grid gap-6 md:grid-cols-2">
         <div class="bg-surface-muted p-5">
-          <h3 class="flex items-center gap-2 font-bold">
+          <h3 class="flex items-center gap-2 font-bold text-brand">
             <Icon name="lucide:check" class="h-5 w-5" aria-hidden="true" /> Sí sirve para
           </h3>
           <ul class="mt-3 list-disc space-y-2 pl-5 text-ink-muted">
@@ -140,7 +122,7 @@ const textos = (t: string | readonly string[]) => (typeof t === 'string' ? [t] :
           </ul>
         </div>
         <div class="bg-surface-muted p-5">
-          <h3 class="flex items-center gap-2 font-bold">
+          <h3 class="flex items-center gap-2 font-bold text-brand">
             <Icon name="lucide:x" class="h-5 w-5" aria-hidden="true" /> No sirve para
           </h3>
           <ul class="mt-3 list-disc space-y-2 pl-5 text-ink-muted">
@@ -154,18 +136,17 @@ const textos = (t: string | readonly string[]) => (typeof t === 'string' ? [t] :
       </p>
     </section>
 
-    <!-- CTA -->
-    <section aria-labelledby="cta-titulo" class="mt-16 bg-surface-muted p-6 text-center md:p-10">
+    <!-- Cierre -->
+    <section aria-labelledby="cta-titulo" class="mt-16 bg-surface-sunken p-6 text-center md:p-10">
       <h2 id="cta-titulo" class="sr-only">
-        Datos completos
+        {titulo('Datos completos de la encuesta')}
       </h2>
-      <p class="mx-auto max-w-2xl text-lg">
+      <p class="mx-auto max-w-2xl text-lg text-ink">
         Si quieres conocer los datos de toda la encuesta, consúltalos en la página oficial del
         Comparative National Elections Project (CNEP).
       </p>
-      <!-- TODO (cliente): confirmar enlace oficial de CNEP (hoy LinkedIn). -->
-      <LinkButton href={cnep.url} external class="mt-6">
-        Ir al sitio de CNEP
+      <LinkButton href={cnep.url} external variant="primary" class="mt-6">
+        Página web de CNEP
       </LinkButton>
     </section>
   </div>

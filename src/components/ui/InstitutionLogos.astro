@@ -1,0 +1,79 @@
+---
+import { Image } from 'astro:assets';
+import Placeholder from './Placeholder.astro';
+import { instituciones } from '../../data/sitio';
+
+/**
+ * Fila de logos de las instituciones participantes (footer y "Sobre el proyecto"), en el
+ * orden del cliente. Altura uniforme y ancho máximo para que los logos anchos no dominen.
+ * Si una institución no tiene logo, se muestra un Placeholder con su nombre.
+ */
+export interface Props {
+  size?: 'sm' | 'md';
+  class?: string;
+  /** id del título visible que nombra la lista. */
+  labelledby?: string;
+  /** Enlaza cada logo a la web de su institución (nueva pestaña). */
+  enlaces?: boolean;
+}
+
+const { size = 'md', class: className, labelledby, enlaces = false } = Astro.props;
+// Alto en px (el logo de Externado mide 286×78: no se amplía por encima de su tamaño).
+const alto = size === 'sm' ? 40 : 52;
+---
+
+<ul
+  aria-labelledby={labelledby}
+  class:list={[
+    'flex flex-wrap items-center justify-center gap-x-8 gap-y-6 md:gap-x-10',
+    size === 'md' && 'lg:justify-start',
+    className,
+  ]}
+>
+  {instituciones.map((i) => {
+    const alt = i.sigla ? `${i.nombre} (${i.sigla})` : i.nombre;
+    return (
+      <li class="flex items-center">
+        {i.logo && enlaces && i.url ? (
+          <a
+            href={i.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="rounded-sm opacity-90 transition hover:-translate-y-0.5 hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-focus motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+          >
+            <Image
+              src={i.logo}
+              alt={`${alt} (abre en una pestaña nueva)`}
+              height={alto}
+              densities={i.logo.height >= alto * 2 ? [1, 2] : [1]}
+              loading="lazy"
+              decoding="async"
+              class:list={[
+                'w-auto object-contain',
+                size === 'sm' ? 'h-10 max-w-40' : 'h-[52px] max-w-48',
+              ]}
+            />
+          </a>
+        ) : i.logo ? (
+          <Image
+            src={i.logo}
+            alt={alt}
+            height={alto}
+            densities={i.logo.height >= alto * 2 ? [1, 2] : [1]}
+            loading="lazy"
+            decoding="async"
+            class:list={[
+              'w-auto object-contain',
+              size === 'sm' ? 'h-10 max-w-40' : 'h-[52px] max-w-48',
+            ]}
+          />
+        ) : (
+          <div class="flex flex-col items-center gap-1">
+            <Placeholder class="h-10 w-32" size="sm" label="Logo" />
+            <span class="text-center text-xs text-ink-muted">{alt}</span>
+          </div>
+        )}
+      </li>
+    );
+  })}
+</ul>

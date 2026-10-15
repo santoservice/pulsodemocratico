@@ -17,10 +17,12 @@ export interface Props {
   tarjeta: Tarjeta;
   /** Muestra la pendiente R1→R3 cuando hay cambio claro (por defecto sí). */
   mostrarCambio?: boolean;
+  /** Prefijo de ids (para no repetir ids si la misma gráfica aparece también en el modal). */
+  idPrefijo?: string;
 }
 
-const { tarjeta: t, mostrarCambio = true } = Astro.props;
-const uid = `g-${t.tema}-${t.id}`;
+const { tarjeta: t, mostrarCambio = true, idPrefijo = 'g' } = Astro.props;
+const uid = `${idPrefijo}-${t.tema}-${t.id}`;
 const ind0 = t.indicadores[0]!;
 const ultimo = (i: Indicador) => getUltimoValor(i).valor;
 

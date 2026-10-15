@@ -1,0 +1,187 @@
+---
+import { Image } from 'astro:assets';
+import { instituciones } from '../../data/sitio';
+import QuestionDetail from './QuestionDetail.astro';
+import type { DatoJovenes, Tarjeta } from '../../lib/tablero';
+
+/**
+ * Modal de detalle de pregunta (PLAN.md §4.2, §6). Un solo <dialog> nativo por página:
+ * el contenido de cada tarjeta ya está en el HTML (oculto, para SEO) y un script mínimo lo
+ * mueve al diálogo al abrirlo desde un botón `[data-tarjeta]` de FindingCard.
+ *
+ * - `?pregunta=<clave>` en la URL al abrir (replaceState); se abre al cargar si viene en la URL.
+ * - Esc cierra (nativo); el foco queda atrapado (showModal) y vuelve al botón al cerrar.
+ * - Bloquea el scroll del fondo; en ≤ 640px es una hoja a pantalla completa.
+ * - Pie con los logos de las instituciones y los créditos (pedido del cliente).
+ */
+export interface Props {
+  tarjetas?: readonly Tarjeta[];
+  jovenes?: readonly DatoJovenes[];
+}
+
+const { tarjetas = [], jovenes = [] } = Astro.props;
+
+// Orden de sitio.ts: CNEP, Wisconsin, La Sabana, Externado, Complutense.
+const logos = instituciones.flatMap((i) => (i.logo ? [{ nombre: i.nombre, src: i.logo }] : []));
+---
+
+<div hidden data-detalles>
+  {tarjetas.map((t) => (
+    <QuestionDetail tarjeta={t} />
+  ))}
+  {jovenes.map((d) => (
+    <QuestionDetail jovenes={d} />
+  ))}
+</div>
+
+<dialog
+  id="modal-pregunta"
+  class="m-auto h-dvh max-h-none w-full max-w-none overflow-y-auto overscroll-contain border-0 bg-surface p-0 text-ink backdrop:bg-brand/70 sm:h-auto sm:max-h-[90dvh] sm:w-[calc(100%-2rem)] sm:max-w-3xl sm:border sm:border-border sm:shadow-xl"
+>
+  <div class="flex min-h-full flex-col">
+    <div class="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-border bg-surface px-4 py-2 sm:px-6">
+      <p
+        data-modal-eyebrow
+        class="min-w-0 truncate text-xs font-semibold tracking-wide text-accent uppercase"
+      ></p>
+      <button
+        type="button"
+        data-modal-cerrar
+        class="inline-flex min-h-11 shrink-0 items-center gap-2 px-2 font-medium text-ink underline-offset-4 hover:underline"
+      >
+        <svg
+          aria-hidden="true"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        >
+          <path d="M6 6l12 12M18 6L6 18"></path>
+        </svg>
+        Cerrar
+      </button>
+    </div>
+    <div data-modal-cuerpo class="flex-1 px-4 py-6 sm:px-6"></div>
+    <footer class="border-t border-border bg-surface-muted px-4 py-5 sm:px-6">
+      <p id="modal-pregunta-logos" class="sr-only">
+        Instituciones participantes
+      </p>
+      <ul
+        aria-labelledby="modal-pregunta-logos"
+        class="flex flex-wrap items-center justify-center gap-x-6 gap-y-4"
+      >
+        {logos.map((l) => (
+          <li>
+            <Image
+              src={l.src}
+              alt={l.nombre}
+              height={40}
+              loading="lazy"
+              class="h-10 w-auto object-contain"
+            />
+          </li>
+        ))}
+      </ul>
+      <p class="mt-4 text-center text-xs leading-relaxed text-ink-muted">
+        © 2026 Pulso Democrático. Encuesta Colombia 2026, Comparative National Elections Project
+        (CNEP).
+      </p>
+    </footer>
+  </div>
+</dialog>
+
+<script>
+  // Parámetro de URL del modal. No se importa de lib/detalle.ts para no meter tablero.json
+  // en el JS del cliente.
+  const PARAM_PREGUNTA = 'pregunta';
+
+  const dialog = document.getElementById('modal-pregunta') as HTMLDialogElement | null;
+  const almacen = document.querySelector<HTMLElement>('[data-detalles]');
+
+  if (dialog && almacen) {
+    const cuerpo = dialog.querySelector<HTMLElement>('[data-modal-cuerpo]')!;
+    const eyebrow = dialog.querySelector<HTMLElement>('[data-modal-eyebrow]')!;
+    let actual: HTMLElement | null = null;
+    let origen: HTMLElement | null = null;
+
+    const setParam = (clave: string | null) => {
+      const url = new URL(window.location.href);
+      if (clave) url.searchParams.set(PARAM_PREGUNTA, clave);
+      else url.searchParams.delete(PARAM_PREGUNTA);
+      history.replaceState(history.state, '', url);
+    };
+
+    const devolver = () => {
+      if (actual) almacen.append(actual);
+      actual = null;
+    };
+
+    const abrir = (art: HTMLElement, disparador: HTMLElement | null) => {
+      devolver();
+      cuerpo.append(art);
+      actual = art;
+      eyebrow.textContent = art.dataset.eyebrow ?? '';
+      const lbl = art.getAttribute('aria-labelledby');
+      if (lbl) dialog.setAttribute('aria-labelledby', lbl);
+      origen = disparador;
+      if (!dialog.open) dialog.showModal();
+      dialog.scrollTop = 0;
+      document.documentElement.style.overflow = 'hidden';
+      setParam(art.dataset.pregunta ?? null);
+    };
+
+    // Limpieza idempotente. Se llama al cerrar por nuestros controles y también en el evento
+    // `close` (que el navegador encola y puede retrasar, p. ej. en pestañas en segundo plano).
+    const limpiar = () => {
+      if (!actual) return;
+      devolver();
+      document.documentElement.style.overflow = '';
+      setParam(null);
+      origen?.focus();
+      origen = null;
+    };
+    const cerrar = () => {
+      if (dialog.open) dialog.close();
+      limpiar();
+    };
+
+    dialog.addEventListener('close', limpiar);
+    // Esc: cerramos nosotros para limpiar en el acto.
+    dialog.addEventListener('cancel', (e) => {
+      e.preventDefault();
+      cerrar();
+    });
+    // Clic en el fondo (fuera del contenido) cierra.
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) cerrar();
+    });
+    dialog.querySelector('[data-modal-cerrar]')?.addEventListener('click', cerrar);
+
+    const detallePorTarjeta = (id: string) =>
+      document.getElementById(`detalle-${id}`) as HTMLElement | null;
+
+    document.addEventListener('click', (e) => {
+      const b = (e.target as Element | null)?.closest<HTMLElement>('button[data-tarjeta]');
+      if (!b?.dataset.tarjeta) return;
+      const art = detallePorTarjeta(b.dataset.tarjeta);
+      if (art) abrir(art, b);
+    });
+
+    // Enlace directo: ?pregunta=<clave>
+    const clave = new URLSearchParams(window.location.search).get(PARAM_PREGUNTA);
+    if (clave) {
+      const art = Array.from(almacen.querySelectorAll<HTMLElement>('[data-pregunta]')).find(
+        (a) => a.dataset.pregunta === clave,
+      );
+      if (art) {
+        const boton = document.querySelector<HTMLElement>(
+          `button[data-tarjeta="${CSS.escape(art.dataset.tarjeta ?? '')}"]`,
+        );
+        abrir(art, boton);
+      }
+    }
+  }
+</script>

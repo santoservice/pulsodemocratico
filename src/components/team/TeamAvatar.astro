@@ -1,0 +1,37 @@
+---
+import { Picture } from 'astro:assets';
+import { iniciales, type Integrante } from '../../data/equipo';
+
+/** Foto circular optimizada (avif/webp) o, si no hay foto, las iniciales. Decorativa. */
+export interface Props {
+  persona: Integrante;
+  size?: 'md' | 'lg';
+}
+
+const { persona, size = 'md' } = Astro.props;
+const box = size === 'lg' ? 'h-32 w-32 text-3xl' : 'h-24 w-24 text-2xl';
+---
+
+<span
+  class:list={[
+    'flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-sunken font-bold text-brand',
+    box,
+  ]}
+  aria-hidden="true"
+>
+  {persona.foto ? (
+    <Picture
+      src={persona.foto}
+      alt=""
+      formats={['avif', 'webp']}
+      fallbackFormat="webp"
+      widths={[128, 256]}
+      sizes={size === 'lg' ? '128px' : '96px'}
+      loading="lazy"
+      decoding="async"
+      class="h-full w-full object-cover object-top"
+    />
+  ) : (
+    iniciales(persona.nombre)
+  )}
+</span>

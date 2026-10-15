@@ -3,10 +3,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Placeholder from '../components/ui/Placeholder.astro';
 import StatsRow from '../components/ui/StatsRow.astro';
 import TopicCard from '../components/ui/TopicCard.astro';
+import Quiz from '../components/islands/Quiz';
+import { quiz } from '../data/quiz';
+import { PROMEDIO_ENCUESTADOS } from '../lib/quiz';
 import { sitio } from '../data/sitio';
 import { getTemaByDataKey, temas, temaHref } from '../data/temas';
 import { getDestacados, getIndicador, tarjetaIndicador } from '../lib/tablero';
 import { resumenTarjeta, titularTarjeta } from '../lib/textos';
+import { titulo } from '../lib/format';
 
 // PROPUESTA (PLAN.md §4.1): "Datos que sorprenden" = 3 indicadores `destacado: true`.
 // Selección editorial (temas distintos, cifras fáciles de leer); si alguno deja de ser
@@ -40,64 +44,37 @@ const sorpresas = elegidos.map((ind) => {
       <div class="max-w-3xl md:pl-10">
         <h1
           id="titulo-principal"
-          class="font-display text-5xl leading-none font-bold tracking-tight md:text-7xl"
+          class="font-display text-5xl leading-none font-bold tracking-tight text-brand md:text-7xl"
         >
           {sitio.nombre}
         </h1>
-        <p class="mt-5 text-lg leading-relaxed text-ink-muted md:text-xl">
-          Lo que piensa la ciudadanía colombiana: resultados de la encuesta nacional CNEP, aplicada
-          durante las elecciones de 2026.
-        </p>
+        <p class="mt-5 text-lg leading-relaxed text-ink-muted md:text-xl">{sitio.descripcion}</p>
       </div>
     </div>
   </section>
 
   <!-- Quiz -->
   <section aria-labelledby="quiz-titulo" class="border-b border-border bg-surface-muted">
-    <div class="container-page grid gap-8 py-12 md:grid-cols-[1fr_2fr] md:py-16">
-      <div class="md:pl-10">
-        <h2 id="quiz-titulo" class="text-3xl leading-tight font-bold">
-          ¿Dónde te ubicas frente al resto del país?
+    <div class="container-page grid gap-8 py-12 md:py-16 xl:grid-cols-[1fr_3fr]">
+      <div class="max-w-2xl">
+        <h2 id="quiz-titulo" class="text-3xl leading-tight font-bold text-brand">
+          {titulo(quiz.titulo)}
         </h2>
         <p class="mt-4 leading-relaxed text-ink-muted">
-          Responde 4 preguntas de la encuesta y compara tus respuestas con el promedio de las
-          personas encuestadas.
+          Responde {quiz.preguntas.length} preguntas de la encuesta y compara tus respuestas con el{' '}
+          {PROMEDIO_ENCUESTADOS}.
         </p>
         <p class="mt-4 text-sm text-ink-muted">Toma 2 minutos. Tus respuestas no se guardan.</p>
       </div>
 
-      {/*
-        PLACEHOLDER DEL QUIZ — Fase 4 lo reemplaza por la isla React:
-          <Quiz client:visible {...quiz} />   (src/components/islands/Quiz.tsx, datos en src/data/quiz.ts)
-        Paso 1: 4 preguntas, una por pantalla, barra de progreso y escala 0–10.
-        Paso 2: posición del usuario frente al promedio de las personas encuestadas.
-      */}
-      <div
-        class="grid gap-4 border border-dashed border-border-strong bg-surface p-4 sm:grid-cols-2 md:p-6"
-        data-quiz-placeholder
-      >
-        <div class="flex flex-col gap-3">
-          <p class="text-xs text-ink-muted">Paso 1 · Preguntas</p>
-          <div class="flex gap-1" aria-hidden="true">
-            <span class="h-1 flex-1 bg-ink"></span>
-            <span class="h-1 flex-1 bg-ink"></span>
-            <span class="h-1 flex-1 bg-surface-sunken"></span>
-            <span class="h-1 flex-1 bg-surface-sunken"></span>
-          </div>
-          <Placeholder class="aspect-[4/3] w-full" label="Quiz: pregunta + escala 0–10" size="sm" />
-        </div>
-        <div class="flex flex-col gap-3">
-          <p class="text-xs text-ink-muted">Paso 2 · Resultado</p>
-          <div class="h-1" aria-hidden="true"></div>
-          <Placeholder
-            class="aspect-[4/3] w-full"
-            label="Tu resultado frente al promedio de las personas encuestadas"
-            size="sm"
-          />
-        </div>
-        <p class="text-sm text-ink-muted sm:col-span-2">
-          El cuestionario interactivo estará disponible próximamente.
-        </p>
+      {/* Isla React (PLAN.md §6): el HTML de la 1.ª pregunta se pre-renderiza; el JS carga al llegar aquí. */}
+      <div>
+        <Quiz client:visible preguntas={quiz.preguntas} />
+        <noscript>
+          <p class="mt-3 text-sm text-ink-muted">
+            Activa JavaScript para responder el cuestionario.
+          </p>
+        </noscript>
       </div>
     </div>
   </section>
@@ -116,8 +93,8 @@ const sorpresas = elegidos.map((ind) => {
   <section aria-labelledby="sorpresas-titulo" class="border-b border-border">
     <div class="container-page py-12">
       <div class="flex flex-wrap items-baseline gap-3">
-        <h2 id="sorpresas-titulo" class="text-2xl font-bold md:text-3xl">
-          Datos que sorprenden
+        <h2 id="sorpresas-titulo" class="text-2xl font-bold text-brand md:text-3xl">
+          {titulo('Datos que sorprenden')}
         </h2>
         <span class="border border-dashed border-border-strong px-2 py-0.5 text-xs text-ink-muted">
           Propuesta
@@ -125,9 +102,11 @@ const sorpresas = elegidos.map((ind) => {
       </div>
       <ul class="mt-6 grid gap-4 md:grid-cols-3">
         {sorpresas.map((s) => (
-          <li class="flex flex-col border border-border bg-surface-muted p-5">
+          <li class="flex flex-col border-t-4 border-accent bg-surface-highlight p-5">
             <p class="flex flex-wrap items-baseline gap-x-2 leading-none">
-              <span class="text-5xl font-bold tracking-tight tabular-nums">{s.titular.valor}</span>
+              <span class="text-5xl font-bold tracking-tight text-brand tabular-nums">
+                {s.titular.valor}
+              </span>
               {s.titular.sufijo && (
                 <span class="text-lg font-semibold text-ink-muted">{s.titular.sufijo}</span>
               )}
@@ -135,7 +114,7 @@ const sorpresas = elegidos.map((ind) => {
             <p class="mt-3 flex-1 leading-relaxed text-ink">{s.frase}</p>
             <a
               href={temaHref(s.tema.slug)}
-              class="mt-4 text-sm font-semibold underline underline-offset-4"
+              class="mt-4 text-sm font-semibold text-accent underline underline-offset-4"
             >
               Ver {s.tema.titulo}
             </a>
@@ -148,8 +127,8 @@ const sorpresas = elegidos.map((ind) => {
   <!-- Temas -->
   <section aria-labelledby="temas-titulo" class="bg-surface-muted">
     <div class="container-page py-12 md:py-16">
-      <h2 id="temas-titulo" class="text-3xl font-bold">
-        Explora los temas principales
+      <h2 id="temas-titulo" class="text-3xl font-bold text-brand">
+        {titulo('Explora los temas principales')}
       </h2>
       <p class="mt-2 text-ink-muted">
         Seis conversaciones clave para entender la percepción política.

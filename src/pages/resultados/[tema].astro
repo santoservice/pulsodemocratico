@@ -7,10 +7,11 @@ import TopicTabs from '../../components/ui/TopicTabs.astro';
 import StatsRow from '../../components/ui/StatsRow.astro';
 import FindingsGrid from '../../components/results/FindingsGrid.astro';
 import FindingCard from '../../components/results/FindingCard.astro';
+import QuestionModal from '../../components/results/QuestionModal.astro';
 import DotPlot from '../../components/charts/DotPlot.astro';
 import { getTemaByDataKey, temas, temaHref, type Tema } from '../../data/temas';
 import { breadcrumbJsonLd } from '../../lib/seo';
-import { entero } from '../../lib/format';
+import { entero, titulo } from '../../lib/format';
 import { CODIGO_JOVENES, getJovenes, getMeta, getTarjetasTema } from '../../lib/tablero';
 import { resumenJovenes, titularJovenes } from '../../lib/textos';
 
@@ -66,7 +67,7 @@ const { n_min_celda, n_olas } = getMeta();
       </ol>
     </nav>
 
-    <SectionHeader title={tema.titulo} lead={tema.pregunta} />
+    <SectionHeader title={tema.titulo} lead={tema.intro} />
 
     <div class="mt-8">
       <TopicTabs active={tema.slug} />
@@ -80,8 +81,8 @@ const { n_min_celda, n_olas } = getMeta();
     </section>
 
     <section aria-labelledby="hallazgos-titulo" class="mt-12">
-      <h2 id="hallazgos-titulo" class="text-2xl font-bold md:text-3xl">
-        Hallazgos sobre {tema.titulo}
+      <h2 id="hallazgos-titulo" class="text-2xl font-bold text-brand md:text-3xl">
+        {titulo(`Hallazgos sobre ${tema.titulo}`)}
       </h2>
       {tema.dataKey ? (
         <p class="mt-2 max-w-3xl text-ink-muted">
@@ -203,4 +204,5 @@ const { n_min_celda, n_olas } = getMeta();
       </div>
     </section>
   </div>
+  <QuestionModal tarjetas={tarjetas} jovenes={jovenes} />
 </BaseLayout>

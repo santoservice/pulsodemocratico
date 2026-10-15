@@ -1,140 +1,237 @@
 /**
- * Cálculo del puntaje del quiz (PLAN.md §5.3). Funciones puras, sin acceso a datos:
- * la configuración vive en `src/data/quiz.ts`.
+ * Lógica del quiz «¿Dónde te ubicas frente al resto del país?» (PLAN.md §5.3).
+ * Funciones puras, sin acceso a datos: la configuración vive en `src/data/quiz.ts`.
  *
- * ⚠️ FÓRMULA PROVISIONAL: se reemplaza cuando los investigadores envíen la definitiva.
+ * Decisión del cliente: NO hay un puntaje combinado. Cada pregunta se compara por separado
+ * con las personas encuestadas y al final se resumen las 4 comparaciones.
+ *   - `modo: 'porcentaje'`: la persona queda dentro o fuera de un grupo (p. ej. quienes
+ *     responden 3 o 4) y se muestra qué % de los encuestados está en ese grupo.
+ *   - `modo: 'promedio'`: se ubica la respuesta en la escala frente al promedio.
  *
- * 1. Cada respuesta se lleva a 0–10.
- *    - `directo`: (x − min) / (max − min) × 10.
- *    - `distanciaCentro`: |x₀₋₁₀ − 5| × 2 (0 = centro, 10 = extremo), p. ej. ideología.
- *    - Si `invertir`, v → 10 − v (después de lo anterior).
- * 2. Puntaje = promedio ponderado por `peso` de las preguntas respondidas.
- * 3. Se compara con `promedioReferencia` del config.
+ * Wording (muestra no probabilística, PLAN.md §5.1): siempre `PROMEDIO_ENCUESTADOS`, nunca
+ * "promedio nacional"; los % siempre "de los encuestados".
  */
-import { decimal } from './format';
+import { decimal, entero, pct } from './format';
 
-export type ModoPregunta = 'directo' | 'distanciaCentro';
+/** Única forma de nombrar la referencia del quiz en todo el sitio. */
+export const PROMEDIO_ENCUESTADOS = 'promedio de los encuestados';
+/** Complemento de los porcentajes ("80 % de los encuestados"). */
+export const DE_LOS_ENCUESTADOS = 'de los encuestados';
 
-export interface QuizPregunta {
+export interface OpcionQuiz {
+  valor: number;
+  etiqueta: string;
+}
+
+export interface ComparacionPorcentaje {
+  modo: 'porcentaje';
+  /** Respuestas que cuentan como "dentro del grupo". */
+  valoresGrupo: readonly number[];
+  /** % de los encuestados (respuestas válidas) que está en el grupo, 0–100. */
+  valor: number;
+  /** Predicado en 3.ª persona singular: "dice encontrarse con noticias falsas…". */
+  descripcionGrupo: string;
+  /** Predicado para quienes quedan fuera del grupo. */
+  descripcionFuera: string;
+  /** Etiqueta corta del grupo para la gráfica ("Algunas veces o con frecuencia"). */
+  etiquetaGrupo: string;
+  etiquetaFuera: string;
+}
+
+export interface ComparacionPromedio {
+  modo: 'promedio';
+  /** Promedio de los encuestados en la escala de la pregunta. */
+  valor: number;
+}
+
+export type Comparacion = ComparacionPorcentaje | ComparacionPromedio;
+
+export interface PreguntaQuiz {
   id: string;
+  /** Slug del tema en `src/data/temas.ts` (para "Ver resultados del tema"). */
+  tema: string;
+  /** Nombre del tema para mostrar ("Desinformación"). */
+  temaTitulo: string;
   texto: string;
-  min: number;
-  max: number;
-  /** Etiquetas de los extremos [min, max]. */
-  etiquetas: readonly [string, string];
-  /** Si es true, un valor alto en la respuesta significa MENOS en el espectro. */
-  invertir: boolean;
-  peso: number;
-  modo: ModoPregunta;
-  /** Indicador del tablero relacionado (para enlazar o derivar la referencia). */
-  indicador?: string;
-  /**
-   * Valor de referencia de las personas encuestadas para esta pregunta, ya en la escala
-   * 0–10 del puntaje (después de invertir / distancia al centro). Si falta, se usa
-   * `referenciaRespaldo` del config.
-   */
-  referencia?: number;
-  /** De dónde sale `referencia` (texto para el detalle técnico). */
-  referenciaFuente?: string;
+  tipo: 'opciones' | 'escala';
+  /** Solo `tipo: 'opciones'`. */
+  opciones?: readonly OpcionQuiz[];
+  /** Solo `tipo: 'escala'`: valores enteros de `min` a `max`. */
+  min?: number;
+  max?: number;
+  /** Etiquetas de [min, max] en la escala. */
+  etiquetasExtremos?: readonly [string, string];
+  comparacion: Comparacion;
+  /** Personas por respuesta (respuestas válidas). */
+  distribucion: readonly { valor: number; n: number }[];
+  /** Total de respuestas válidas. */
+  n: number;
+  /** "3.ª ronda". */
+  ronda: string;
+  fuente: string;
 }
 
-export interface QuizConfig {
-  titulo: string;
-  preguntas: readonly QuizPregunta[];
-  /** Valor 0–10 usado cuando una pregunta no tiene referencia derivada de los datos. */
-  referenciaRespaldo: number;
-  /** Promedio de referencia 0–10 (ver `calcularPromedioReferencia`). */
-  promedioReferencia: number;
-  etiquetasEspectro: readonly [string, string];
-  /** Marca de que preguntas y fórmula son provisionales. */
-  provisional: boolean;
-}
-
-export type Respuestas = Readonly<Record<string, number | null | undefined>>;
 export type Posicion = 'por encima' | 'por debajo' | 'igual';
 
-export interface ResultadoQuiz {
-  /** 0–10 */
-  puntaje: number;
-  promedio: number;
-  /** puntaje − promedio */
-  diferencia: number;
+export interface Evaluacion {
+  preguntaId: string;
+  valor: number;
+  /** Etiqueta de la respuesta ("Algunas veces", "4"). */
+  etiqueta: string;
+  /** Solo `modo: 'porcentaje'`. */
+  dentroDelGrupo?: boolean;
+  /** Solo `modo: 'promedio'`: respuesta − promedio. */
+  diferencia?: number;
+  /**
+   * `promedio`: frente al promedio. `porcentaje`: 'por encima' si está dentro del grupo,
+   * 'por debajo' si está fuera (no hay 'igual').
+   */
   posicion: Posicion;
+  /** % de los encuestados que dio exactamente la misma respuesta (0–100). */
+  pctMismaRespuesta: number;
+  /** Frase principal en español sencillo. */
   texto: string;
-  /** Respuesta normalizada 0–10 de cada pregunta respondida. */
-  normalizadas: Record<string, number>;
-}
-
-/** Diferencias menores que esto (se verían como "0,0") cuentan como "igual". */
-export const UMBRAL_IGUAL = 0.05;
-
-const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
-
-/** Lleva una respuesta a la escala 0–10 del puntaje según el modo y si se invierte. */
-export function normalizarRespuesta(p: QuizPregunta, x: number): number {
-  if (!(p.max > p.min)) throw new Error(`Pregunta ${p.id}: max debe ser mayor que min.`);
-  const v = ((clamp(x, p.min, p.max) - p.min) / (p.max - p.min)) * 10;
-  const base = p.modo === 'distanciaCentro' ? Math.abs(v - 5) * 2 : v;
-  return p.invertir ? 10 - base : base;
-}
-
-/** Lleva un valor de un indicador del tablero (escala esc_lo–esc_hi) a 0–10. */
-export function normalizarIndicador(
-  ind: { esc_lo: number; esc_hi: number },
-  valor: number,
-): number {
-  return clamp(((valor - ind.esc_lo) / (ind.esc_hi - ind.esc_lo)) * 10, 0, 10);
-}
-
-/** Promedio ponderado de las referencias por pregunta (o el respaldo si falta alguna). */
-export function calcularPromedioReferencia(
-  preguntas: readonly QuizPregunta[],
-  respaldo: number,
-): number {
-  let s = 0;
-  let w = 0;
-  for (const p of preguntas) {
-    s += (p.referencia ?? respaldo) * p.peso;
-    w += p.peso;
-  }
-  return w > 0 ? s / w : respaldo;
-}
-
-export function textoResultado(diferencia: number, posicion: Posicion): string {
-  if (posicion === 'igual') return 'Estás en el promedio de las personas encuestadas.';
-  const d = decimal(Math.abs(diferencia));
-  const unidad = d === '1,0' ? 'punto' : 'puntos';
-  return `Estás ${d} ${unidad} ${posicion} del promedio de las personas encuestadas.`;
+  /** "El 41 % de los encuestados respondió lo mismo que tú." */
+  textoMismaRespuesta: string;
 }
 
 /**
- * Calcula el resultado del quiz. Las preguntas sin respuesta se omiten (el peso se
- * reparte entre las respondidas). Lanza error si no hay ninguna respuesta.
+ * En `modo: 'promedio'`, diferencias menores que esta fracción del rango de la escala se
+ * leen como "prácticamente en el promedio" (como en el borrador del cliente: 8 %).
  */
-export function calcularResultado(respuestas: Respuestas, config: QuizConfig): ResultadoQuiz {
-  const normalizadas: Record<string, number> = {};
-  let s = 0;
-  let w = 0;
-  for (const p of config.preguntas) {
-    const x = respuestas[p.id];
-    if (x == null || !Number.isFinite(x)) continue;
-    const v = normalizarRespuesta(p, x);
-    normalizadas[p.id] = v;
-    s += v * p.peso;
-    w += p.peso;
+export const UMBRAL_IGUAL_REL = 0.08;
+
+/** Valores posibles de una pregunta, en orden. */
+export function valoresPregunta(p: PreguntaQuiz): number[] {
+  if (p.tipo === 'opciones') return (p.opciones ?? []).map((o) => o.valor);
+  const { min = 0, max = 0 } = p;
+  return Array.from({ length: max - min + 1 }, (_, k) => min + k);
+}
+
+/** [mín, máx] de la escala de la pregunta. */
+export function rangoPregunta(p: PreguntaQuiz): [number, number] {
+  const v = valoresPregunta(p);
+  return [v[0] ?? 0, v[v.length - 1] ?? 0];
+}
+
+export function etiquetaRespuesta(p: PreguntaQuiz, valor: number): string {
+  if (p.tipo === 'opciones') return p.opciones?.find((o) => o.valor === valor)?.etiqueta ?? '';
+  return entero(valor);
+}
+
+/** Posición 0–100 de `v` en la escala de la pregunta. */
+export function posicionEnEscala(p: PreguntaQuiz, v: number): number {
+  const [lo, hi] = rangoPregunta(p);
+  if (hi <= lo) return 0;
+  return Math.min(100, Math.max(0, ((v - lo) / (hi - lo)) * 100));
+}
+
+/** % de los encuestados que respondió `valor` (según la distribución). */
+export function pctMismaRespuesta(p: PreguntaQuiz, valor: number): number {
+  const total = p.distribucion.reduce((a, d) => a + d.n, 0);
+  if (total === 0) return 0;
+  const n = p.distribucion.find((d) => d.valor === valor)?.n ?? 0;
+  return (n / total) * 100;
+}
+
+/** % de los encuestados en el grupo, calculado desde la distribución (para validar la config). */
+export function pctGrupoDesdeDistribucion(p: PreguntaQuiz, valores: readonly number[]): number {
+  return valores.reduce((a, v) => a + pctMismaRespuesta(p, v), 0);
+}
+
+/** Promedio calculado desde la distribución (para validar la config). */
+export function promedioDesdeDistribucion(p: PreguntaQuiz): number {
+  const total = p.distribucion.reduce((a, d) => a + d.n, 0);
+  if (total === 0) return 0;
+  return p.distribucion.reduce((a, d) => a + d.valor * d.n, 0) / total;
+}
+
+export function textoMismaRespuesta(pctMisma: number): string {
+  if (pctMisma <= 0) return `Nadie entre las personas encuestadas respondió lo mismo que tú.`;
+  if (pctMisma < 0.5) return `Menos del ${pct(1)} ${DE_LOS_ENCUESTADOS} respondió lo mismo que tú.`;
+  return `El ${pct(pctMisma)} ${DE_LOS_ENCUESTADOS} respondió lo mismo que tú.`;
+}
+
+/** "Estás 1,2 puntos por encima del promedio de los encuestados." */
+export function textoPromedio(diferencia: number, posicion: Posicion): string {
+  if (posicion === 'igual') return `Estás prácticamente en el ${PROMEDIO_ENCUESTADOS}.`;
+  const d = decimal(Math.abs(diferencia));
+  const unidad = d === '1,0' ? 'punto' : 'puntos';
+  return `Estás ${d} ${unidad} ${posicion} del ${PROMEDIO_ENCUESTADOS}.`;
+}
+
+/** Compara una respuesta con las personas encuestadas. Lanza error si el valor no es válido. */
+export function evaluarRespuesta(p: PreguntaQuiz, valor: number): Evaluacion {
+  if (!valoresPregunta(p).includes(valor)) {
+    throw new Error(`Pregunta ${p.id}: respuesta fuera de la escala (${valor}).`);
   }
-  if (w === 0) throw new Error('No hay respuestas para calcular el resultado.');
-  const puntaje = s / w;
-  const promedio = config.promedioReferencia;
-  const diferencia = puntaje - promedio;
-  const posicion: Posicion =
-    Math.abs(diferencia) < UMBRAL_IGUAL ? 'igual' : diferencia > 0 ? 'por encima' : 'por debajo';
-  return {
-    puntaje,
-    promedio,
-    diferencia,
-    posicion,
-    texto: textoResultado(diferencia, posicion),
-    normalizadas,
+  const pctMisma = pctMismaRespuesta(p, valor);
+  const base = {
+    preguntaId: p.id,
+    valor,
+    etiqueta: etiquetaRespuesta(p, valor),
+    pctMismaRespuesta: pctMisma,
+    textoMismaRespuesta: textoMismaRespuesta(pctMisma),
   };
+  const c = p.comparacion;
+  if (c.modo === 'porcentaje') {
+    const dentro = c.valoresGrupo.includes(valor);
+    const texto = dentro
+      ? `Haces parte del ${pct(c.valor)} ${DE_LOS_ENCUESTADOS} que ${c.descripcionGrupo}.`
+      : `Haces parte del ${pct(100 - c.valor)} ${DE_LOS_ENCUESTADOS} que ${c.descripcionFuera}.`;
+    return {
+      ...base,
+      dentroDelGrupo: dentro,
+      posicion: dentro ? 'por encima' : 'por debajo',
+      texto,
+    };
+  }
+  const [lo, hi] = rangoPregunta(p);
+  const diferencia = valor - c.valor;
+  const posicion: Posicion =
+    Math.abs(diferencia) < (hi - lo) * UMBRAL_IGUAL_REL
+      ? 'igual'
+      : diferencia > 0
+        ? 'por encima'
+        : 'por debajo';
+  return { ...base, diferencia, posicion, texto: textoPromedio(diferencia, posicion) };
+}
+
+export type Respuestas = Readonly<Record<string, number | null | undefined>>;
+
+export interface ResumenFinal {
+  /** Evaluaciones de las preguntas respondidas, en el orden del quiz. */
+  evaluaciones: Evaluacion[];
+  respondidas: number;
+  total: number;
+  /** Frase de cierre en español sencillo. */
+  texto: string;
+}
+
+const listaY = (xs: string[]) =>
+  xs.length <= 1 ? (xs[0] ?? '') : `${xs.slice(0, -1).join(', ')} y ${xs[xs.length - 1]}`;
+
+/**
+ * Resumen de todas las respuestas: una evaluación por pregunta respondida + una frase que
+ * agrupa las preguntas de promedio por posición (no se combina en un puntaje).
+ */
+export function resumenFinal(
+  preguntas: readonly PreguntaQuiz[],
+  respuestas: Respuestas,
+): ResumenFinal {
+  const evaluaciones: Evaluacion[] = [];
+  const grupos: Record<Posicion, string[]> = { 'por encima': [], 'por debajo': [], igual: [] };
+  for (const p of preguntas) {
+    const v = respuestas[p.id];
+    if (v == null || !Number.isFinite(v)) continue;
+    const e = evaluarRespuesta(p, v);
+    evaluaciones.push(e);
+    if (p.comparacion.modo === 'promedio') grupos[e.posicion].push(p.temaTitulo.toLowerCase());
+  }
+  const partes: string[] = [];
+  if (grupos['por encima'].length) partes.push(`por encima en ${listaY(grupos['por encima'])}`);
+  if (grupos['por debajo'].length) partes.push(`por debajo en ${listaY(grupos['por debajo'])}`);
+  if (grupos.igual.length) partes.push(`muy cerca en ${listaY(grupos.igual)}`);
+  const texto = partes.length ? `Frente al ${PROMEDIO_ENCUESTADOS}, estás ${listaY(partes)}.` : '';
+  return { evaluaciones, respondidas: evaluaciones.length, total: preguntas.length, texto };
 }

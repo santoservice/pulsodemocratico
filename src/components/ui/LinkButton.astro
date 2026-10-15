@@ -28,7 +28,7 @@ const {
 const iconName = icon === false ? null : (icon ?? (external ? 'lucide:arrow-up-right' : undefined));
 const variants = {
   primary: 'bg-accent text-on-accent border-accent hover:bg-accent-hover',
-  outline: 'bg-surface text-ink border-ink hover:bg-surface-muted',
+  outline: 'bg-surface text-accent border-accent hover:bg-surface-muted',
   ghost: 'border-transparent text-ink hover:underline underline-offset-4',
 };
 const sizes = { sm: 'px-3 py-1.5 text-sm', md: 'px-5 py-2.5 text-base' };
@@ -49,5 +49,5 @@ const sizes = { sm: 'px-3 py-1.5 text-sm', md: 'px-5 py-2.5 text-base' };
 >
   <slot />
   {iconName && <Icon name={iconName} class="h-4 w-4 shrink-0" aria-hidden="true" />}
-  {external && <span class="sr-only">(se abre en una pestaña nueva)</span>}
+  {external && <span class="sr-only">(abre en una pestaña nueva)</span>}
 </a>

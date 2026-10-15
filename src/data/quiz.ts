@@ -1,85 +1,145 @@
 /**
- * Configuración del quiz "¿Dónde te ubicas frente al resto del país?" (PLAN.md §5.3).
+ * Configuración del quiz «¿Dónde te ubicas frente al resto del país?» (PLAN.md §5.3).
  *
- * ⚠️ PROVISIONAL: preguntas, pesos y referencias son un borrador hasta que los
- * investigadores envíen las preguntas reales y su fórmula.
+ * ⚠️ PROVISIONAL: las cifras salen de `docs/datos_test.xlsx` SIN PONDERAR (el cliente decidió
+ * usarlas por ahora). Si se cambian por valores ponderados, basta con editar `comparacion.valor`
+ * y `distribucion` de cada pregunta: `tests/unit/quiz.test.ts` comprueba que el % / promedio
+ * coinciden con la distribución.
  *
- * Las referencias se escriben como números (no se leen del tablero en tiempo de
- * ejecución) para no meter `tablero.json` en el JS del cliente. `tests/unit/quiz.test.ts`
- * comprueba que coinciden con los datos; si cambian los datos, el test avisa.
+ * Preguntas y opciones: documento de especificaciones del cliente, en su orden.
+ * Se excluyen 999 (No lo sé) y 998 (Sin respuesta); los % son sobre respuestas válidas.
  *
- * Wording: siempre "promedio de las personas encuestadas", nunca "nacional"
- * (muestra no probabilística, PLAN.md §5.1).
+ * Este archivo se serializa al cliente (isla Quiz): no importar `tablero.json` aquí.
  */
-import { calcularPromedioReferencia, type QuizConfig, type QuizPregunta } from '../lib/quiz';
+import type { PreguntaQuiz } from '../lib/quiz';
 
-/** Respaldo cuando una pregunta no tiene indicador comparable en los datos (PROVISIONAL). */
-export const REFERENCIA_RESPALDO = 4.9;
+const FUENTE = 'datos_test.xlsx (sin ponderar)';
 
-export const preguntasQuiz = [
-  {
-    id: 'ideologia',
-    texto: 'En política se habla de izquierda y derecha. ¿Dónde te ubicas?',
-    min: 0,
-    max: 10,
-    etiquetas: ['Izquierda', 'Derecha'],
-    invertir: false,
-    peso: 1,
-    modo: 'distanciaCentro',
-    indicador: 'ie',
-    // `ie` = distancia media |x − promedio ideológico| en 0–10 (3.ª ronda: 2,8).
-    // El quiz usa |x − 5| × 2, así que la referencia es 2 × ie.
-    referencia: 5.6,
-    referenciaFuente: 'Indicador "ie" (3.ª ronda) × 2',
-  },
-  {
-    id: 'pais-dividido',
-    texto: '¿Qué tan dividido ves al país entre los distintos partidos políticos?',
-    min: 0,
-    max: 10,
-    etiquetas: ['Nada dividido', 'Muy dividido'],
-    invertir: false,
-    peso: 1,
-    modo: 'directo',
-    indicador: 'wpip',
-    // `wpip` = media en escala 0–5 (3.ª ronda: 2,8) → 0–10.
-    referencia: 5.6,
-    referenciaFuente: 'Indicador "wpip" (3.ª ronda) llevado de 0–5 a 0–10',
-  },
-  {
-    id: 'conversar',
-    texto:
-      '¿Qué tan dispuesto estarías a conversar de política con alguien que vota distinto a ti?',
-    min: 0,
-    max: 10,
-    etiquetas: ['Nada dispuesto', 'Muy dispuesto'],
-    invertir: true,
-    peso: 1,
-    modo: 'directo',
-    // Sin indicador equivalente en los datos → usa REFERENCIA_RESPALDO.
-  },
-  {
-    id: 'gente-comun',
-    texto:
-      '¿Qué tan de acuerdo estás con la frase "la opinión de la gente común vale más que la de los expertos"?',
-    min: 0,
-    max: 10,
-    etiquetas: ['Nada de acuerdo', 'Totalmente de acuerdo'],
-    invertir: false,
-    peso: 1,
-    modo: 'directo',
-    // `pop_expertos` es un % de acuerdo, no una media: no se puede convertir a 0–10 sin
-    // supuestos → usa REFERENCIA_RESPALDO.
-    indicador: 'pop_expertos',
-  },
-] as const satisfies readonly QuizPregunta[];
-
-export const quiz: QuizConfig = {
+export const quiz = {
   titulo: '¿Dónde te ubicas frente al resto del país?',
-  preguntas: preguntasQuiz,
-  referenciaRespaldo: REFERENCIA_RESPALDO,
-  // (5,6 + 5,6 + 4,9 + 4,9) / 4 = 5,25 — PROVISIONAL
-  promedioReferencia: calcularPromedioReferencia(preguntasQuiz, REFERENCIA_RESPALDO),
-  etiquetasEspectro: ['Menos polarizado', 'Más polarizado'],
+  /** Marca de que las cifras son provisionales (sin ponderar). */
   provisional: true,
-};
+  preguntas: [
+    {
+      // Z6_Desiformacion_2 · Ola 2
+      id: 'desinformacion',
+      tema: 'desinformacion',
+      temaTitulo: 'Desinformación',
+      texto: '¿Con qué frecuencia crees que te encuentras con noticias falsas?',
+      tipo: 'opciones',
+      opciones: [
+        { valor: 1, etiqueta: 'Nunca' },
+        { valor: 2, etiqueta: 'Casi nunca' },
+        { valor: 3, etiqueta: 'Algunas veces' },
+        { valor: 4, etiqueta: 'Con frecuencia' },
+      ],
+      comparacion: {
+        modo: 'porcentaje',
+        valoresGrupo: [3, 4],
+        valor: 79.6978281397545, // 844 / 1.059
+        descripcionGrupo: 'dice encontrarse con noticias falsas algunas veces o con frecuencia',
+        descripcionFuera: 'dice encontrarse con noticias falsas nunca o casi nunca',
+        etiquetaGrupo: 'Algunas veces o con frecuencia',
+        etiquetaFuera: 'Nunca o casi nunca',
+      },
+      distribucion: [
+        { valor: 1, n: 112 },
+        { valor: 2, n: 103 },
+        { valor: 3, n: 436 },
+        { valor: 4, n: 408 },
+      ],
+      n: 1059,
+      ronda: '3.ª ronda',
+      fuente: FUENTE,
+    },
+    {
+      // Z4_Pop_5_2 · Ola 2
+      id: 'populismo',
+      tema: 'populismo',
+      temaTitulo: 'Populismo',
+      texto: '¿Qué tan de acuerdo estás con la frase «Los políticos hablan mucho y hacen poco»?',
+      tipo: 'escala',
+      min: 0,
+      max: 5,
+      etiquetasExtremos: ['Total desacuerdo', 'Total acuerdo'],
+      comparacion: { modo: 'promedio', valor: 4.21196130167107 },
+      distribucion: [
+        { valor: 0, n: 29 },
+        { valor: 1, n: 19 },
+        { valor: 2, n: 35 },
+        { valor: 3, n: 181 },
+        { valor: 4, n: 208 },
+        { valor: 5, n: 665 },
+      ],
+      n: 1137,
+      ronda: '3.ª ronda',
+      fuente: FUENTE,
+    },
+    {
+      // C_ThermGov2Leader_2 + C_ThermOpp2Leader_2 · Ola 2: nota al candidato del "bando
+      // contrario" (Cepeda / De la Espriella). 76,8 % le pone 0.
+      id: 'polarizacion',
+      tema: 'polarizacion',
+      temaTitulo: 'Polarización',
+      texto:
+        '¿Qué tan favorable o desfavorable es tu opinión sobre los líderes políticos del bando contrario al tuyo?',
+      tipo: 'escala',
+      min: 0,
+      max: 10,
+      etiquetasExtremos: ['Muy desfavorable', 'Muy favorable'],
+      comparacion: { modo: 'promedio', valor: 0.713426853707415 },
+      distribucion: [
+        { valor: 0, n: 766 },
+        { valor: 1, n: 56 },
+        { valor: 2, n: 54 },
+        { valor: 3, n: 37 },
+        { valor: 4, n: 30 },
+        { valor: 5, n: 31 },
+        { valor: 6, n: 10 },
+        { valor: 7, n: 11 },
+        { valor: 8, n: 2 },
+        { valor: 9, n: 1 },
+        { valor: 10, n: 0 },
+      ],
+      n: 998,
+      ronda: '3.ª ronda',
+      fuente: FUENTE,
+    },
+    {
+      // Z20_IA9_1_5 · Ola 1.5 (solo se preguntó ahí). Promedio 0–5 = 2,61.
+      // TODO (cliente): el documento dice «¿Usa IA para resumir propuestas de candidatos?»;
+      // se tutea como las otras tres preguntas.
+      id: 'inteligencia-artificial',
+      tema: 'inteligencia-artificial',
+      temaTitulo: 'Inteligencia artificial',
+      texto: '¿Usas la inteligencia artificial (IA) para resumir las propuestas de los candidatos?',
+      tipo: 'escala',
+      min: 0,
+      max: 5,
+      etiquetasExtremos: ['Total desacuerdo', 'Total acuerdo'],
+      comparacion: {
+        modo: 'porcentaje',
+        valoresGrupo: [4, 5],
+        valor: 37.4809160305344, // 491 / 1.310
+        descripcionGrupo:
+          'usa la IA para resumir las propuestas de los candidatos (responde 4 o 5)',
+        descripcionFuera: 'no la usa para eso (responde de 0 a 3)',
+        etiquetaGrupo: 'La usa para eso (4 o 5)',
+        etiquetaFuera: 'No la usa para eso (0 a 3)',
+      },
+      distribucion: [
+        { valor: 0, n: 312 },
+        { valor: 1, n: 105 },
+        { valor: 2, n: 124 },
+        { valor: 3, n: 278 },
+        { valor: 4, n: 222 },
+        { valor: 5, n: 269 },
+      ],
+      n: 1310,
+      ronda: '2.ª ronda',
+      fuente: FUENTE,
+    },
+  ],
+} as const satisfies { titulo: string; provisional: boolean; preguntas: readonly PreguntaQuiz[] };
+
+export const preguntasQuiz: readonly PreguntaQuiz[] = quiz.preguntas;

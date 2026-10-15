@@ -1,0 +1,119 @@
+---
+import { Icon } from 'astro-icon/components';
+import TeamAvatar from './TeamAvatar.astro';
+import TeamContacts from './TeamContacts.astro';
+import { equipo } from '../../data/equipo';
+
+/**
+ * Equipo de trabajo: tarjetas (foto, nombre, institución, ORCID, correo). Toda la tarjeta
+ * abre un <dialog> nativo con el perfil completo (el botón es el nombre y se estira sobre la
+ * tarjeta; ORCID y correos quedan encima y siguen siendo enlaces propios).
+ */
+export interface Props {
+  /** id del título de la sección (para nombrar la lista). */
+  labelledby?: string;
+}
+
+const { labelledby } = Astro.props;
+---
+
+<ul aria-labelledby={labelledby} class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+  {equipo.map((p) => (
+    <li class="group relative flex cursor-pointer gap-5 border border-border bg-surface p-5 transition duration-200 ease-out focus-within:border-accent hover:-translate-y-1 hover:border-accent hover:bg-surface-muted hover:shadow-lg active:translate-y-0 active:scale-[0.98] active:shadow-sm motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100">
+      <div class="shrink-0 transition-transform duration-200 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100">
+        <TeamAvatar persona={p} />
+      </div>
+      <div class="min-w-0 flex-1">
+        <h3 class="text-lg leading-snug font-bold text-brand">
+          <button
+            type="button"
+            class="text-left after:absolute after:inset-0 after:content-[''] focus-visible:outline-none focus-visible:after:outline-3 focus-visible:after:outline-offset-2 focus-visible:after:outline-focus"
+            aria-haspopup="dialog"
+            data-dialog-open={`perfil-${p.slug}`}
+          >
+            {p.nombre}
+            <span class="sr-only">: ver perfil completo</span>
+          </button>
+        </h3>
+        <p class="mt-1 text-sm leading-snug text-ink-muted">{p.institucion}</p>
+        <TeamContacts persona={p} class="mt-3" />
+        <p
+          class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-accent"
+          aria-hidden="true"
+        >
+          Ver perfil
+          <Icon
+            name="lucide:arrow-right"
+            class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transition-none"
+          />
+        </p>
+      </div>
+    </li>
+  ))}
+</ul>
+
+{equipo.map((p) => (
+  <dialog
+    id={`perfil-${p.slug}`}
+    aria-labelledby={`perfil-${p.slug}-titulo`}
+    data-perfil
+    class="m-auto max-h-[90dvh] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto border-t-4 border-brand bg-surface p-0 text-ink shadow-2xl backdrop:bg-brand/60"
+  >
+    <div class="relative p-6 md:p-8">
+      <button
+        type="button"
+        class="absolute top-3 right-3 inline-flex h-10 w-10 items-center justify-center text-ink hover:bg-surface-muted"
+        data-dialog-close
+      >
+        <Icon name="lucide:x" class="h-5 w-5" aria-hidden="true" />
+        <span class="sr-only">Cerrar</span>
+      </button>
+      <div class="flex flex-col gap-5 sm:flex-row sm:items-start">
+        <TeamAvatar persona={p} size="lg" />
+        <div class="min-w-0 flex-1 sm:pt-2">
+          <h2
+            id={`perfil-${p.slug}-titulo`}
+            class="pr-10 text-2xl leading-tight font-bold text-brand"
+          >
+            {p.nombre}
+          </h2>
+          <p class="mt-1 text-ink-muted">{p.institucion}</p>
+          <TeamContacts persona={p} class="mt-3" />
+        </div>
+      </div>
+      <p class="mt-6 leading-relaxed text-ink">{p.perfil}</p>
+    </div>
+  </dialog>
+))}
+
+<script>
+  // Correos: arma el mailto en el navegador (el HTML no trae la dirección completa).
+  document.querySelectorAll<HTMLElement>('[data-correo]').forEach((el) => {
+    const correo = `${el.dataset.u}@${el.dataset.d}`;
+    const a = document.createElement('a');
+    a.href = `mailto:${correo}`;
+    a.textContent = correo;
+    a.className = 'text-accent underline-offset-4 hover:underline';
+    el.replaceWith(a);
+  });
+
+  // Perfil en <dialog> nativo: showModal() atrapa el foco y Esc lo cierra; al cerrar, el foco
+  // vuelve al botón que lo abrió.
+  document.querySelectorAll<HTMLButtonElement>('[data-dialog-open]').forEach((btn) => {
+    const dialog = document.getElementById(btn.dataset.dialogOpen ?? '');
+    if (!(dialog instanceof HTMLDialogElement)) return;
+    btn.addEventListener('click', () => {
+      dialog.showModal();
+      dialog.querySelector<HTMLButtonElement>('[data-dialog-close]')?.focus();
+    });
+    dialog.addEventListener('close', () => btn.focus());
+  });
+
+  document.querySelectorAll<HTMLDialogElement>('dialog[data-perfil]').forEach((dialog) => {
+    dialog.querySelector('[data-dialog-close]')?.addEventListener('click', () => dialog.close());
+    // Clic en el fondo (fuera del contenido) cierra.
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+  });
+</script>

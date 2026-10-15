@@ -1,6 +1,7 @@
 ---
 import { Icon } from 'astro-icon/components';
 import { temas, temaHref } from '../../data/temas';
+import { titulo } from '../../lib/format';
 
 /**
  * Pestañas de resultados: "Principales hallazgos" + los 6 temas.
@@ -15,11 +16,16 @@ const { active } = Astro.props;
 const items = [
   {
     key: 'principales',
-    label: 'Principales hallazgos',
+    label: titulo('Principales hallazgos'),
     href: '/resultados',
     icon: 'lucide:sparkles',
   },
-  ...temas.map((t) => ({ key: t.slug, label: t.titulo, href: temaHref(t.slug), icon: t.icono })),
+  ...temas.map((t) => ({
+    key: t.slug,
+    label: titulo(t.titulo),
+    href: temaHref(t.slug),
+    icon: t.icono,
+  })),
 ];
 ---
 
@@ -35,12 +41,12 @@ const items = [
             class:list={[
               'flex h-full min-h-24 w-32 flex-col items-center justify-center gap-2 border p-3 text-center text-sm leading-tight font-semibold md:w-auto',
               isActive
-                ? 'border-ink bg-surface-sunken text-ink'
-                : 'border-border bg-surface text-ink hover:border-border-strong hover:bg-surface-muted',
+                ? 'border-accent bg-surface-sunken text-brand'
+                : 'border-border bg-surface text-ink hover:border-accent hover:bg-surface-muted',
             ]}
           >
             <span
-              class="flex h-9 w-12 items-center justify-center border border-border-strong bg-surface-sunken text-ink-muted"
+              class="flex h-9 w-12 items-center justify-center bg-surface-sunken text-accent"
               aria-hidden="true"
             >
               <Icon name={item.icon} class="h-5 w-5" />

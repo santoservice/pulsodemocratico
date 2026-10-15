@@ -2,49 +2,72 @@
 @import '@fontsource-variable/inter';
 
 /*
- * Tokens de diseño PROVISIONALES (Fase 2: wireframe en grises).
- * TODO: reemplazar por los colores oficiales de la Universidad de La Sabana
- * (pendiente, ver PLAN.md §9). La fuente Inter es un placeholder.
+ * Tokens de diseño — Guía de marca Universidad de La Sabana (pág. 22 y ss.).
+ *   Pantone 281  #00205B  azul marino (marca)
+ *   Pantone 286  #00387D  azul (interacción / acento / dato principal)
+ *   Pantone 292  #93AAC9  azul claro (solo relleno / decoración: 2,4:1 sobre blanco, NO texto)
+ *   Pantone 2707 #D9E1EF  azul pálido (superficies)
+ *   Pantone 7499 #F7EFD9  crema (resaltado)
+ *   Pantone Black C #2D2926 y sus tintas 90/80/70/50/30 % (mezcla con blanco).
+ * La fuente Inter es provisional.
  * Los componentes solo usan estas utilidades (bg-surface, text-ink, border-border…),
  * nunca colores fijos: al cambiar los tokens cambia todo el sitio.
+ *
+ * Contraste WCAG (texto normal ≥ 4,5:1), medido sobre blanco / surface-muted / surface-sunken / crema:
+ *   ink #2D2926        14,4 / 12,6 / 11,0 / 12,6
+ *   ink-muted #575451   7,5 /  6,6 /  5,7 /  6,6   (Black 80 %; Black 70 % no llega a 4,5 sobre 2707)
+ *   brand #00205B      15,5 / 13,5 / 11,8 / 13,5
+ *   accent #00387D     11,3 /  9,9 /  8,6 /  9,8   (blanco sobre accent: 11,3)
  */
 @theme {
   /* Tipografía (placeholder: @fontsource-variable/inter) */
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
 
-  /* Grises provisionales */
+  /* Marca */
+  --color-brand: #00205b;
+  --color-brand-strong: #001640;
+  --color-brand-light: #93aac9;
+
+  /* Superficies */
   --color-surface: #ffffff;
-  --color-surface-muted: #f4f4f5;
-  --color-surface-sunken: #e4e4e7;
-  --color-border: #d4d4d8;
-  --color-border-strong: #a1a1aa;
-  --color-placeholder: #a1a1aa;
-  --color-skeleton: #d4d4d8;
-  --color-ink-muted: #52525b;
-  --color-ink: #18181b;
+  --color-surface-muted: #ecf0f7; /* 2707 al 50 % */
+  --color-surface-sunken: #d9e1ef; /* 2707 */
+  --color-surface-highlight: #f7efd9; /* 7499 */
+
+  /* Bordes y esqueletos (tintas de Pantone Black) */
+  --color-border: #c0bfbe; /* Black 30 % */
+  --color-border-strong: #969492; /* Black 50 % */
+  --color-placeholder: #969492;
+  --color-skeleton: #c0bfbe;
+
+  /* Texto */
+  --color-ink: #2d2926; /* Pantone Black C */
+  --color-ink-muted: #575451; /* Black 80 % */
   --color-on-accent: #ffffff;
 
-  /* Acento provisional (único) */
-  --color-accent: #3f3f46;
-  --color-accent-hover: #18181b;
-  --color-focus: #2563eb;
+  /* Interacción */
+  --color-accent: #00387d; /* 286 */
+  --color-accent-hover: #00205b; /* 281 */
+  --color-focus: #00387d;
 
   /*
-   * Gráficas (provisional). Las gráficas SOLO usan estos tokens (fill-chart-*, bg-chart-*…).
-   * TODO: ajustar a la paleta de La Sabana. Contraste: chart-accent y chart-ink ≥ 4.5:1 sobre
-   * blanco (se usan también como texto).
+   * Gráficas. Las gráficas SOLO usan estos tokens (fill-chart-*, bg-chart-*…).
+   * chart-accent, chart-strong y chart-ink se usan también como texto (≥ 4,5:1 sobre blanco).
+   * chart-muted / chart-track / chart-highlight son solo rellenos.
    */
-  --color-chart-accent: #1d4ed8;
-  --color-chart-accent-soft: #bfdbfe;
-  --color-chart-ink: #27272a;
-  --color-chart-muted: #71717a;
-  --color-chart-track: #e4e4e7;
+  --color-chart-accent: #00387d;
+  --color-chart-strong: #00205b;
+  --color-chart-accent-soft: #93aac9;
+  --color-chart-ink: #2d2926;
+  --color-chart-muted: #93aac9;
+  --color-chart-track: #d9e1ef;
+  --color-chart-highlight: #f7efd9;
   --color-chart-grid: #ffffff;
   /* Categorías de la barra apilada (izquierda · centro · derecha): neutras, sin colores partidistas. */
-  --color-chart-cat-1: #1d4ed8;
-  --color-chart-cat-2: #a1a1aa;
-  --color-chart-cat-3: #27272a;
+  --color-chart-cat-1: #00387d;
+  --color-chart-cat-2: #c0bfbe;
+  --color-chart-cat-3: #2d2926;
 
   /* Layout */
   --container-page: 72rem;

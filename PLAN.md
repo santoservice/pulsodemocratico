@@ -386,12 +386,13 @@ Nada se envía ni se guarda (todo en el navegador), como dice la maqueta.
 ## 9. Pendientes y preguntas abiertas
 
 **Del cliente / equipo de diseño (ya señalados en la maqueta):**
-- [ ] Códigos de color Universidad de La Sabana.
-- [ ] Logos oficiales, Foto 1 (hero), fotos del equipo, ilustraciones vectoriales de los 6 temas.
-- [ ] Textos de "Sobre el proyecto" (¿Qué es?, ¿Por qué es importante?, equipo).
-- [ ] Número total de preguntas (cifra "[Por confirmar] preguntas"). El JSON tiene 53 indicadores; confirmar si es la cifra a mostrar.
+- [x] Códigos de color Universidad de La Sabana (ver §10).
+- [x] Logos oficiales y fotos del equipo (ver §10).
+- [ ] Foto 1 (hero) e ilustraciones vectoriales de los 6 temas.
+- [x] Textos de "Sobre el proyecto" (¿Qué es?, ¿Por qué es importante?, equipo).
+- [x] Número total de preguntas: "+100" (cliente).
 - [ ] Ponderación (ficha técnica: "no aparece en el documento de métodos"; el HTML dice que se pondera por sexo, edad, educación y región según DANE — confirmar).
-- [ ] Enlace oficial de CNEP (la maqueta pone LinkedIn; ¿hay web oficial?).
+- [x] Enlace oficial de CNEP: archivo de datos en upf.edu (ver `cnep.url`).
 
 **Detectados al revisar los datos:**
 - [ ] **Jóvenes**: es una sección de la maqueta pero no es un tema en los datos. Propuesta: construirla con los cruces por edad (18–30 vs. resto, solo diferencias significativas), como hace el HTML. Alternativa: que el equipo envíe indicadores específicos.
@@ -401,4 +402,20 @@ Nada se envía ni se guarda (todo en el navegador), como dice la maqueta.
 - [ ] "Consumo mediático" en la maqueta vs "Cómo se informan" en los datos: confirmar nombre final.
 - [ ] Pendiente del HTML antes de publicar: fechas exactas de campo por ola, empresa de campo, proveedor del panel (Netquest según maqueta), criterios de inclusión, entidad responsable.
 - [ ] Dominio final (necesario para `site` en Astro, canonical y sitemap).
+
+---
+
+## 10. Cambios tras especificaciones del cliente (2026-10-15)
+
+Fuente: `docs/Especificaciones y transcripción texto.docx` (textos de todo el sitio; las notas en naranja son para diseño).
+
+- **Colores**: Guía de marca U. de La Sabana en `src/styles/global.css` (`@theme`): 281 `#00205B` (marca, títulos), 286 `#00387D` (acento/interacción y dato principal en gráficas), 292 `#93AAC9` (solo rellenos, nunca texto: 2,4:1), 2707 `#D9E1EF` (superficies), 7499 `#F7EFD9` (resaltado), Pantone Black C `#2D2926` y sus tintas (bordes; texto secundario en Black 80 % `#575451` para cumplir AA también sobre 2707). Tokens semánticos `brand`, `accent`, `surface-*`, `ink*`, `focus` y `chart-*`.
+- **Ficha técnica**: exactamente las 8 cajas del documento (`src/data/ficha-tecnica.ts`). "Realizado por" conserva el texto del cliente (menciona Universitat Pompeu Fabra). Panel: nota, fecha de aplicación y "N participantes · N preguntas" (190 / 160 / 170) + "1.081 personas respondieron las tres rondas".
+- **Cifras**: "+100 preguntas" es dato del cliente (`PREGUNTAS_CUESTIONARIO` en `sitio.ts`), no los 53 indicadores del JSON. "4 regiones del país".
+- **Instituciones** (footer, "Una iniciativa de" y pie de gráficas en detalle), en este orden: CNEP, Universidad de Wisconsin, Universidad de La Sabana, Universidad Externado de Colombia, Universidad Complutense de Madrid. Logos en `src/assets/logos/*.webp` (`instituciones[].logo`).
+- **Equipo**: 8 personas en el orden del documento (`src/data/equipo.ts`); fotos en `src/assets/equipo/<slug>.webp` optimizadas con `astro:assets` (avif/webp); tarjeta + `<dialog>` nativo con el perfil; correos armados en el navegador (protección leve contra recolectores).
+- **Títulos**: mayúscula inicial en cada palabra salvo palabras menores (de, la, el, y, en, del, a, por, para, con, sobre, los, las, se, que…), con `titulo()` de `src/lib/format.ts`. Se aplica a h1/h2, menú y nombres de tema; el texto corrido va en minúscula normal.
+- **Quiz**: siempre "promedio de los encuestados" (nunca "promedio nacional"). La comparación pregunta por pregunta la resuelve la Fase 4.
+- **Gráficas**: Óscar Londoño entrega los datos (no imágenes); las gráficas siguen siendo SVG propios.
+- **Pendientes**: foto del hero (la resuelve Valentina al final) e ilustraciones de los 6 temas.
 ```

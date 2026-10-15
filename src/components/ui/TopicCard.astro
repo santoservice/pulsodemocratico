@@ -1,6 +1,7 @@
 ---
 import Placeholder from './Placeholder.astro';
 import LinkButton from './LinkButton.astro';
+import { titulo as aTitulo } from '../../lib/format';
 
 /** Tarjeta de tema (Inicio): ilustración + título + pregunta gancho + botón. */
 export interface Props {
@@ -21,7 +22,7 @@ const { titulo, pregunta, href, imagen, headingLevel: H = 'h3' } = Astro.props;
   ) : (
     <Placeholder class="aspect-[2/1] w-full" label="Ilustración vectorial del tema" size="sm" />
   )}
-  <H class="mt-4 text-xl font-bold">{titulo}</H>
+  <H class="mt-4 text-xl font-bold text-brand">{aTitulo(titulo)}</H>
   <p class="mt-2 mb-5 flex-1 leading-relaxed text-ink-muted">{pregunta}</p>
   <LinkButton href={href} variant="outline" icon="lucide:arrow-right" fullWidth>
     Ver resultados<span class="sr-only"> de {titulo}</span>
