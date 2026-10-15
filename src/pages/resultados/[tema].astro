@@ -33,6 +33,12 @@ const breadcrumb = breadcrumbJsonLd(
 
 const tarjetas = tema.dataKey ? getTarjetasTema(tema.dataKey) : [];
 const jovenes = tema.dataKey ? [] : getJovenes();
+// getJovenes() ya viene ordenado por brecha relativa: las primeras son las diferencias más grandes.
+const JOVENES_VISIBLES = 6;
+const bloquesJovenes = [
+  { inicio: 0, datos: jovenes.slice(0, JOVENES_VISIBLES) },
+  { inicio: JOVENES_VISIBLES, datos: jovenes.slice(JOVENES_VISIBLES) },
+];
 const { n_min_celda, n_olas } = getMeta();
 ---
 
@@ -128,42 +134,71 @@ const { n_min_celda, n_olas } = getMeta();
         {tema.dataKey ? (
           <FindingsGrid tarjetas={tarjetas} label={`Hallazgos sobre ${tema.titulo}`} />
         ) : (
-          <FindingsGrid label={`Hallazgos sobre ${tema.titulo}`}>
-            {jovenes.map((d, i) => {
-              const temaInd = getTemaByDataKey(d.indicador.tema);
-              const grupos = d.cruce.grupos;
-              return (
-                <li>
-                  <FindingCard
-                    numero={i + 1}
-                    titulo={d.indicador.titulo}
-                    titular={titularJovenes(d)}
-                    resumen={resumenJovenes(d)}
-                    indicador={d.indicador.key}
-                    tarjeta={`jovenes-${d.indicador.key}`}
-                    tema={
-                      temaInd ? { titulo: temaInd.titulo, href: temaHref(temaInd.slug) } : undefined
-                    }
-                  >
-                    <DotPlot
-                      titulo={`${d.indicador.titulo}, por edad`}
-                      grupos={grupos.map((g) => ({
-                        label: g.code === CODIGO_JOVENES ? g.cat : `${g.cat} años`,
-                        valor: g.valor,
-                        ic: g.ic,
-                        n: g.n,
-                      }))}
-                      resaltar={grupos.findIndex((g) => g.code === CODIGO_JOVENES)}
-                      lo={d.indicador.esc_lo}
-                      hi={d.indicador.esc_hi}
-                      stat={d.indicador.stat}
-                      nMin={n_min_celda}
-                    />
-                  </FindingCard>
-                </li>
-              );
-            })}
-          </FindingsGrid>
+          bloquesJovenes.map(({ inicio, datos }) => {
+            const grid = (
+              <FindingsGrid
+                label={
+                  inicio === 0
+                    ? `Diferencias más grandes entre jóvenes y el resto`
+                    : `Otras diferencias entre jóvenes y el resto`
+                }
+              >
+                {datos.map((d, j) => {
+                  const i = inicio + j;
+                  const temaInd = getTemaByDataKey(d.indicador.tema);
+                  const grupos = d.cruce.grupos;
+                  return (
+                    <li>
+                      <FindingCard
+                        numero={i + 1}
+                        titulo={d.indicador.titulo}
+                        titular={titularJovenes(d)}
+                        resumen={resumenJovenes(d)}
+                        indicador={d.indicador.key}
+                        tarjeta={`jovenes-${d.indicador.key}`}
+                        tema={
+                          temaInd
+                            ? { titulo: temaInd.titulo, href: temaHref(temaInd.slug) }
+                            : undefined
+                        }
+                      >
+                        <DotPlot
+                          titulo={`${d.indicador.titulo}, por edad`}
+                          grupos={grupos.map((g) => ({
+                            label: g.code === CODIGO_JOVENES ? g.cat : `${g.cat} años`,
+                            valor: g.valor,
+                            ic: g.ic,
+                            n: g.n,
+                          }))}
+                          resaltar={grupos.findIndex((g) => g.code === CODIGO_JOVENES)}
+                          lo={d.indicador.esc_lo}
+                          hi={d.indicador.esc_hi}
+                          stat={d.indicador.stat}
+                          nMin={n_min_celda}
+                        />
+                      </FindingCard>
+                    </li>
+                  );
+                })}
+              </FindingsGrid>
+            );
+            if (inicio === 0) return grid;
+            if (datos.length === 0) return null;
+            return (
+              <details class="group mt-8">
+                <summary class="mx-auto flex w-fit cursor-pointer list-none items-center gap-2 border border-ink px-5 py-3 font-semibold hover:bg-surface-muted [&::-webkit-details-marker]:hidden">
+                  <span class="group-open:hidden">Ver {datos.length} diferencias más</span>
+                  <span class="hidden group-open:inline">Ver menos</span>
+                  <Icon
+                    name="lucide:chevron-down"
+                    class="h-4 w-4 transition-transform group-open:rotate-180 motion-reduce:transition-none"
+                    aria-hidden="true"
+                  />
+                </summary>
+                <div class="mt-8">{grid}</div>
+              </details>
+            );
+          })
         )}
       </div>
     </section>
