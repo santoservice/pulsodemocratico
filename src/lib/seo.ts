@@ -59,6 +59,41 @@ export function breadcrumbJsonLd(crumbs: Crumb[], site: URL | string | undefined
   };
 }
 
+export interface DatasetInput {
+  /** Títulos de los indicadores (variableMeasured). */
+  variables: readonly string[];
+  /** Ruta de la página que describe el dataset. */
+  path: string;
+}
+
+/**
+ * schema.org `Dataset` de la encuesta CNEP Colombia 2026. Sin afirmaciones de
+ * representatividad: la muestra no es probabilística (PLAN.md §5.1).
+ */
+export function datasetJsonLd(
+  { variables, path }: DatasetInput,
+  site: URL | string | undefined,
+): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name: 'Encuesta panel CNEP Colombia 2026',
+    description:
+      'Encuesta panel en línea de tres rondas (mayo a julio de 2026) sobre comunicación y actitudes políticas durante las elecciones presidenciales de Colombia: polarización, populismo, desinformación, inteligencia artificial y consumo mediático. Muestra no probabilística por cuotas; los resultados describen a las personas encuestadas.',
+    url: absoluteUrl(path, site),
+    inLanguage: sitio.lang,
+    isAccessibleForFree: true,
+    creator: instituciones.map((i) => ({
+      '@type': 'Organization',
+      name: i.nombre,
+      ...(i.url ? { url: i.url } : {}),
+    })),
+    temporalCoverage: '2026-05-04/2026-07-05',
+    spatialCoverage: { '@type': 'Place', name: 'Colombia' },
+    variableMeasured: [...variables],
+  };
+}
+
 /** Serializa JSON-LD de forma segura para incrustarlo en <script>. */
 export function serializeJsonLd(data: JsonLd | JsonLd[]): string {
   return JSON.stringify(data).replace(/</g, '\\u003c');

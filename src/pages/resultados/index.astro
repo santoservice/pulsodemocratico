@@ -4,14 +4,26 @@ import SectionHeader from '../../components/ui/SectionHeader.astro';
 import TopicTabs from '../../components/ui/TopicTabs.astro';
 import StatsRow from '../../components/ui/StatsRow.astro';
 import FindingsGrid from '../../components/results/FindingsGrid.astro';
+import { temas } from '../../data/temas';
+import { getIndicadores, getTarjetasDestacadas } from '../../lib/tablero';
+import { datasetJsonLd } from '../../lib/seo';
 
 const lead =
-  'Explora los hallazgos sobre las percepciones, opiniones y actitudes de los colombianos durante la campaña presidencial de 2026.';
+  'Explora los hallazgos sobre las percepciones, opiniones y actitudes de las personas encuestadas durante la campaña presidencial de 2026.';
+
+// 1–3 indicadores `destacado: true` por tema, en el orden de las pestañas.
+const ordenTemas = temas.flatMap((t) => (t.dataKey ? [t.dataKey] : []));
+const destacados = getTarjetasDestacadas(ordenTemas);
+const dataset = datasetJsonLd(
+  { variables: getIndicadores().map((i) => i.titulo), path: '/resultados' },
+  Astro.site,
+);
 ---
 
 <BaseLayout
   title="Resultados de la encuesta"
   description="Principales hallazgos de la encuesta panel CNEP Colombia 2026: polarización, populismo, desinformación, inteligencia artificial, consumo mediático y jóvenes."
+  jsonLd={dataset}
 >
   <div class="container-page py-10 md:py-14">
     <SectionHeader title="Resultados de la encuesta" lead={lead} />
@@ -33,11 +45,15 @@ const lead =
         id="hallazgos-titulo"
         eyebrow={false}
         title="Principales hallazgos"
-        lead="Una mirada global a los resultados de la encuesta. Selecciona un tema para ver los resultados detallados."
+        lead="Los datos más llamativos de cada tema. Entra a un tema para ver todos sus resultados."
       />
       <div class="mt-6">
-        {/* TODO Fase 3: 1–2 indicadores `destacado: true` por tema (con link a su tema). */}
-        <FindingsGrid placeholders={8} label="Principales hallazgos" />
+        <FindingsGrid
+          tarjetas={destacados}
+          conTema
+          mostrarCambio={false}
+          label="Principales hallazgos"
+        />
       </div>
     </section>
   </div>

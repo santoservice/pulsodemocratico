@@ -196,28 +196,153 @@ export function getJovenes(): DatoJovenes[] {
 
 export type ChartKind = 'waffle' | 'scale' | 'bars' | 'stacked' | 'thermometer';
 
-/** Grupos de indicadores que se dibujan juntos como barras horizontales (PLAN §5.2). */
+export interface DefGrupoBarras {
+  /** Patrón de la clave del indicador. */
+  patron: RegExp;
+  /** Si se indica, además debe coincidir la `familia`. */
+  familia?: string;
+  /** Título de la tarjeta. */
+  titulo: string;
+  /** Prefijo/sufijo que se quita del título del indicador para la etiqueta de la barra. */
+  quitar?: RegExp;
+}
+
+/**
+ * Grupos de indicadores `pct` que se dibujan juntos como barras horizontales (PLAN §5.2:
+ * "familia de pct → barras ordenadas"). Una sola tarjeta por grupo.
+ */
 export const GRUPOS_BARRAS = {
-  cm: { prefijo: 'cm_', titulo: 'Medios' },
-  rs: { prefijo: 'rs_', titulo: 'Redes sociales' },
-} as const;
+  cm: {
+    patron: /^cm_/,
+    titulo: 'Dónde se informan sobre política',
+    quitar: /^Se informa por\s+/i,
+  },
+  rs: {
+    patron: /^rs_/,
+    titulo: 'Redes sociales que más usan',
+    quitar: /^Usa\s+|\s+con frecuencia$/gi,
+  },
+  pop: {
+    patron: /^pop_(?!media$)/,
+    titulo: 'Frases populistas: cuántos están de acuerdo',
+  },
+  fk: {
+    patron: /^fk\d+$/,
+    titulo: 'Titulares falsos: cuántos se los creen',
+    quitar: /^Cree el titular falso:\s*/i,
+  },
+  iaUso: {
+    patron: /^ia\d+$/,
+    familia: 'ia_uso',
+    titulo: 'Para qué usan la inteligencia artificial',
+  },
+  iaConf: {
+    patron: /^ia\d+$/,
+    familia: 'ia_conf',
+    titulo: 'Cuánto le creen a la inteligencia artificial',
+  },
+} as const satisfies Record<string, DefGrupoBarras>;
 export type GrupoBarras = keyof typeof GRUPOS_BARRAS;
 
-export function grupoBarrasFor(ind: Pick<Indicador, 'key'>): GrupoBarras | null {
-  for (const [k, g] of Object.entries(GRUPOS_BARRAS) as Array<
-    [GrupoBarras, (typeof GRUPOS_BARRAS)[GrupoBarras]]
-  >) {
-    if (ind.key.startsWith(g.prefijo)) return k;
+export function grupoBarrasFor(
+  ind: Pick<Indicador, 'key'> & { familia?: string },
+): GrupoBarras | null {
+  for (const [k, g] of Object.entries(GRUPOS_BARRAS) as Array<[GrupoBarras, DefGrupoBarras]>) {
+    if (!g.patron.test(ind.key)) continue;
+    if (g.familia && ind.familia !== g.familia) continue;
+    return k;
   }
   return null;
 }
 
+const esIdeologia = (ind: Pick<Indicador, 'key' | 'familia'>) =>
+  ind.familia === 'ideologia' || ind.key.startsWith('lr_');
+const esTermometro = (ind: Pick<Indicador, 'key'>) => ind.key.startsWith('th_');
+
 /** Gráfica que corresponde a cada indicador según PLAN.md §5.2. */
 export function chartKindFor(ind: Pick<Indicador, 'key' | 'familia' | 'stat'>): ChartKind {
-  if (ind.familia === 'ideologia' || ind.key.startsWith('lr_')) return 'stacked';
-  if (ind.key.startsWith('th_')) return 'thermometer';
+  if (esIdeologia(ind)) return 'stacked';
+  if (esTermometro(ind)) return 'thermometer';
   if (grupoBarrasFor(ind)) return 'bars';
   return ind.stat === 'pct' ? 'waffle' : 'scale';
+}
+
+/* ----------------------------------------------------------------- tarjetas */
+
+/** Una tarjeta de resultados: un indicador (waffle/escala) o un grupo (barras/apilada/termómetro). */
+export interface Tarjeta {
+  /** Único en el tema; sirve de ancla e id del modal. */
+  id: string;
+  tipo: ChartKind;
+  titulo: string;
+  tema: TemaKey;
+  indicadores: Indicador[];
+  /** Algún indicador de la tarjeta está marcado como destacado. */
+  destacado: boolean;
+  /** Solo en `tipo: 'bars'`. */
+  grupo?: GrupoBarras;
+}
+
+/** Tarjeta de un solo indicador (waffle si es pct, escala si es media), aunque pertenezca a un grupo. */
+export function tarjetaIndicador(ind: Indicador): Tarjeta {
+  const tipo = chartKindFor(ind);
+  return {
+    id: ind.key,
+    tipo: tipo === 'waffle' || tipo === 'scale' ? tipo : ind.stat === 'pct' ? 'waffle' : 'scale',
+    titulo: ind.titulo,
+    tema: ind.tema,
+    indicadores: [ind],
+    destacado: ind.destacado,
+  };
+}
+
+/**
+ * Tarjetas de un tema, en el orden del JSON: los indicadores agrupables (barras, ideología,
+ * termómetros) se juntan en una sola tarjeta que ocupa la posición de su primer miembro.
+ * Cada indicador del tema aparece exactamente una vez.
+ */
+export function getTarjetasTema(temaKey: TemaKey): Tarjeta[] {
+  const out: Tarjeta[] = [];
+  const grupos = new Map<string, Tarjeta>();
+  for (const ind of getIndicadores(temaKey)) {
+    const tipo = chartKindFor(ind);
+    let id: string | null = null;
+    let titulo = ind.titulo;
+    let grupo: GrupoBarras | undefined;
+    if (tipo === 'stacked') {
+      id = 'ideologia';
+      titulo = 'Izquierda, centro o derecha';
+    } else if (tipo === 'thermometer') {
+      id = 'lideres';
+      titulo = 'Simpatía hacia los líderes políticos';
+    } else if (tipo === 'bars') {
+      grupo = grupoBarrasFor(ind)!;
+      id = `grupo-${grupo}`;
+      titulo = GRUPOS_BARRAS[grupo].titulo;
+    }
+    if (id === null) {
+      out.push(tarjetaIndicador(ind));
+      continue;
+    }
+    let t = grupos.get(id);
+    if (!t) {
+      t = { id, tipo, titulo, tema: temaKey, indicadores: [], destacado: false, grupo };
+      grupos.set(id, t);
+      out.push(t);
+    }
+    t.indicadores.push(ind);
+    t.destacado ||= ind.destacado;
+  }
+  return out;
+}
+
+/**
+ * Hallazgos destacados (`destacado: true`) de todos los temas, como tarjetas de un indicador,
+ * en el orden de `temaKeys` (por defecto el del JSON).
+ */
+export function getTarjetasDestacadas(temaKeys?: readonly TemaKey[]): Tarjeta[] {
+  const orden = temaKeys ?? tablero.temas.map((t) => t.key);
+  return orden.flatMap((k) => getDestacados(k).map(tarjetaIndicador));
 }
 
 /* -------------------------------------------------------------------- cifras */

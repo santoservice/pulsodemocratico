@@ -56,17 +56,33 @@ export interface Cifra {
   pending?: boolean;
 }
 
+/** Cifras de `getStats()` (src/lib/tablero.ts); se recibe por parámetro para no acoplar sitio.ts al JSON. */
+export interface CifrasStats {
+  rondas: number;
+  personas: number;
+  preguntas: number;
+  regiones: number;
+}
+
 /**
- * Cifras clave de la encuesta (fila de estadísticas en Inicio y Resultados).
- * TODO Fase 3: derivar de tablero.json (meta.n, rondas, nº de indicadores).
+ * Cifras clave de la encuesta (fila de estadísticas en Inicio y Resultados), a partir de
+ * `getStats()`. `formatear` = formato es-CO de enteros (`format.entero`).
  */
-export const cifrasEncuesta: Cifra[] = [
-  { value: '3', label: 'rondas de encuesta', icon: 'lucide:repeat' },
-  { value: '2.008', label: 'personas en la primera ronda', icon: 'lucide:users' },
-  // TODO (cliente): confirmar número total de preguntas (PLAN.md §9).
-  { value: '53', label: 'preguntas', icon: 'lucide:list-checks', pending: true },
-  { value: '4', label: 'regiones del país', icon: 'lucide:map' },
-];
+export function cifrasEncuesta(s: CifrasStats, formatear: (n: number) => string): Cifra[] {
+  return [
+    { value: formatear(s.rondas), label: 'rondas de encuesta', icon: 'lucide:repeat' },
+    { value: formatear(s.personas), label: 'personas en la primera ronda', icon: 'lucide:users' },
+    // TODO (cliente): confirmar número total de preguntas (PLAN.md §9).
+    {
+      value: formatear(s.preguntas),
+      label: 'preguntas',
+      icon: 'lucide:list-checks',
+      pending: true,
+    },
+    // TODO: las regiones vienen de la ficha técnica, no de tablero.json.
+    { value: formatear(s.regiones), label: 'regiones', icon: 'lucide:map' },
+  ];
+}
 
 const clean = (p: string) => (p.length > 1 ? p.replace(/\/$/, '') : p);
 

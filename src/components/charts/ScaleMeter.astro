@@ -1,0 +1,119 @@
+---
+import { posPct, r2, ticksEscala } from '../../lib/charts';
+import { decimal, entero } from '../../lib/format';
+
+/**
+ * Escala esc_lo–esc_hi con los polos en palabras y un marcador en el valor
+ * (opcional: un segundo marcador de comparación, p. ej. "Tú" en el quiz).
+ * Marcas en SVG que se estira al ancho (non-scaling-stroke); texto en HTML.
+ */
+export interface Props {
+  valor: number;
+  lo: number;
+  hi: number;
+  /** Etiquetas de los extremos [bajo, alto]. */
+  polos?: readonly [string, string];
+  id: string;
+  /** Etiqueta del marcador principal (accesible). */
+  etiqueta?: string;
+  comparacion?: { valor: number; etiqueta: string };
+  class?: string;
+}
+
+const {
+  valor,
+  lo,
+  hi,
+  polos,
+  id,
+  etiqueta = 'Promedio de las personas encuestadas',
+  comparacion,
+  class: className,
+} = Astro.props;
+
+const p = r2(posPct(valor, lo, hi));
+const pc = comparacion ? r2(posPct(comparacion.valor, lo, hi)) : null;
+const ticks = ticksEscala(lo, hi).map((t) => r2(posPct(t, lo, hi)));
+const fmtEsc = (v: number) => (lo < 0 && v > 0 ? `+${entero(v)}` : entero(v));
+const desc = `${etiqueta}: ${decimal(valor)} en una escala de ${fmtEsc(lo)} (${polos?.[0] ?? 'mínimo'}) a ${fmtEsc(hi)} (${polos?.[1] ?? 'máximo'})${
+  comparacion ? `. ${comparacion.etiqueta}: ${decimal(comparacion.valor)}` : ''
+}.`;
+---
+
+<figure class:list={['w-full', className]}>
+  <div class="relative pt-7" aria-hidden="true">
+    <span
+      class="absolute top-0 text-sm font-bold whitespace-nowrap text-chart-accent tabular-nums"
+      style={`left:${p}%;transform:translateX(-${p}%)`}
+    >
+      {decimal(valor)}
+    </span>
+  </div>
+  <svg
+    viewBox="0 0 100 20"
+    preserveAspectRatio="none"
+    role="img"
+    aria-labelledby={`${id}-t ${id}-d`}
+    class="block h-5 w-full overflow-visible"
+  >
+    <title id={`${id}-t`}>{etiqueta}</title>
+    <desc id={`${id}-d`}>{desc}</desc>
+    <rect x="0" y="5" width="100" height="10" class="fill-chart-track" />
+    <rect x="0" y="5" width={p} height="10" class="fill-chart-accent-soft" />
+    {ticks.map((x) => (
+      <line
+        x1={x}
+        x2={x}
+        y1="5"
+        y2="15"
+        class="stroke-chart-grid"
+        stroke-width="1"
+        vector-effect="non-scaling-stroke"
+      />
+    ))}
+    {pc !== null && (
+      <line
+        x1={pc}
+        x2={pc}
+        y1="0"
+        y2="20"
+        class="stroke-chart-ink"
+        stroke-width="2"
+        stroke-dasharray="3 2"
+        vector-effect="non-scaling-stroke"
+      />
+    )}
+    <line
+      x1={p}
+      x2={p}
+      y1="0"
+      y2="20"
+      class="stroke-chart-accent"
+      stroke-width="4"
+      vector-effect="non-scaling-stroke"
+    />
+  </svg>
+  {comparacion && pc !== null && (
+    <div class="relative h-5" aria-hidden="true">
+      <span
+        class="absolute top-0.5 text-xs font-semibold whitespace-nowrap text-chart-ink"
+        style={`left:${pc}%;transform:translateX(-${pc}%)`}
+      >
+        {comparacion.etiqueta}: {decimal(comparacion.valor)}
+      </span>
+    </div>
+  )}
+  <figcaption
+    class="mt-1.5 flex justify-between gap-4 text-xs leading-snug text-ink-muted"
+    aria-hidden="true"
+  >
+    <span class="max-w-[48%]">
+      <span class="font-semibold text-ink tabular-nums">{fmtEsc(lo)}</span>
+      {polos && <> · {polos[0]}</>}
+    </span>
+    <span class="max-w-[48%] text-right">
+      {polos && <>{polos[1]} · </>}
+      <span class="font-semibold text-ink tabular-nums">{fmtEsc(hi)}</span>
+    </span>
+  </figcaption>
+</figure>

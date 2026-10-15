@@ -1,85 +1,94 @@
 ---
 import { Icon } from 'astro-icon/components';
-import Placeholder from '../ui/Placeholder.astro';
+import type { Titular } from '../../lib/textos';
 
 /**
- * Tarjeta de hallazgo: número, título, gráfica (slot) y chevron.
- * Toda la tarjeta es clicable mediante un <button> que la cubre ("stretched button";
- * así el encabezado y la gráfica siguen siendo HTML válido fuera del botón).
- * El botón lleva `data-indicador` para que el modal de la Fase 4
- * (QuestionModal, client:idle) lo abra. Sin la isla, no hace nada.
+ * Tarjeta de hallazgo (PLAN.md §4.2). Orden pensado para quien no quiere leer:
+ * número grande → frase de una línea → gráfica (slot) → "Ver detalle".
+ *
+ * Toda la tarjeta es clicable mediante un <button> que la cubre ("stretched button"; así el
+ * contenido sigue siendo HTML válido fuera del botón). El botón lleva `data-indicador` /
+ * `data-tarjeta` para que el modal de la Fase 4 (QuestionModal, client:idle) lo abra.
+ * Sin la isla, no hace nada. El enlace al tema (opcional) queda por encima del botón.
  */
 export interface Props {
   numero: number;
-  /** Título del hallazgo. Si falta, se pinta una barra esqueleto. */
-  titulo?: string;
-  /** Dato grande + frase corta. */
+  titulo: string;
+  titular?: Titular;
+  /** Frase de una línea con el dato en lenguaje sencillo. */
   resumen?: string;
-  /** Clave del indicador en tablero.json (para el modal). */
+  /** Clave del indicador principal en tablero.json (para el modal). */
   indicador?: string;
-  /** Nombre del tema (en /resultados, para dar contexto). */
-  tema?: string;
-  /** Etiqueta del placeholder de gráfica cuando no se pasa el slot. */
-  chartLabel?: string;
+  /** Id de la tarjeta (para el modal / anclas). */
+  tarjeta?: string;
+  /** Enlace al tema (en /resultados). */
+  tema?: { titulo: string; href: string };
   headingLevel?: 'h2' | 'h3';
 }
 
 const {
   numero,
   titulo,
+  titular,
   resumen,
   indicador,
+  tarjeta,
   tema,
-  chartLabel = 'Gráfico',
   headingLevel: H = 'h3',
 } = Astro.props;
 const num = String(numero).padStart(2, '0');
-const hasChart = Astro.slots.has('default');
-const accessibleName = `Ver detalle del hallazgo ${num}${titulo ? `: ${titulo}` : ''}`;
+const accessibleName = `Ver detalle del hallazgo ${num}: ${titulo}`;
 ---
 
-<article class="group relative flex h-full flex-col border border-border bg-surface p-4 transition-colors focus-within:border-ink hover:border-border-strong hover:bg-surface-muted md:p-5">
-  <div class="flex items-center gap-3">
-    <span class="shrink-0 border border-border bg-surface-muted px-2 py-0.5 text-xs font-medium text-ink-muted">
+<article
+  id={tarjeta}
+  class="group relative flex h-full scroll-mt-24 flex-col border border-border bg-surface p-4 transition-colors focus-within:border-ink hover:border-border-strong md:p-5"
+>
+  <div class="flex items-start gap-3">
+    <span class="mt-0.5 shrink-0 border border-border bg-surface-muted px-2 py-0.5 text-xs font-medium text-ink-muted">
       {num}
     </span>
-    <H class="flex-1 text-base font-semibold">
-      {titulo ?? (
-        <>
-          <span class="block h-3.5 w-3/5 bg-skeleton" aria-hidden="true" />
-          <span class="sr-only">Título pendiente</span>
-        </>
-      )}
-    </H>
-    <Icon
-      name="lucide:chevron-right"
-      class="h-5 w-5 shrink-0 text-ink-muted transition-transform group-hover:translate-x-0.5"
-      aria-hidden="true"
-    />
+    <H class="flex-1 text-base leading-snug font-semibold">{titulo}</H>
   </div>
-  {tema && <p class="mt-1 text-xs tracking-wide text-ink-muted uppercase">{tema}</p>}
-  <div class="mt-4 flex-1">
-    {hasChart ? (
-      <slot />
+  {titular && (
+    <p class="mt-4 flex flex-wrap items-baseline gap-x-2 leading-none">
+      <span class="font-display text-5xl font-bold tracking-tight text-ink tabular-nums">
+        {titular.valor}
+      </span>
+      {titular.sufijo && <span class="text-lg font-semibold text-ink-muted">{titular.sufijo}</span>}
+    </p>
+  )}
+  {resumen && <p class="mt-3 leading-relaxed text-ink">{resumen}</p>}
+  <div class="mt-5 flex-1">
+    <slot />
+  </div>
+  <div class="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm">
+    {tema ? (
+      <a
+        href={tema.href}
+        class="relative z-10 font-semibold underline underline-offset-4 hover:no-underline"
+      >
+        Más sobre {tema.titulo}
+      </a>
     ) : (
-      <div class="grid grid-cols-[3fr_2fr] items-center gap-4">
-        <Placeholder class="aspect-[16/10] w-full" label={chartLabel} size="sm" />
-        <div class="flex flex-col gap-2" aria-hidden="true">
-          {[0, 1, 2, 3].map(() => (
-            <span class="flex items-center gap-2">
-              <span class="h-2.5 w-2.5 shrink-0 rounded-full bg-skeleton" />
-              <span class="h-2.5 w-full bg-surface-sunken" />
-            </span>
-          ))}
-        </div>
-      </div>
+      <span />
     )}
+    <span
+      class="ml-auto inline-flex items-center gap-1 font-medium text-ink-muted group-hover:text-ink"
+      aria-hidden="true"
+    >
+      Ver detalle
+      <Icon
+        name="lucide:chevron-right"
+        class="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+      />
+    </span>
   </div>
-  {resumen && <p class="mt-4 text-sm text-ink-muted">{resumen}</p>}
   <button
     type="button"
     class="absolute inset-0 h-full w-full cursor-pointer"
     data-indicador={indicador}
+    data-tarjeta={tarjeta}
     aria-haspopup="dialog"
   >
     <span class="sr-only">{accessibleName}</span>

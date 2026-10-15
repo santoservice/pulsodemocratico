@@ -26,7 +26,7 @@ export const temas = [
     titulo: 'Polarización',
     pregunta: '¿Qué tan divididos estamos como sociedad?',
     descripcion:
-      'Resultados de la encuesta CNEP Colombia 2026 sobre polarización política: qué tan divididos se perciben los colombianos y cómo cambió durante la campaña.',
+      'Resultados de la encuesta CNEP Colombia 2026 sobre polarización política: qué tan dividido ven el país las personas encuestadas y cómo cambió durante la campaña.',
     icono: 'lucide:split',
   },
   {
@@ -80,6 +80,11 @@ export type TemaSlug = (typeof temas)[number]['slug'];
 
 export function getTemaBySlug(slug: string): Tema | undefined {
   return temas.find((t) => t.slug === slug);
+}
+
+/** Sección del sitio que corresponde a un tema de tablero.json. */
+export function getTemaByDataKey(key: TemaDataKey): Tema | undefined {
+  return temas.find((t) => t.dataKey === key);
 }
 
 export function temaHref(slug: string): string {

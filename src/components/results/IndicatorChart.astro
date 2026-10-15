@@ -1,0 +1,111 @@
+---
+import BarChart from '../charts/BarChart.astro';
+import ScaleMeter from '../charts/ScaleMeter.astro';
+import SlopeChart from '../charts/SlopeChart.astro';
+import StackedBar from '../charts/StackedBar.astro';
+import Thermometer from '../charts/Thermometer.astro';
+import Waffle from '../charts/Waffle.astro';
+import { getCambioRondas, getUltimoValor, type Indicador, type Tarjeta } from '../../lib/tablero';
+import { etiquetaCorta, predicadoPlural } from '../../lib/textos';
+
+/**
+ * Elige la gráfica de una tarjeta según su tipo (PLAN.md §5.2, `chartKindFor`):
+ * waffle (pct) · escala (media) · barras (grupo) · apilada (ideología) · termómetros (líderes).
+ * En tarjetas de un indicador añade la pendiente entre rondas si hubo un cambio claro.
+ */
+export interface Props {
+  tarjeta: Tarjeta;
+  /** Muestra la pendiente R1→R3 cuando hay cambio claro (por defecto sí). */
+  mostrarCambio?: boolean;
+}
+
+const { tarjeta: t, mostrarCambio = true } = Astro.props;
+const uid = `g-${t.tema}-${t.id}`;
+const ind0 = t.indicadores[0]!;
+const ultimo = (i: Indicador) => getUltimoValor(i).valor;
+
+// Ideología: una fila por ronda (composición izquierda · centro · derecha).
+const nombreSegmento = (i: Indicador) => {
+  const w = i.titulo.trim().split(' ');
+  const s = w[w.length - 1] ?? i.titulo;
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
+const filasApiladas =
+  t.tipo === 'stacked'
+    ? ind0.serie.map((p) => ({
+        label: p.label,
+        segmentos: t.indicadores.map((i) => ({
+          key: i.key,
+          label: nombreSegmento(i),
+          valor: i.serie.find((s) => s.ola === p.ola)?.valor ?? 0,
+        })),
+      }))
+    : [];
+
+// Termómetros: ronda más frecuente (solo se anotan las que difieren).
+const rondasTerm = t.indicadores.map((i) => getUltimoValor(i).label);
+const rondaComun = rondasTerm
+  .slice()
+  .sort(
+    (a, b) => rondasTerm.filter((x) => x === b).length - rondasTerm.filter((x) => x === a).length,
+  )[0];
+
+// Pendiente entre rondas (misma fuente que getCambioRondas: panel si existe).
+const cambio = t.indicadores.length === 1 ? getCambioRondas(ind0) : null;
+const serieCambio =
+  cambio && cambio.direccion !== 'estable'
+    ? cambio.fuente === 'panel'
+      ? ind0.serie_panel!
+      : ind0.serie
+    : null;
+---
+
+{t.tipo === 'waffle' && (
+  <Waffle id={uid} valor={ultimo(ind0)} descripcion={predicadoPlural(ind0.titulo) ?? undefined} />
+)}
+{t.tipo === 'scale' && (
+  <ScaleMeter id={uid} valor={ultimo(ind0)} lo={ind0.esc_lo} hi={ind0.esc_hi} polos={ind0.polos} />
+)}
+{t.tipo === 'bars' && (
+  <BarChart
+    titulo={t.titulo}
+    datos={t.indicadores.map((i) => ({
+      key: i.key,
+      label: i.key.startsWith('pop_') ? i.titulo : etiquetaCorta(i),
+      valor: ultimo(i),
+    }))}
+  />
+)}
+{t.tipo === 'stacked' && <StackedBar id={uid} titulo={t.titulo} filas={filasApiladas} />}
+{t.tipo === 'thermometer' && (
+  <Thermometer
+    titulo={t.titulo}
+    rondaComun={rondaComun}
+    filas={t.indicadores.map((i) => ({
+      key: i.key,
+      label: etiquetaCorta(i),
+      valor: ultimo(i),
+      ronda: getUltimoValor(i).label,
+    }))}
+  />
+)}
+{mostrarCambio && serieCambio && (
+  <div class="mt-6 border-t border-border pt-4">
+    <p class="mb-1 text-xs font-semibold tracking-wide text-ink-muted uppercase">
+      Cambio entre rondas
+    </p>
+    <SlopeChart
+      id={`${uid}-rondas`}
+      titulo={`${t.titulo}: cambio entre rondas`}
+      serie={serieCambio}
+      lo={ind0.esc_lo}
+      hi={ind0.esc_hi}
+      stat={ind0.stat}
+      nota={
+        cambio?.fuente === 'panel'
+          ? 'Solo personas que respondieron en todas estas rondas; por eso las cifras pueden diferir un poco del dato principal.'
+          : undefined
+      }
+    />
+  </div>
+)}

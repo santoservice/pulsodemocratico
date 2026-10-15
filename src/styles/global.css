@@ -30,6 +30,22 @@
   --color-accent-hover: #18181b;
   --color-focus: #2563eb;
 
+  /*
+   * Gráficas (provisional). Las gráficas SOLO usan estos tokens (fill-chart-*, bg-chart-*…).
+   * TODO: ajustar a la paleta de La Sabana. Contraste: chart-accent y chart-ink ≥ 4.5:1 sobre
+   * blanco (se usan también como texto).
+   */
+  --color-chart-accent: #1d4ed8;
+  --color-chart-accent-soft: #bfdbfe;
+  --color-chart-ink: #27272a;
+  --color-chart-muted: #71717a;
+  --color-chart-track: #e4e4e7;
+  --color-chart-grid: #ffffff;
+  /* Categorías de la barra apilada (izquierda · centro · derecha): neutras, sin colores partidistas. */
+  --color-chart-cat-1: #1d4ed8;
+  --color-chart-cat-2: #a1a1aa;
+  --color-chart-cat-3: #27272a;
+
   /* Layout */
   --container-page: 72rem;
 }

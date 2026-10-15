@@ -25,7 +25,7 @@ export const fichaTecnica = [
     titulo: 'Realizado por',
     texto:
       'Universidad de Wisconsin, Universidad Externado de Colombia, Universidad de La Sabana y Universitat Pompeu Fabra.',
-    icono: 'building-2',
+    icono: 'landmark',
   },
   {
     id: 'poblacion',
