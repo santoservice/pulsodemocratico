@@ -81,8 +81,31 @@
     scroll-behavior: smooth;
   }
 
+  /* Sin fondo propio: el fondo lo pinta <html> y la malla de puntos (DotField) queda encima. */
   body {
-    background-color: var(--color-surface);
+    background-color: transparent;
+  }
+
+  /*
+   * Malla de puntos de fondo (DotField.astro): base = puntos en reposo, glow = luz del cursor,
+   * pulse = onda del clic. Solo colores de relleno/decoración (no texto).
+   */
+  :root {
+    --dots-base: #93aac9; /* 292 */
+    --dots-base-alpha: 0.45;
+    --dots-glow: #00387d; /* 286 */
+    --dots-pulse: #00387d;
+  }
+
+  /*
+   * Tema oscuro (AÚN NO ACTIVO). Para probarlo: <html data-theme="dark">. Faltaría también
+   * redefinir los tokens --color-* de @theme (superficies, texto, bordes, gráficas).
+   */
+  :root[data-theme='dark'] {
+    --dots-base: #93aac9;
+    --dots-base-alpha: 0.3;
+    --dots-glow: #ffffff;
+    --dots-pulse: #e8b84a; /* dorado, como el ejemplo del equipo */
   }
 
   :focus-visible {

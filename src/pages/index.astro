@@ -53,9 +53,19 @@ const sorpresas = elegidos.map((ind) => {
     </div>
   </section>
 
+  <!-- Cifras -->
+  <section aria-labelledby="cifras-titulo" class="border-b border-border">
+    <div class="container-page py-10">
+      <h2 id="cifras-titulo" class="sr-only">
+        La encuesta en cifras
+      </h2>
+      <StatsRow />
+    </div>
+  </section>
+
   <!-- Quiz -->
-  <section aria-labelledby="quiz-titulo" class="border-b border-border bg-surface-muted">
-    <div class="container-page grid gap-8 py-12 md:py-16 xl:grid-cols-[1fr_3fr]">
+  <section aria-labelledby="quiz-titulo" class="border-b border-border bg-surface-muted/60">
+    <div class="container-page grid gap-8 py-12 md:py-16 lg:grid-cols-[1fr_2.5fr] lg:items-start">
       <div class="max-w-2xl">
         <h2 id="quiz-titulo" class="text-3xl leading-tight font-bold text-brand">
           {titulo(quiz.titulo)}
@@ -76,16 +86,6 @@ const sorpresas = elegidos.map((ind) => {
           </p>
         </noscript>
       </div>
-    </div>
-  </section>
-
-  <!-- Cifras -->
-  <section aria-labelledby="cifras-titulo" class="border-b border-border">
-    <div class="container-page py-10">
-      <h2 id="cifras-titulo" class="sr-only">
-        La encuesta en cifras
-      </h2>
-      <StatsRow />
     </div>
   </section>
 
@@ -125,7 +125,7 @@ const sorpresas = elegidos.map((ind) => {
   </section>
 
   <!-- Temas -->
-  <section aria-labelledby="temas-titulo" class="bg-surface-muted">
+  <section aria-labelledby="temas-titulo" class="bg-surface-muted/60">
     <div class="container-page py-12 md:py-16">
       <h2 id="temas-titulo" class="text-3xl font-bold text-brand">
         {titulo('Explora los temas principales')}

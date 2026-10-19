@@ -1,0 +1,224 @@
+---
+/**
+ * Malla de puntos de fondo (toda la pantalla). Decorativa: un <canvas> fijo detrás del
+ * contenido, sin eventos propios (pointer-events: none) y oculto para lectores de pantalla.
+ *
+ * - El cursor es una luz: los puntos cercanos se encienden y crecen.
+ * - Clic / toque: un pulso (anillo) que sale del punto, empuja los puntos y los ilumina;
+ *   luego vuelven a su sitio con un muelle amortiguado.
+ * - Solo anima mientras hay algo que mover (luz, pulso o puntos fuera de sitio); quieto no
+ *   gasta CPU. rAF se pausa solo en pestañas ocultas.
+ * - prefers-reduced-motion: sin pulsos ni desplazamientos (la luz del cursor se mantiene).
+ * - Colores desde variables CSS `--dots-*` (global.css), releídas si cambia el tema
+ *   (`data-theme` en <html> o el esquema del sistema): preparado para un tema oscuro.
+ */
+---
+
+<canvas
+  id="dot-field"
+  class="pointer-events-none fixed inset-0 -z-10 h-full w-full"
+  aria-hidden="true"
+></canvas>
+
+<script>
+  const canvas = document.getElementById('dot-field') as HTMLCanvasElement | null;
+  const ctx = canvas?.getContext('2d');
+
+  if (canvas && ctx) {
+    /* --------------------------------------------------------- parámetros */
+    const GAP = 24; // separación de la malla (px CSS)
+    const RADIO = 1.1; // radio base del punto
+    const LUZ = 150; // radio de la luz del cursor
+    const VEL_PULSO = 0.7; // px por ms
+    const ANCHO_PULSO = 70; // grosor del anillo
+    const FUERZA_PULSO = 1.6;
+    const MUELLE = 0.06;
+    const FRICCION = 0.86;
+    const MAX_PULSOS = 6;
+
+    const reducido = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    /* ------------------------------------------------------------- color */
+    type Colores = { base: string; alfaBase: number; luz: string; pulso: string };
+    let colores: Colores;
+    const leerColores = () => {
+      const s = getComputedStyle(document.documentElement);
+      const v = (n: string, d: string) => s.getPropertyValue(n).trim() || d;
+      colores = {
+        base: v('--dots-base', '#93aac9'),
+        alfaBase: parseFloat(v('--dots-base-alpha', '0.45')),
+        luz: v('--dots-glow', '#00387d'),
+        pulso: v('--dots-pulse', '#00387d'),
+      };
+    };
+
+    /* ------------------------------------------------------------- malla */
+    let w = 0;
+    let h = 0;
+    let cols = 0;
+    let n = 0;
+    let bx = new Float32Array(0); // posición de reposo
+    let by = new Float32Array(0);
+    let ox = new Float32Array(0); // desplazamiento
+    let oy = new Float32Array(0);
+    let vx = new Float32Array(0); // velocidad
+    let vy = new Float32Array(0);
+    let brillo = new Float32Array(0); // brillo del pulso (0–1), decae
+
+    const construir = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = canvas.clientWidth;
+      h = canvas.clientHeight;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      cols = Math.ceil(w / GAP) + 1;
+      const filas = Math.ceil(h / GAP) + 1;
+      n = cols * filas;
+      bx = new Float32Array(n);
+      by = new Float32Array(n);
+      ox = new Float32Array(n);
+      oy = new Float32Array(n);
+      vx = new Float32Array(n);
+      vy = new Float32Array(n);
+      brillo = new Float32Array(n);
+      // Centra la malla en la ventana.
+      const mx = (w - (cols - 1) * GAP) / 2;
+      const my = (h - (filas - 1) * GAP) / 2;
+      for (let i = 0; i < n; i++) {
+        bx[i] = mx + (i % cols) * GAP;
+        by[i] = my + Math.floor(i / cols) * GAP;
+      }
+    };
+
+    /* ------------------------------------------------------------ estado */
+    let px = -9999;
+    let py = -9999;
+    let cursorDentro = false;
+    const pulsos: { x: number; y: number; t0: number }[] = [];
+    let raf = 0;
+
+    /* ------------------------------------------------------------ dibujo */
+    const cuadro = (t: number) => {
+      raf = 0;
+      const radioMax = Math.hypot(w, h) + ANCHO_PULSO;
+      while (pulsos.length && (t - pulsos[0]!.t0) * VEL_PULSO > radioMax) pulsos.shift();
+
+      let enMovimiento = pulsos.length > 0;
+      ctx.clearRect(0, 0, w, h);
+
+      // 1) Física y capa base.
+      ctx.fillStyle = colores.base;
+      ctx.globalAlpha = colores.alfaBase;
+      ctx.beginPath();
+      for (let i = 0; i < n; i++) {
+        for (const p of pulsos) {
+          const dx = bx[i]! - p.x;
+          const dy = by[i]! - p.y;
+          const d = Math.hypot(dx, dy) || 1;
+          const banda = Math.abs(d - (t - p.t0) * VEL_PULSO);
+          if (banda < ANCHO_PULSO) {
+            const k = 1 - banda / ANCHO_PULSO;
+            const atenua = Math.max(0, 1 - d / 900);
+            const f = FUERZA_PULSO * k * k * atenua;
+            vx[i]! += (dx / d) * f;
+            vy[i]! += (dy / d) * f;
+            brillo[i] = Math.max(brillo[i]!, k * atenua);
+          }
+        }
+        vx[i] = (vx[i]! - ox[i]! * MUELLE) * FRICCION;
+        vy[i] = (vy[i]! - oy[i]! * MUELLE) * FRICCION;
+        ox[i]! += vx[i]!;
+        oy[i]! += vy[i]!;
+        brillo[i]! *= 0.94;
+        if (Math.abs(ox[i]!) + Math.abs(oy[i]!) > 0.05 || brillo[i]! > 0.01) enMovimiento = true;
+        else {
+          ox[i] = oy[i] = vx[i] = vy[i] = brillo[i] = 0;
+        }
+        const x = bx[i]! + ox[i]!;
+        const y = by[i]! + oy[i]!;
+        ctx.moveTo(x + RADIO, y);
+        ctx.arc(x, y, RADIO, 0, Math.PI * 2);
+      }
+      ctx.fill();
+
+      // 2) Puntos encendidos (luz del cursor y pulso), por encima.
+      for (let i = 0; i < n; i++) {
+        const x = bx[i]! + ox[i]!;
+        const y = by[i]! + oy[i]!;
+        let luz = 0;
+        if (cursorDentro) {
+          const d = Math.hypot(x - px, y - py);
+          if (d < LUZ) luz = (1 - d / LUZ) ** 2;
+        }
+        const b = brillo[i]!;
+        if (luz < 0.02 && b < 0.02) continue;
+        const pulsoGana = b > luz;
+        ctx.globalAlpha = Math.min(1, pulsoGana ? b : luz);
+        ctx.fillStyle = pulsoGana ? colores.pulso : colores.luz;
+        ctx.beginPath();
+        ctx.arc(x, y, RADIO + 1.4 * Math.max(luz, b), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      if (enMovimiento) pedir();
+    };
+
+    const pedir = () => {
+      if (!raf) raf = requestAnimationFrame(cuadro);
+    };
+
+    /* ----------------------------------------------------------- eventos */
+    window.addEventListener(
+      'pointermove',
+      (e) => {
+        if (e.pointerType === 'touch') return; // en táctil solo pulsos
+        px = e.clientX;
+        py = e.clientY;
+        cursorDentro = true;
+        pedir();
+      },
+      { passive: true },
+    );
+    document.documentElement.addEventListener('pointerleave', () => {
+      cursorDentro = false;
+      pedir();
+    });
+    window.addEventListener(
+      'pointerdown',
+      (e) => {
+        if (reducido.matches) return;
+        pulsos.push({ x: e.clientX, y: e.clientY, t0: performance.now() });
+        if (pulsos.length > MAX_PULSOS) pulsos.shift();
+        pedir();
+      },
+      { passive: true },
+    );
+
+    let espera = 0;
+    new ResizeObserver(() => {
+      clearTimeout(espera);
+      espera = window.setTimeout(() => {
+        construir();
+        pedir();
+      }, 100);
+    }).observe(canvas);
+
+    // Tema: re-lee los colores si cambia data-theme o el esquema del sistema.
+    const recolorear = () => {
+      leerColores();
+      pedir();
+    };
+    new MutationObserver(recolorear).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme', 'class'],
+    });
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', recolorear);
+
+    leerColores();
+    construir();
+    pedir();
+  }
+</script>

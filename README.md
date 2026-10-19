@@ -9,16 +9,15 @@ Sitio web con los resultados de la encuesta panel **CNEP Colombia 2026**. El pla
 
 ## Comandos
 
-| Comando        | Acción                                      |
-| -------------- | ------------------------------------------- |
-| `pnpm install` | Instala dependencias                        |
-| `pnpm dev`     | Servidor de desarrollo en `localhost:4321`  |
-| `pnpm build`   | Genera el sitio estático en `dist/`         |
-| `pnpm preview` | Sirve localmente el build                   |
-| `pnpm check`   | Verificación de tipos (`astro check`)       |
-| `pnpm lint`    | ESLint                                      |
-| `pnpm format`  | Prettier                                    |
-| `pnpm test`    | Pruebas unitarias con Vitest (`tests/unit`) |
+| Comando        | Acción                                     |
+| -------------- | ------------------------------------------ |
+| `pnpm install` | Instala dependencias                       |
+| `pnpm dev`     | Servidor de desarrollo en `localhost:4321` |
+| `pnpm build`   | Genera el sitio estático en `dist/`        |
+| `pnpm preview` | Sirve localmente el build                  |
+| `pnpm check`   | Verificación de tipos (`astro check`)      |
+| `pnpm lint`    | ESLint                                     |
+| `pnpm format`  | Prettier                                   |
 
 ## Despliegue
 

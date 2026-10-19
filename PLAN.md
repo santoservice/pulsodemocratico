@@ -41,7 +41,7 @@ Fuentes de este plan:
 | Iconos | `astro-icon` + Lucide / Phosphor | Reemplaza los "Vector" de la maqueta |
 | Fuentes | `@fontsource-variable/*` (autohospedadas) | Sin dependencia de Google Fonts, mejor rendimiento |
 | Calidad | ESLint, Prettier (+ plugin Astro y Tailwind), `astro check` | |
-| Pruebas | Vitest (lógica de datos y quiz), Playwright (smoke + accesibilidad con axe) | |
+| Pruebas | Sin tests unitarios (decisión del cliente: sitio sencillo); verificación con `astro check`, lint y build | |
 | Rendimiento | Lighthouse CI en GitHub Actions | Meta: ≥95 en Performance, SEO y Accesibilidad |
 | Deploy | Cloudflare Pages conectado a GitHub (preview por PR) | |
 
@@ -251,7 +251,7 @@ pulsodemocratico/
 │  │  ├─ og/[tema].png.ts             # imagen social generada
 │  │  └─ 404.astro
 │  └─ styles/global.css     # @import "tailwindcss"; @theme { tokens }
-└─ tests/  unit/  e2e/
+
 ```
 
 ### 5.1 Datos
@@ -360,7 +360,7 @@ Nada se envía ni se guarda (todo en el navegador), como dice la maqueta.
 
 **Fase 1 — Datos (1 día)**
 - Script `extract-tablero.ts` → `src/data/tablero.json`.
-- Esquema Zod, tipos TS, helpers en `lib/tablero.ts`, formato es-CO. Tests Vitest.
+- Esquema Zod, tipos TS, helpers en `lib/tablero.ts`, formato es-CO.
 
 **Fase 2 — Wireframe navegable (2–3 días)**
 - Layout, Header/Nav/Footer, las 4 páginas + 6 temas con cajas grises (como la maqueta), responsive.

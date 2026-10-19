@@ -14,7 +14,6 @@
     "check": "astro check",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "test": "vitest run --passWithNoTests",
     "astro": "astro",
     "data:extract": "node --experimental-strip-types --no-warnings scripts/extract-tablero.ts"
   },
@@ -53,7 +52,6 @@
     "prettier-plugin-astro": "^1.1.1",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.71.2",
-    "vitest": "^5.0.4"
+    "typescript-eslint": "^8.71.2"
   }
 }
