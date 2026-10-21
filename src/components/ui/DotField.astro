@@ -3,14 +3,18 @@
  * Malla de puntos de fondo (toda la pantalla). Decorativa: un <canvas> fijo detrás del
  * contenido, sin eventos propios (pointer-events: none) y oculto para lectores de pantalla.
  *
- * - El cursor es una luz: los puntos cercanos se encienden y crecen.
- * - Clic / toque: un pulso (anillo) que sale del punto, empuja los puntos y los ilumina;
- *   luego vuelven a su sitio con un muelle amortiguado.
- * - Solo anima mientras hay algo que mover (luz, pulso o puntos fuera de sitio); quieto no
- *   gasta CPU. rAF se pausa solo en pestañas ocultas.
- * - prefers-reduced-motion: sin pulsos ni desplazamientos (la luz del cursor se mantiene).
- * - Colores desde variables CSS `--dots-*` (global.css), releídas si cambia el tema
- *   (`data-theme` en <html> o el esquema del sistema): preparado para un tema oscuro.
+ * Concepto «Pulso Democrático»: cada punto es una persona.
+ * - Cursor encima: los puntos cercanos se iluminan y se acercan un poco (la gente se reúne
+ *   alrededor de una idea).
+ * - Clic sostenido: se contraen hacia el punto (la discuten, como un corazón que se contrae).
+ * - Al soltar: latido doble («pum-pum») que se contagia de vecino en vecino. No es un anillo
+ *   perfecto: avanza más hacia unos lados que otros, con retrasos al azar, se apaga con la
+ *   distancia y no todos los puntos se encienden (no todos adoptan la idea).
+ * - Táctil: toque corto = contracción + pulso; arrastrar/scroll = luz tenue bajo el dedo, sin
+ *   pulso; mantener = nada. Brillo más suave en táctil.
+ * - Solo anima mientras hay algo que mover; quieto no gasta CPU.
+ * - prefers-reduced-motion: sin pulsos ni desplazamientos (solo la luz).
+ * - Colores desde variables CSS `--dots-*` (global.css), releídas si cambia el tema.
  */
 ---
 
@@ -29,12 +33,19 @@
     const GAP = 24; // separación de la malla (px CSS)
     const RADIO = 1.1; // radio base del punto
     const LUZ = 150; // radio de la luz del cursor
-    const VEL_PULSO = 0.7; // px por ms
-    const ANCHO_PULSO = 70; // grosor del anillo
-    const FUERZA_PULSO = 1.6;
-    const MUELLE = 0.06;
-    const FRICCION = 0.86;
+    const ATRAE_HOVER = 5; // px que se acercan los puntos al cursor
+    const ATRAE_CONTRAE = 11; // px al mantener el clic (contracción)
+    const ATRAE_DEDO = 3; // px al arrastrar el dedo
+    const VEL_PULSO = 0.55; // px por ms
+    const ANCHO_PULSO = 60; // grosor del frente
+    const FUERZA_PULSO = 1.5;
+    const ECO = { retraso: 190, fuerza: 0.45 }; // segundo golpe del latido
+    const MUELLE = 0.07;
+    const FRICCION = 0.85;
     const MAX_PULSOS = 6;
+    const TOQUE = { mov: 10, ms: 300, contraccion: 130 }; // toque corto en táctil
+    const BRILLO_TACTIL = 0.7; // atenúa el pulso en táctil
+    const LUZ_DEDO = 0.4; // intensidad de la luz al arrastrar
 
     const reducido = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -55,7 +66,6 @@
     /* ------------------------------------------------------------- malla */
     let w = 0;
     let h = 0;
-    let cols = 0;
     let n = 0;
     let bx = new Float32Array(0); // posición de reposo
     let by = new Float32Array(0);
@@ -64,6 +74,8 @@
     let vx = new Float32Array(0); // velocidad
     let vy = new Float32Array(0);
     let brillo = new Float32Array(0); // brillo del pulso (0–1), decae
+    let azarRetraso = new Float32Array(0); // 0–1: cuánto tarda en «oír» la idea
+    let azarAdopta = new Float32Array(0); // 0–1: umbral para adoptarla
 
     const construir = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -73,7 +85,7 @@
       canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      cols = Math.ceil(w / GAP) + 1;
+      const cols = Math.ceil(w / GAP) + 1;
       const filas = Math.ceil(h / GAP) + 1;
       n = cols * filas;
       bx = new Float32Array(n);
@@ -83,29 +95,71 @@
       vx = new Float32Array(n);
       vy = new Float32Array(n);
       brillo = new Float32Array(n);
+      azarRetraso = new Float32Array(n);
+      azarAdopta = new Float32Array(n);
       // Centra la malla en la ventana.
       const mx = (w - (cols - 1) * GAP) / 2;
       const my = (h - (filas - 1) * GAP) / 2;
       for (let i = 0; i < n; i++) {
         bx[i] = mx + (i % cols) * GAP;
         by[i] = my + Math.floor(i / cols) * GAP;
+        azarRetraso[i] = Math.random();
+        azarAdopta[i] = Math.random();
       }
     };
 
     /* ------------------------------------------------------------ estado */
-    let px = -9999;
-    let py = -9999;
-    let cursorDentro = false;
-    const pulsos: { x: number; y: number; t0: number }[] = [];
+    /** Foco = cursor o dedo: ilumina y atrae. `luz`/`atrae` son objetivos; se suavizan. */
+    const foco = { x: -9999, y: -9999, luz: 0, atrae: 0, luzActual: 0, atraeActual: 0 };
+    const tactil = { x0: 0, y0: 0, t0: 0, movio: false, activo: false };
+
+    /** Pulso con forma propia: lóbulos angulares (se contagia más hacia unos lados). */
+    type Pulso = {
+      x: number;
+      y: number;
+      t0: number;
+      fuerza: number;
+      alcance: number;
+      f1: number;
+      f2: number;
+      a1: number;
+      a2: number;
+    };
+    const pulsos: Pulso[] = [];
     let raf = 0;
+
+    const lanzarPulso = (x: number, y: number, fuerza: number) => {
+      if (reducido.matches) return;
+      const forma = {
+        f1: Math.random() * Math.PI * 2,
+        f2: Math.random() * Math.PI * 2,
+        a1: 0.18 + Math.random() * 0.14,
+        a2: 0.08 + Math.random() * 0.1,
+        alcance: 650 + Math.random() * 350,
+      };
+      const t0 = performance.now();
+      pulsos.push({ x, y, t0, fuerza, ...forma });
+      // Segundo golpe del latido: misma forma, más débil.
+      pulsos.push({ x, y, t0: t0 + ECO.retraso, fuerza: fuerza * ECO.fuerza, ...forma });
+      while (pulsos.length > MAX_PULSOS) pulsos.shift();
+      pedir();
+    };
 
     /* ------------------------------------------------------------ dibujo */
     const cuadro = (t: number) => {
       raf = 0;
-      const radioMax = Math.hypot(w, h) + ANCHO_PULSO;
+      const radioMax = Math.hypot(w, h) * 1.4 + ANCHO_PULSO + 40;
       while (pulsos.length && (t - pulsos[0]!.t0) * VEL_PULSO > radioMax) pulsos.shift();
 
-      let enMovimiento = pulsos.length > 0;
+      // Suaviza la luz y la atracción del foco (encender/apagar sin saltos).
+      foco.luzActual += (foco.luz - foco.luzActual) * 0.15;
+      foco.atraeActual += ((reducido.matches ? 0 : foco.atrae) - foco.atraeActual) * 0.2;
+      let enMovimiento =
+        pulsos.length > 0 ||
+        Math.abs(foco.luz - foco.luzActual) > 0.01 ||
+        Math.abs(foco.atrae - foco.atraeActual) > 0.05;
+      const conFoco = foco.luzActual > 0.01 || foco.atraeActual > 0.05;
+
       ctx.clearRect(0, 0, w, h);
 
       // 1) Física y capa base.
@@ -113,29 +167,57 @@
       ctx.globalAlpha = colores.alfaBase;
       ctx.beginPath();
       for (let i = 0; i < n; i++) {
+        // Atracción hacia el foco: el punto «quiere» estar un poco más cerca.
+        let tx = 0;
+        let ty = 0;
+        if (conFoco) {
+          const dx = foco.x - bx[i]!;
+          const dy = foco.y - by[i]!;
+          const d = Math.hypot(dx, dy);
+          if (d < LUZ && d > 0.5) {
+            const s = Math.min(foco.atraeActual * (1 - d / LUZ), d * 0.4);
+            tx = (dx / d) * s;
+            ty = (dy / d) * s;
+          }
+        }
+
+        // Pulsos: frente irregular que se contagia.
         for (const p of pulsos) {
+          const el = t - p.t0;
+          if (el < 0) continue;
           const dx = bx[i]! - p.x;
           const dy = by[i]! - p.y;
           const d = Math.hypot(dx, dy) || 1;
-          const banda = Math.abs(d - (t - p.t0) * VEL_PULSO);
-          if (banda < ANCHO_PULSO) {
-            const k = 1 - banda / ANCHO_PULSO;
-            const atenua = Math.max(0, 1 - d / 900);
-            const f = FUERZA_PULSO * k * k * atenua;
-            vx[i]! += (dx / d) * f;
-            vy[i]! += (dy / d) * f;
-            brillo[i] = Math.max(brillo[i]!, k * atenua);
+          const ang = Math.atan2(dy, dx);
+          const forma = 1 + p.a1 * Math.sin(ang * 3 + p.f1) + p.a2 * Math.sin(ang * 5 + p.f2);
+          // Distancia «social»: más lejos por la forma y por lo que tarda cada uno en oír.
+          const dEf = d / forma + azarRetraso[i]! * 45;
+          const banda = Math.abs(dEf - el * VEL_PULSO);
+          if (banda >= ANCHO_PULSO) continue;
+          const k = 1 - banda / ANCHO_PULSO;
+          const atenua = Math.max(0, 1 - dEf / (p.alcance * forma));
+          if (atenua <= 0) continue;
+          const f = FUERZA_PULSO * p.fuerza * k * k * atenua;
+          vx[i]! += (dx / d) * f;
+          vy[i]! += (dy / d) * f;
+          // Adopta la idea (se enciende) solo si supera su umbral; cerca casi todos, lejos pocos.
+          if (azarAdopta[i]! < atenua * 1.25) {
+            brillo[i] = Math.max(brillo[i]!, k * atenua * Math.min(1, p.fuerza));
           }
         }
-        vx[i] = (vx[i]! - ox[i]! * MUELLE) * FRICCION;
-        vy[i] = (vy[i]! - oy[i]! * MUELLE) * FRICCION;
+
+        vx[i] = (vx[i]! + (tx - ox[i]!) * MUELLE) * FRICCION;
+        vy[i] = (vy[i]! + (ty - oy[i]!) * MUELLE) * FRICCION;
         ox[i]! += vx[i]!;
         oy[i]! += vy[i]!;
         brillo[i]! *= 0.94;
-        if (Math.abs(ox[i]!) + Math.abs(oy[i]!) > 0.05 || brillo[i]! > 0.01) enMovimiento = true;
-        else {
-          ox[i] = oy[i] = vx[i] = vy[i] = brillo[i] = 0;
-        }
+        const quieto =
+          Math.abs(ox[i]! - tx) + Math.abs(oy[i]! - ty) < 0.05 &&
+          Math.abs(vx[i]!) + Math.abs(vy[i]!) < 0.02 &&
+          brillo[i]! < 0.01;
+        if (!quieto) enMovimiento = true;
+        else if (tx === 0 && ty === 0) ox[i] = oy[i] = vx[i] = vy[i] = brillo[i] = 0;
+
         const x = bx[i]! + ox[i]!;
         const y = by[i]! + oy[i]!;
         ctx.moveTo(x + RADIO, y);
@@ -143,16 +225,17 @@
       }
       ctx.fill();
 
-      // 2) Puntos encendidos (luz del cursor y pulso), por encima.
+      // 2) Puntos encendidos (luz del foco y pulso), por encima.
+      const atenuaPulso = tactil.activo ? BRILLO_TACTIL : 1;
       for (let i = 0; i < n; i++) {
         const x = bx[i]! + ox[i]!;
         const y = by[i]! + oy[i]!;
         let luz = 0;
-        if (cursorDentro) {
-          const d = Math.hypot(x - px, y - py);
-          if (d < LUZ) luz = (1 - d / LUZ) ** 2;
+        if (foco.luzActual > 0.01) {
+          const d = Math.hypot(x - foco.x, y - foco.y);
+          if (d < LUZ) luz = (1 - d / LUZ) ** 2 * foco.luzActual;
         }
-        const b = brillo[i]!;
+        const b = brillo[i]! * atenuaPulso;
         if (luz < 0.02 && b < 0.02) continue;
         const pulsoGana = b > luz;
         ctx.globalAlpha = Math.min(1, pulsoGana ? b : luz);
@@ -170,33 +253,94 @@
       if (!raf) raf = requestAnimationFrame(cuadro);
     };
 
-    /* ----------------------------------------------------------- eventos */
+    const enfocar = (x: number, y: number, luz: number, atrae: number) => {
+      foco.x = x;
+      foco.y = y;
+      foco.luz = luz;
+      foco.atrae = atrae;
+      pedir();
+    };
+    const soltarFoco = () => {
+      foco.luz = 0;
+      foco.atrae = 0;
+      pedir();
+    };
+
+    /* ------------------------------------------- escritorio (ratón / lápiz) */
+    let apretando = false;
     window.addEventListener(
       'pointermove',
       (e) => {
-        if (e.pointerType === 'touch') return; // en táctil solo pulsos
-        px = e.clientX;
-        py = e.clientY;
-        cursorDentro = true;
-        pedir();
+        if (e.pointerType === 'touch') return; // el táctil va por touch* (sigue durante el scroll)
+        tactil.activo = false;
+        enfocar(e.clientX, e.clientY, 1, apretando ? ATRAE_CONTRAE : ATRAE_HOVER);
       },
       { passive: true },
     );
-    document.documentElement.addEventListener('pointerleave', () => {
-      cursorDentro = false;
-      pedir();
+    document.documentElement.addEventListener('pointerleave', (e) => {
+      if (e.pointerType !== 'touch') soltarFoco();
     });
     window.addEventListener(
       'pointerdown',
       (e) => {
-        if (reducido.matches) return;
-        pulsos.push({ x: e.clientX, y: e.clientY, t0: performance.now() });
-        if (pulsos.length > MAX_PULSOS) pulsos.shift();
-        pedir();
+        if (e.pointerType === 'touch' || e.button !== 0) return;
+        apretando = true;
+        enfocar(e.clientX, e.clientY, 1, ATRAE_CONTRAE); // contracción
       },
       { passive: true },
     );
+    const soltar = (e: PointerEvent) => {
+      if (e.pointerType === 'touch' || !apretando) return;
+      apretando = false;
+      enfocar(e.clientX, e.clientY, 1, ATRAE_HOVER);
+      lanzarPulso(e.clientX, e.clientY, 1);
+    };
+    window.addEventListener('pointerup', soltar, { passive: true });
+    window.addEventListener('pointercancel', () => (apretando = false), { passive: true });
 
+    /* ------------------------------------------------------------- táctil */
+    window.addEventListener(
+      'touchstart',
+      (e) => {
+        const p = e.touches[0];
+        if (!p || e.touches.length > 1) return;
+        tactil.activo = true;
+        Object.assign(tactil, {
+          x0: p.clientX,
+          y0: p.clientY,
+          t0: performance.now(),
+          movio: false,
+        });
+      },
+      { passive: true },
+    );
+    window.addEventListener(
+      'touchmove',
+      (e) => {
+        const p = e.touches[0];
+        if (!p) return;
+        if (!tactil.movio && Math.hypot(p.clientX - tactil.x0, p.clientY - tactil.y0) > TOQUE.mov)
+          tactil.movio = true;
+        // Arrastre / scroll: luz tenue bajo el dedo, sin pulso.
+        if (tactil.movio) enfocar(p.clientX, p.clientY, LUZ_DEDO, ATRAE_DEDO);
+      },
+      { passive: true },
+    );
+    const finToque = () => {
+      const toqueCorto = !tactil.movio && performance.now() - tactil.t0 < TOQUE.ms;
+      if (!toqueCorto) return soltarFoco(); // arrastre o mantener: nada
+      // Toque corto: contracción breve y luego el pulso.
+      const { x0: x, y0: y } = tactil;
+      enfocar(x, y, 0.6, ATRAE_CONTRAE);
+      window.setTimeout(() => {
+        soltarFoco();
+        lanzarPulso(x, y, 1);
+      }, TOQUE.contraccion);
+    };
+    window.addEventListener('touchend', finToque, { passive: true });
+    window.addEventListener('touchcancel', soltarFoco, { passive: true });
+
+    /* ------------------------------------------------------------ tamaño */
     let espera = 0;
     new ResizeObserver(() => {
       clearTimeout(espera);
