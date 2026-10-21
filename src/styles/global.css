@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-@import '@fontsource-variable/inter';
+@import '@fontsource-variable/libre-franklin';
 
 /*
  * Tokens de diseño — Guía de marca Universidad de La Sabana (pág. 22 y ss.).
@@ -9,34 +9,46 @@
  *   Pantone 2707 #D9E1EF  azul pálido (superficies)
  *   Pantone 7499 #F7EFD9  crema (resaltado)
  *   Pantone Black C #2D2926 y sus tintas 90/80/70/50/30 % (mezcla con blanco).
- * La fuente Inter es provisional.
+ * Tipografía (guía pág. 40–42): Libre Franklin = principal (cuerpo, títulos, logo de La Sabana).
+ * Publico Banner (titulares destacados) y Cabinet Grotesk (apoyo) quedan pendientes de los archivos.
  * Los componentes solo usan estas utilidades (bg-surface, text-ink, border-border…),
  * nunca colores fijos: al cambiar los tokens cambia todo el sitio.
  *
- * Contraste WCAG (texto normal ≥ 4,5:1), medido sobre blanco / surface-muted / surface-sunken / crema:
- *   ink #2D2926        14,4 / 12,6 / 11,0 / 12,6
- *   ink-muted #575451   7,5 /  6,6 /  5,7 /  6,6   (Black 80 %; Black 70 % no llega a 4,5 sobre 2707)
- *   brand #00205B      15,5 / 13,5 / 11,8 / 13,5
- *   accent #00387D     11,3 /  9,9 /  8,6 /  9,8   (blanco sobre accent: 11,3)
+ * Contraste WCAG (texto normal ≥ 4,5:1), medido sobre page #FAF7ED / surface #F7EFD9 /
+ * surface-muted #F0E6C9 / surface-sunken #D9E1EF:
+ *   ink #2D2926        13,4 / 12,6 / 11,6 / 11,0
+ *   ink-muted #575451   7,0 /  6,6 /  6,0 /  5,7   (Black 80 %; Black 70 % no llega a 4,5 sobre 2707)
+ *   brand #00205B      14,4 / 13,5 / 12,4 / 11,8
+ *   accent #00387D     10,5 /  9,8 /  9,1 /  8,6   (blanco sobre accent: 11,3)
+ *   grana #A6192E       7,0 /  6,5 /  6,0
  */
 @theme {
-  /* Tipografía (placeholder: @fontsource-variable/inter) */
-  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  /* Tipografía de marca: Libre Franklin (variable, 100–900, autoalojada vía @fontsource). */
+  --font-sans: 'Libre Franklin Variable', 'Libre Franklin', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Libre Franklin Variable', 'Libre Franklin', ui-sans-serif, system-ui, sans-serif;
 
   /* Marca */
   --color-brand: #00205b;
   --color-brand-strong: #001640;
   --color-brand-light: #93aac9;
+  /*
+   * Secundarios UniSabana. Grana 187C: acento de titular (6,5:1 sobre crema 7499).
+   * Gold 871C: solo decoración/iconos sobre azul (1,8:1 sobre crema: NO texto sobre fondos claros).
+   * Ojo: en la guía, HEX y RGB no coinciden (Grana HEX A6192E vs RGB 150/58/34; Gold HEX 89764B
+   * vs RGB 215/179/107). Se usa el HEX de Grana y el RGB de Gold (el que se ve dorado).
+   */
+  --color-grana: #a6192e;
+  --color-gold: #d7b36b;
 
   /* Superficies */
-  --color-surface: #ffffff;
-  --color-surface-muted: #ecf0f7; /* 2707 al 50 % */
+  --color-surface: #f7efd9; /* tarjetas: 7499 */
+  --color-surface-muted: #f0e6c9; /* 7499 oscurecido (hover, paneles secundarios) */
   --color-surface-sunken: #d9e1ef; /* 2707 */
   --color-surface-highlight: #f7efd9; /* 7499 */
+  --color-page: #faf7ed; /* fondo de página: 7499 aclarado */
 
   /* Bordes y esqueletos (tintas de Pantone Black) */
-  --color-border: #c0bfbe; /* Black 30 % */
+  --color-border: #e3d7b6; /* 7499 oscurecido: borde de tarjetas */
   --color-border-strong: #969492; /* Black 50 % */
   --color-placeholder: #969492;
   --color-skeleton: #c0bfbe;
@@ -63,7 +75,7 @@
   --color-chart-muted: #93aac9;
   --color-chart-track: #d9e1ef;
   --color-chart-highlight: #f7efd9;
-  --color-chart-grid: #ffffff;
+  --color-chart-grid: #f7efd9; /* = surface: separa segmentos */
   /* Categorías de la barra apilada (izquierda · centro · derecha): neutras, sin colores partidistas. */
   --color-chart-cat-1: #00387d;
   --color-chart-cat-2: #c0bfbe;
@@ -77,7 +89,7 @@
   html {
     font-family: var(--font-sans);
     color: var(--color-ink);
-    background-color: var(--color-surface);
+    background-color: var(--color-page);
     scroll-behavior: smooth;
   }
 
