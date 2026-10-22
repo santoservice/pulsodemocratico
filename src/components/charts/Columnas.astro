@@ -1,0 +1,60 @@
+---
+import { posPct, r2 } from '../../lib/charts';
+import { pct } from '../../lib/format';
+
+/**
+ * Columnas verticales en el orden dado (p. ej. grupos de edad de menor a mayor), con el valor
+ * encima y la etiqueta debajo. Se resalta la columna más alta. Tabla `sr-only` accesible.
+ */
+export interface Props {
+  datos: readonly { key: string; label: string; valor: number }[];
+  titulo: string;
+  max?: number;
+  class?: string;
+}
+
+const ALTO = 150;
+const { datos, titulo, max = 100, class: className } = Astro.props;
+const mayor = Math.max(...datos.map((d) => d.valor));
+---
+
+<figure class:list={['w-full', className]}>
+  <ol class="flex items-end gap-3 border-b border-chart-track sm:gap-6" style={`height:${ALTO + 28}px`} aria-hidden="true">
+    {
+      datos.map((d) => (
+        <li class="flex h-full flex-1 flex-col items-center justify-end gap-1.5">
+          <span
+            class:list={[
+              'text-sm tabular-nums',
+              d.valor === mayor ? 'font-bold text-chart-accent' : 'font-semibold text-ink',
+            ]}
+          >
+            {pct(d.valor)}
+          </span>
+          <span
+            class:list={['w-full max-w-16', d.valor === mayor ? 'bg-chart-accent' : 'bg-chart-muted']}
+            style={`height:${r2((posPct(d.valor, 0, max) / 100) * ALTO)}px`}
+          />
+        </li>
+      ))
+    }
+  </ol>
+  <ol class="mt-2 flex gap-3 text-center text-xs leading-snug text-ink-muted sm:gap-6" aria-hidden="true">
+    {datos.map((d) => <li class="flex-1">{d.label}</li>)}
+  </ol>
+  <div class="sr-only">
+    <table>
+      <caption>{titulo}</caption>
+      <tbody>
+        {
+          datos.map((d) => (
+            <tr>
+              <th scope="row">{d.label}</th>
+              <td>{pct(d.valor)}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+</figure>

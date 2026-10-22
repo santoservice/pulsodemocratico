@@ -46,6 +46,20 @@ export interface ComparacionPromedio {
 
 export type Comparacion = ComparacionPorcentaje | ComparacionPromedio;
 
+/**
+ * Gráfica del resultado de cada pregunta (todas usan `distribucion`):
+ * - `columnas`: una columna por respuesta; «Tú» cae sobre la tuya.
+ * - `barra`: una barra partida en tramos (ancho = % que dio esa respuesta); «Tú» corre hasta el tuyo.
+ * - `personas`: 100 personitas; se colorean las que están en `valores` y «Tú» se marca en su grupo.
+ * - `pastel`: dos partes según `comparacion.valoresGrupo` (requiere `modo: 'porcentaje'`).
+ * `si` / `no`: predicado corto para quienes están dentro / fuera del grupo ("le pusieron 0…").
+ */
+export type GraficaQuiz =
+  | { tipo: 'columnas' }
+  | { tipo: 'barra' }
+  | { tipo: 'personas'; valores: readonly number[]; si: string; no: string }
+  | { tipo: 'pastel'; si: string; no: string };
+
 export interface PreguntaQuiz {
   id: string;
   /** Slug del tema en `src/data/temas.ts` (para "Ver resultados del tema"). */
@@ -62,6 +76,7 @@ export interface PreguntaQuiz {
   /** Etiquetas de [min, max] en la escala. */
   etiquetasExtremos?: readonly [string, string];
   comparacion: Comparacion;
+  grafica: GraficaQuiz;
   /** Personas por respuesta (respuestas válidas). */
   distribucion: readonly { valor: number; n: number }[];
   /** Total de respuestas válidas. */
@@ -195,6 +210,49 @@ export function evaluarRespuesta(p: PreguntaQuiz, valor: number): Evaluacion {
         ? 'por encima'
         : 'por debajo';
   return { ...base, diferencia, posicion, texto: textoPromedio(diferencia, posicion) };
+}
+
+/**
+ * Lo que se lee primero en «Tu resultado»: una cifra grande (`cifra` + `sufijo`), la frase
+ * que la explica (termina en «como tú») y un dato de contexto corto.
+ */
+export interface Destacado {
+  /** Valor numérico de la cifra (0–100), para animarla. */
+  valor: number;
+  formato: 'pct' | 'de100';
+  frase: string;
+  contexto: string;
+}
+
+export function destacadoResultado(p: PreguntaQuiz, valor: number): Destacado {
+  const g = p.grafica;
+  const c = p.comparacion;
+  const promedio =
+    c.modo === 'promedio'
+      ? `${PROMEDIO_ENCUESTADOS[0]!.toUpperCase()}${PROMEDIO_ENCUESTADOS.slice(1)}: ${decimal(c.valor)}.`
+      : '';
+  if (g.tipo === 'personas' || g.tipo === 'pastel') {
+    const valores = g.tipo === 'personas' ? g.valores : c.modo === 'porcentaje' ? c.valoresGrupo : [];
+    const pctSi = pctGrupoDesdeDistribucion(p, valores);
+    const dentro = valores.includes(valor);
+    return {
+      valor: dentro ? pctSi : 100 - pctSi,
+      formato: g.tipo === 'personas' ? 'de100' : 'pct',
+      frase: `${dentro ? g.si : g.no}, como tú.`,
+      // La leyenda de la gráfica ya muestra los dos grupos.
+      contexto: promedio,
+    };
+  }
+  const etiqueta = etiquetaRespuesta(p, valor);
+  return {
+    valor: pctMismaRespuesta(p, valor),
+    formato: 'pct',
+    frase: `respondió ${p.tipo === 'opciones' ? `«${etiqueta}»` : etiqueta}, como tú.`,
+    contexto:
+      c.modo === 'promedio'
+        ? promedio
+        : `En total, ${pct(c.valor)}: ${c.etiquetaGrupo.toLowerCase()}.`,
+  };
 }
 
 export type Respuestas = Readonly<Record<string, number | null | undefined>>;

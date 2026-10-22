@@ -4,6 +4,7 @@ import { ruta } from '../../lib/rutas';
 import {
   DE_LOS_ENCUESTADOS,
   PROMEDIO_ENCUESTADOS,
+  destacadoResultado,
   evaluarRespuesta,
   etiquetaRespuesta,
   posicionEnEscala,
@@ -11,14 +12,16 @@ import {
   resumenFinal,
   valoresPregunta,
   type ComparacionPorcentaje,
+  type Destacado,
   type Evaluacion,
   type PreguntaQuiz,
 } from '../../lib/quiz';
+import { GraficaResultado } from './GraficasQuiz';
 
 /**
  * Quiz «¿Dónde te ubicas frente al resto del país?» (PLAN.md §4.1, §6). Isla `client:visible`.
  *
- * Una sola tarjeta: barra de progreso arriba y, debajo, «Pregunta N de M» + «Empezar de nuevo».
+ * Una sola tarjeta: «Pregunta N de M» + «Empezar de nuevo» arriba y, debajo, la barra de progreso.
  * Elegir una opción no revela nada; «Siguiente» reemplaza la pregunta por «Tu resultado» en la
  * misma tarjeta, con una animación (la escala se dibuja, el promedio se desliza y cuenta,
  * aparece «Tú»), y «Continuar» pasa a la pregunta siguiente. Al terminar: «¡Listo!» + «Tu
@@ -61,6 +64,7 @@ export default function Quiz({ preguntas }: Props) {
   const p = preguntas[paso]!;
   const valor = respuestas[paso] ?? null;
   const evaluacion = vista === 'resultado' && valor != null ? evaluarRespuesta(p, valor) : null;
+  const destacado = evaluacion ? destacadoResultado(p, evaluacion.valor) : null;
   const ultima = paso === total - 1;
 
   const cambiar = (v: Vista, k = paso) => {
@@ -85,8 +89,16 @@ export default function Quiz({ preguntas }: Props) {
     'text-xl leading-snug font-semibold text-ink focus:outline-none focus-visible:outline-2 sm:text-2xl';
 
   return (
-    <div className="flex min-h-[26rem] min-w-0 flex-col border border-border bg-surface p-4 sm:p-6 md:p-8">
-      <ol className="flex gap-1.5" aria-hidden="true">
+    <div className="flex min-h-[30rem] min-w-0 flex-col border border-border bg-surface p-4 sm:p-6 md:p-8">
+      <div className="mb-3 flex items-center justify-between gap-3 text-sm text-ink-muted">
+        <p>
+          Pregunta {vista === 'final' ? total : paso + 1} de {total}
+        </p>
+        <button type="button" className={btnTexto} onClick={reiniciar}>
+          Empezar de nuevo <span aria-hidden="true">↺</span>
+        </button>
+      </div>
+      <ol className="mb-6 flex gap-1.5" aria-hidden="true">
         {preguntas.map((q, k) => {
           const hecha = vista === 'final' || k < paso || (k === paso && vista === 'resultado');
           return (
@@ -99,14 +111,6 @@ export default function Quiz({ preguntas }: Props) {
           );
         })}
       </ol>
-      <div className="mt-1 mb-5 flex items-center justify-between gap-3 text-sm text-ink-muted">
-        <p>
-          Pregunta {vista === 'final' ? total : paso + 1} de {total}
-        </p>
-        <button type="button" className={btnTexto} onClick={reiniciar}>
-          <span aria-hidden="true">↺</span> Empezar de nuevo
-        </button>
-      </div>
 
       {vista === 'pregunta' && (
         <Aparece
@@ -146,32 +150,30 @@ export default function Quiz({ preguntas }: Props) {
       {vista === 'resultado' && evaluacion && (
         <Aparece key={`r-${p.id}`} retraso={0} className="flex flex-1 flex-col">
           <p className="text-sm font-semibold tracking-wide text-ink-muted uppercase">
-            {p.temaTitulo}
+            Tu resultado · {p.temaTitulo}
           </p>
-          <h3 ref={tituloRef} tabIndex={-1} className={`mt-1 ${titulo}`}>
-            Tu resultado
+          {/* Lo primero que se lee: cifra grande + frase corta. */}
+          <h3
+            ref={tituloRef}
+            tabIndex={-1}
+            className="mt-2 focus:outline-none focus-visible:outline-2"
+            aria-live="polite"
+          >
+            <CifraDestacada d={destacado!} />
+            <span className="mt-1 block text-lg leading-snug font-semibold text-ink sm:text-xl">
+              {destacado!.frase[0]!.toUpperCase() === destacado!.frase[0]
+                ? destacado!.frase
+                : destacado!.frase}
+            </span>
           </h3>
-          <p className="mt-2 leading-snug text-ink-muted">{p.texto}</p>
-          <div className="mt-4">
-            {p.comparacion.modo === 'promedio' ? (
-              <EscalaComparada pregunta={p} valor={valor} promedio={p.comparacion.valor} animar />
-            ) : (
-              <BarraGrupo
-                c={p.comparacion}
-                dentro={evaluacion.dentroDelGrupo ?? null}
-                etiqueta={evaluacion.etiqueta}
-                animar
-              />
-            )}
+          <div className="mt-6">
+            <GraficaResultado pregunta={p} valor={valor!} />
           </div>
-          <div aria-live="polite" className="mt-5 min-h-16 leading-relaxed">
-            <Aparece retraso={RETRASO_TU + 200}>
-              <p className="font-semibold text-ink">{evaluacion.texto}</p>
-              <p className="mt-1 text-sm text-ink-muted">{evaluacion.textoMismaRespuesta}</p>
-            </Aparece>
-          </div>
-          <p className="mt-2 text-xs text-ink-muted">
-            {p.ronda} · {entero(p.n)} personas encuestadas respondieron esta pregunta.
+          {destacado!.contexto && (
+            <p className="mt-5 text-sm text-ink-muted">{destacado!.contexto}</p>
+          )}
+          <p className="mt-1 text-xs text-ink-muted">
+            {p.ronda} · {entero(p.n)} personas encuestadas.
           </p>
           <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-8">
             <a href={temaHref(p.tema)} className={enlaceTexto}>
@@ -269,7 +271,7 @@ function Opciones({
         aria-labelledby={labelledBy}
         className={
           esOpciones
-            ? 'grid grid-cols-2 gap-2'
+            ? 'grid grid-cols-2 gap-3'
             : valores.length > 6
               ? // 0–10 en pantallas < 400px: dos filas para que cada botón sea tocable (~40px).
                 'grid grid-cols-6 gap-1 min-[400px]:flex sm:gap-1.5'
@@ -298,8 +300,8 @@ function Opciones({
               onKeyDown={(e) => onKeyDown(e, k)}
               className={`border text-center font-semibold tabular-nums transition-colors ${
                 esOpciones
-                  ? 'min-h-12 px-2 py-2 text-sm leading-tight'
-                  : 'h-11 min-w-0 flex-1 px-0 text-sm sm:text-base'
+                  ? 'min-h-18 px-3 py-4 text-base leading-tight'
+                  : 'h-12 min-w-0 flex-1 px-0 text-sm sm:h-14 sm:text-base'
               } ${
                 sel
                   ? 'border-accent bg-accent text-on-accent'
@@ -397,6 +399,23 @@ function Aparece({
     >
       {children}
     </div>
+  );
+}
+
+/** Cifra principal del resultado ("39 %" o "77/100"), que cuenta desde 0. */
+function CifraDestacada({ d }: { d: Destacado }) {
+  const n = useContador(d.valor, true);
+  return (
+    <span className="block text-5xl leading-none font-bold tracking-tight text-grana tabular-nums sm:text-6xl">
+      {d.formato === 'pct' ? (
+        pct(n)
+      ) : (
+        <>
+          {entero(n)}
+          <span className="text-3xl text-ink-muted sm:text-4xl">/100</span>
+        </>
+      )}
+    </span>
   );
 }
 

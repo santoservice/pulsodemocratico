@@ -42,6 +42,7 @@ export const quiz = {
         etiquetaGrupo: 'Algunas veces o con frecuencia',
         etiquetaFuera: 'Nunca o casi nunca',
       },
+      grafica: { tipo: 'columnas' },
       distribucion: [
         { valor: 1, n: 112 },
         { valor: 2, n: 103 },
@@ -63,6 +64,7 @@ export const quiz = {
       max: 5,
       etiquetasExtremos: ['Total desacuerdo', 'Total acuerdo'],
       comparacion: { modo: 'promedio', valor: 4.21196130167107 },
+      grafica: { tipo: 'barra' },
       distribucion: [
         { valor: 0, n: 29 },
         { valor: 1, n: 19 },
@@ -88,6 +90,12 @@ export const quiz = {
       max: 10,
       etiquetasExtremos: ['Muy desfavorable', 'Muy favorable'],
       comparacion: { modo: 'promedio', valor: 0.713426853707415 },
+      grafica: {
+        tipo: 'personas',
+        valores: [0],
+        si: 'le pusieron 0 a los líderes del bando contrario',
+        no: 'le pusieron más de 0',
+      },
       distribucion: [
         { valor: 0, n: 766 },
         { valor: 1, n: 56 },
@@ -127,6 +135,7 @@ export const quiz = {
         etiquetaGrupo: 'La usa para eso (4 o 5)',
         etiquetaFuera: 'No la usa para eso (0 a 3)',
       },
+      grafica: { tipo: 'pastel', si: 'usa la IA para resumir propuestas', no: 'no la usa para eso' },
       distribucion: [
         { valor: 0, n: 312 },
         { valor: 1, n: 105 },
