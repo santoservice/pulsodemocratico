@@ -2,6 +2,7 @@
 import { Icon } from 'astro-icon/components';
 import MobileMenu from '../islands/MobileMenu';
 import { isActive, isCurrent, nav, sitio } from '../../data/sitio';
+import { ruta } from '../../lib/rutas';
 
 const path = Astro.url.pathname;
 ---
@@ -9,7 +10,7 @@ const path = Astro.url.pathname;
 <header class="relative z-30 border-t-4 border-b border-t-brand border-b-border bg-page">
   <div class="container-page flex h-16 items-center justify-between gap-6 md:h-20">
     <!-- TODO (cliente): sin logo; va el texto "Pulso Democrático" -->
-    <a href="/" class="text-lg font-bold tracking-tight text-brand md:text-xl">
+    <a href={ruta('/')} class="text-lg font-bold tracking-tight text-brand md:text-xl">
       {sitio.nombre}
     </a>
 

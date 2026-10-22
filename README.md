@@ -21,7 +21,15 @@ Sitio web con los resultados de la encuesta panel **CNEP Colombia 2026**. El pla
 
 ## Despliegue
 
-Cloudflare Pages:
+GitHub Pages (actual): el workflow [`deploy.yml`](.github/workflows/deploy.yml) compila en cada
+push a `main` y publica `dist/` en la rama `gh-pages`. El sitio queda en
+`https://<owner>.github.io/<repo>/`, así que el build recibe `BASE_PATH=/<repo>`; los enlaces
+internos deben pasar por `ruta()` (`src/lib/rutas.ts`).
+
+- Configuración única: Settings → Pages → Source: _Deploy from a branch_ → `gh-pages` / `(root)`.
+- Con dominio propio: quitar `BASE_PATH` del workflow y poner el dominio en `SITE_URL`.
+
+Cloudflare Pages (alternativa):
 
 - Comando de build: `pnpm build`
 - Directorio de salida: `dist`

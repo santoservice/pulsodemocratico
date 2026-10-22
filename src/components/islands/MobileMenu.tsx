@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { ruta } from '../../lib/rutas';
 
 interface NavLink {
   label: string;
@@ -20,7 +21,8 @@ function isCurrent(pathname: string, href: string): boolean {
 function isActive(pathname: string, href: string): boolean {
   const path = clean(pathname);
   const target = clean(href);
-  if (target === '/') return path === '/';
+  const inicio = clean(ruta('/'));
+  if (target === inicio) return path === inicio;
   return path === target || path.startsWith(`${target}/`);
 }
 

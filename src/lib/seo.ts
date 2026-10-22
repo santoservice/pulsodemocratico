@@ -3,6 +3,7 @@
  * Fase 5 añadirá `datasetJsonLd` (encuesta CNEP) a partir de tablero.json.
  */
 import { instituciones, sitio } from '../data/sitio';
+import { ruta } from './rutas';
 
 export type JsonLd = Record<string, unknown>;
 
@@ -12,8 +13,8 @@ export function pageTitle(title?: string): string {
 }
 
 export function absoluteUrl(path: string, site: URL | string | undefined): string {
-  if (!site) return path;
-  return new URL(path, site).toString();
+  if (!site) return ruta(path);
+  return new URL(ruta(path), site).toString();
 }
 
 export function websiteJsonLd(site: URL | string | undefined): JsonLd {

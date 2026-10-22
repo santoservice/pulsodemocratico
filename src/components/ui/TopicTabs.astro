@@ -2,6 +2,7 @@
 import { Icon } from 'astro-icon/components';
 import { temas, temaHref } from '../../data/temas';
 import { titulo } from '../../lib/format';
+import { ruta } from '../../lib/rutas';
 
 /**
  * Pestañas de resultados: "Principales hallazgos" + los 6 temas.
@@ -17,7 +18,7 @@ const items = [
   {
     key: 'principales',
     label: titulo('Principales hallazgos'),
-    href: '/resultados',
+    href: ruta('/resultados'),
     icon: 'lucide:sparkles',
   },
   ...temas.map((t) => ({

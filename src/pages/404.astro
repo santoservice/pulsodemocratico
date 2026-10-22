@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionHeader from '../components/ui/SectionHeader.astro';
 import LinkButton from '../components/ui/LinkButton.astro';
 import { temas, temaHref } from '../data/temas';
+import { ruta } from '../lib/rutas';
 ---
 
 <BaseLayout
@@ -17,10 +18,10 @@ import { temas, temaHref } from '../data/temas';
       lead="La página que buscas no existe o cambió de dirección."
     />
     <div class="mt-8 flex flex-wrap gap-3">
-      <LinkButton href="/" variant="primary">
+      <LinkButton href={ruta('/')} variant="primary">
         Volver al inicio
       </LinkButton>
-      <LinkButton href="/resultados" icon="lucide:arrow-right">
+      <LinkButton href={ruta('/resultados')} icon="lucide:arrow-right">
         Ver resultados
       </LinkButton>
     </div>

@@ -7,6 +7,8 @@
  * Regla del cliente: títulos con mayúscula inicial en cada palabra, escrita en el
  * contenido (no con CSS `capitalize`).
  */
+import { ruta } from '../lib/rutas';
+
 export type TemaDataKey = 'polarizacion' | 'populismo' | 'desinformacion' | 'ia' | 'consumo';
 
 export interface Tema {
@@ -102,5 +104,5 @@ export function getTemaByDataKey(key: TemaDataKey): Tema | undefined {
 }
 
 export function temaHref(slug: string): string {
-  return `/resultados/${slug}`;
+  return ruta(`/resultados/${slug}`);
 }

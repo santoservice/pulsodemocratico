@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { decimal, entero, pct } from '../../lib/format';
+import { ruta } from '../../lib/rutas';
 import {
   DE_LOS_ENCUESTADOS,
   PROMEDIO_ENCUESTADOS,
@@ -31,7 +32,7 @@ interface Props {
 
 type Vista = 'pregunta' | 'resultado' | 'final';
 
-const temaHref = (slug: string) => `/resultados/${slug}`;
+const temaHref = (slug: string) => ruta(`/resultados/${slug}`);
 const btnBase =
   'inline-flex min-h-11 items-center justify-center gap-2 border px-4 py-2 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40';
 const btnPrimario = `${btnBase} border-accent bg-accent text-on-accent hover:enabled:bg-accent-hover`;
@@ -219,7 +220,7 @@ export default function Quiz({ preguntas }: Props) {
             <button type="button" className={btnTexto} onClick={() => cambiar('pregunta', 0)}>
               <span aria-hidden="true">←</span> Revisar mis respuestas
             </button>
-            <a href="/resultados" className={enlaceTexto}>
+            <a href={ruta('/resultados')} className={enlaceTexto}>
               Ver todos los resultados <span aria-hidden="true">→</span>
             </a>
           </div>

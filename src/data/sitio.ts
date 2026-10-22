@@ -1,6 +1,7 @@
 import type { ImageMetadata } from 'astro';
 import { temas, temaHref } from './temas';
 import { titulo } from '../lib/format';
+import { ruta } from '../lib/rutas';
 import logoCnep from '../assets/logos/cnep.webp';
 import logoWisconsin from '../assets/logos/wisconsin.webp';
 import logoLaSabana from '../assets/logos/la-sabana.webp';
@@ -14,7 +15,7 @@ export const sitio = {
   locale: 'es_CO',
   lang: 'es-CO',
   /** TODO: reemplazar por la imagen social real (Fase 5 genera una por tema). */
-  ogImage: '/og/default.png',
+  ogImage: ruta('/og/default.png'),
 } as const;
 
 export interface NavItem {
@@ -25,14 +26,14 @@ export interface NavItem {
 
 /** Menú principal. Regla del cliente: títulos con mayúscula inicial (`titulo()`). */
 export const nav: NavItem[] = [
-  { label: 'Inicio', href: '/' },
+  { label: 'Inicio', href: ruta('/') },
   {
     label: 'Resultados',
-    href: '/resultados',
+    href: ruta('/resultados'),
     children: temas.map((t) => ({ label: titulo(t.titulo), href: temaHref(t.slug) })),
   },
-  { label: titulo('¿Cómo se hizo la encuesta?'), href: '/como-se-hizo' },
-  { label: titulo('Sobre el proyecto'), href: '/sobre-el-proyecto' },
+  { label: titulo('¿Cómo se hizo la encuesta?'), href: ruta('/como-se-hizo') },
+  { label: titulo('Sobre el proyecto'), href: ruta('/sobre-el-proyecto') },
 ];
 
 export interface Institucion {
@@ -132,6 +133,7 @@ export function isCurrent(pathname: string, href: string): boolean {
 export function isActive(pathname: string, href: string): boolean {
   const path = clean(pathname);
   const target = clean(href);
-  if (target === '/') return path === '/';
+  const inicio = clean(ruta('/'));
+  if (target === inicio) return path === inicio;
   return path === target || path.startsWith(`${target}/`);
 }
