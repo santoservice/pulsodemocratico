@@ -5,12 +5,25 @@ import { isActive, isCurrent, nav, sitio } from '../../data/sitio';
 import { ruta } from '../../lib/rutas';
 
 const path = Astro.url.pathname;
+// En Inicio el nombre del sitio se oculta mientras se ve el título grande del hero.
+const enInicio = isCurrent(path, ruta('/'));
 ---
 
-<header class="relative z-30 border-t-4 border-b border-t-brand border-b-border bg-page">
+<!--
+  Fijo arriba. La línea inferior aparece al hacer scroll (data-scroll); en Inicio el nombre
+  aparece cuando el título del hero sale de pantalla (data-nombre).
+-->
+<header
+  class="group/header sticky top-0 z-40 border-t-4 border-b border-t-brand border-b-transparent bg-page transition-colors duration-300 data-[scroll]:border-b-border"
+  data-header
+  data-nombre={enInicio ? 'oculto' : undefined}
+>
   <div class="container-page flex h-16 items-center justify-between gap-6 md:h-20">
     <!-- TODO (cliente): sin logo; va el texto "Pulso Democrático" -->
-    <a href={ruta('/')} class="text-lg font-bold tracking-tight text-brand md:text-xl">
+    <a
+      href={ruta('/')}
+      class="text-lg font-bold tracking-tight text-brand transition-[opacity,translate] duration-300 group-data-[nombre=oculto]/header:pointer-events-none group-data-[nombre=oculto]/header:-translate-y-1 group-data-[nombre=oculto]/header:opacity-0 md:text-xl"
+    >
       {sitio.nombre}
     </a>
 
@@ -18,11 +31,13 @@ const path = Astro.url.pathname;
       <ul class="flex items-center gap-1 lg:gap-4">
         {nav.map((item) => {
           const active = isActive(path, item.href);
+          // Activo: "píldora" blanca con texto azul; al pasar el mouse, un blanco tenue.
+          const pildora = active
+            ? 'bg-white font-semibold text-brand shadow-sm'
+            : 'text-ink hover:bg-white/60';
           const linkClass = [
-            'inline-flex items-center gap-1 border-b-2 px-2 py-2 text-[0.95rem] text-ink',
-            active
-              ? 'border-accent font-semibold text-brand'
-              : 'border-transparent hover:border-brand-light',
+            'inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-[0.95rem] transition-colors',
+            item.children ? '' : pildora,
           ].join(' ');
           if (!item.children) {
             return (
@@ -39,7 +54,7 @@ const path = Astro.url.pathname;
           }
           return (
             <li class="nav-dropdown group relative" data-dropdown>
-              <div class="flex items-center">
+              <div class:list={['flex items-center rounded-md pr-1 transition-colors', pildora]}>
                 <a
                   href={item.href}
                   class={linkClass}
@@ -49,7 +64,7 @@ const path = Astro.url.pathname;
                 </a>
                 <button
                   type="button"
-                  class="-ml-1 inline-flex h-8 w-6 items-center justify-center text-ink"
+                  class="-ml-2 inline-flex h-8 w-6 items-center justify-center"
                   aria-expanded="false"
                   aria-controls="submenu-resultados"
                   data-dropdown-toggle
@@ -88,6 +103,25 @@ const path = Astro.url.pathname;
 </header>
 
 <script>
+  // Línea inferior al hacer scroll y, en Inicio, nombre del sitio tras pasar el título del hero.
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  if (header) {
+    const marcarScroll = () => header.toggleAttribute('data-scroll', window.scrollY > 4);
+    marcarScroll();
+    window.addEventListener('scroll', marcarScroll, { passive: true });
+
+    const titulo = document.getElementById('titulo-principal');
+    if (titulo && header.dataset.nombre) {
+      new IntersectionObserver(
+        ([e]) => {
+          if (e) header.dataset.nombre = e.isIntersecting ? 'oculto' : 'visible';
+        },
+        // El título cuenta como "visible" solo por debajo del header fijo.
+        { rootMargin: `-${header.offsetHeight}px 0px 0px 0px` },
+      ).observe(titulo);
+    }
+  }
+
   // Mejora progresiva del desplegable de escritorio: el CSS (:hover / :focus-within)
   // ya lo abre; este script sincroniza aria-expanded, permite abrir con el botón y
   // cerrar con Escape.
