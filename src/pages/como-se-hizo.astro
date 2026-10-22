@@ -4,8 +4,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionHeader from '../components/ui/SectionHeader.astro';
 import LinkButton from '../components/ui/LinkButton.astro';
 import { cnep } from '../data/sitio';
-import { PANEL_COMPLETO, fichaTecnica, rondas } from '../data/ficha-tecnica';
-import { entero, titulo } from '../lib/format';
+import LineaPanel from '../components/ui/LineaPanel.astro';
+import RematePanel from '../components/ui/RematePanel.astro';
+import { fichaTecnica } from '../data/ficha-tecnica';
+import { titulo } from '../lib/format';
 import { datasetJsonLd } from '../lib/seo';
 import { getIndicadores } from '../lib/tablero';
 
@@ -34,17 +36,15 @@ const dataset = datasetJsonLd(
       <p class="mt-2 text-ink-muted">Los datos clave del estudio.</p>
       <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {fichaTecnica.map((item) => (
-          <li class="flex gap-4 border border-border bg-surface p-4">
+          <li class="flex flex-col border border-border bg-surface p-5 md:p-6">
             <span
-              class="flex h-11 w-11 shrink-0 items-center justify-center bg-surface-sunken text-accent"
+              class="mx-auto flex h-12 w-12 items-center justify-center bg-surface-sunken text-accent"
               aria-hidden="true"
             >
-              <Icon name={`lucide:${item.icono}`} class="h-5 w-5" />
+              <Icon name={`lucide:${item.icono}`} class="h-6 w-6" />
             </span>
-            <div>
-              <h3 class="font-semibold text-brand">{item.titulo}</h3>
-              <p class="mt-1 text-sm leading-relaxed text-ink-muted">{item.texto}</p>
-            </div>
+            <h3 class="mt-4 text-lg font-bold text-brand">{item.titulo}</h3>
+            <p class="mt-2 leading-relaxed text-ink-muted">{item.texto}</p>
           </li>
         ))}
       </ul>
@@ -59,41 +59,11 @@ const dataset = datasetJsonLd(
         Consultamos a las mismas personas antes, durante y después de las dos vueltas
         presidenciales.
       </p>
-      <ol class="mt-8 flex flex-col items-stretch gap-2 md:flex-row md:items-center md:gap-3">
-        {rondas.map((r, i) => (
-          <>
-            <li class="flex flex-1 items-start gap-4 border border-border bg-surface p-4 md:p-5">
-              <span
-                class="flex h-14 w-14 shrink-0 items-center justify-center bg-surface-sunken text-accent"
-                aria-hidden="true"
-              >
-                <Icon name="lucide:clipboard-check" class="h-6 w-6" />
-              </span>
-              <div>
-                <h3 class="text-lg font-bold text-brand">Ronda {r.n}</h3>
-                <p class="text-sm text-ink">{r.nota}</p>
-                <p class="mt-1 text-sm text-ink-muted">Fecha de aplicación: {r.fechas}</p>
-                <p class="mt-1 text-sm font-semibold text-ink">
-                  {entero(r.personas)} participantes · {entero(r.preguntas)} preguntas
-                </p>
-              </div>
-            </li>
-            {i < rondas.length - 1 && (
-              <li aria-hidden="true" class="flex justify-center text-accent">
-                <Icon name="lucide:arrow-down" class="h-6 w-6 md:hidden" />
-                <Icon name="lucide:arrow-right" class="hidden h-6 w-6 md:block" />
-              </li>
-            )}
-          </>
-        ))}
-      </ol>
+      <LineaPanel />
+      <div class="mt-12">
+        <RematePanel />
+      </div>
       <div class="mt-8 max-w-3xl space-y-3 leading-relaxed text-ink-muted">
-        <p class="border-l-4 border-accent bg-surface-highlight px-4 py-3 text-ink">
-          <strong class="font-semibold">
-            {entero(PANEL_COMPLETO)} personas respondieron las tres rondas;
-          </strong>
-          las demás participaron en una o dos.
-        </p>
         <p>
           En las encuestas tipo panel es normal que algunas personas dejen de participar entre una
           ronda y otra, por falta de tiempo, porque no ven la invitación o porque deciden no

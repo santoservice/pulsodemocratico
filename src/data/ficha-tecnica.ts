@@ -107,5 +107,11 @@ export const rondas = [
   },
 ] as const satisfies readonly Ronda[];
 
+/** Vueltas presidenciales, hitos entre rondas en la línea de tiempo del panel. */
+export const vueltas = [
+  { nombre: '1.ª vuelta', fecha: '31 de mayo' },
+  { nombre: '2.ª vuelta', fecha: '21 de junio' },
+] as const;
+
 /** Personas que respondieron las tres rondas (texto del cliente). */
 export const PANEL_COMPLETO = 1081;
