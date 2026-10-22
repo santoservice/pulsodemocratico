@@ -1,0 +1,96 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { Titular } from '../../lib/textos';
+
+/**
+ * Tarjeta de hallazgo (PLAN.md §4.2). Orden pensado para quien no quiere leer:
+ * número grande → frase de una línea → gráfica (slot) → "Ver detalle".
+ *
+ * Toda la tarjeta es clicable mediante un <button> que la cubre ("stretched button"; así el
+ * contenido sigue siendo HTML válido fuera del botón). El botón lleva `data-indicador` /
+ * `data-tarjeta` para que el modal de la Fase 4 (QuestionModal, client:idle) lo abra.
+ * Sin la isla, no hace nada. El enlace al tema (opcional) queda por encima del botón.
+ */
+export interface Props {
+  numero: number;
+  titulo: string;
+  titular?: Titular;
+  /** Frase de una línea con el dato en lenguaje sencillo. */
+  resumen?: string;
+  /** Clave del indicador principal en tablero.json (para el modal). */
+  indicador?: string;
+  /** Id de la tarjeta (para el modal / anclas). */
+  tarjeta?: string;
+  /** Enlace al tema (en /resultados). */
+  tema?: { titulo: string; href: string };
+  headingLevel?: 'h2' | 'h3';
+}
+
+const {
+  numero,
+  titulo,
+  titular,
+  resumen,
+  indicador,
+  tarjeta,
+  tema,
+  headingLevel: H = 'h3',
+} = Astro.props;
+const num = String(numero).padStart(2, '0');
+const accessibleName = `Ver detalle del hallazgo ${num}: ${titulo}`;
+---
+
+<article
+  id={tarjeta}
+  class="group relative flex h-full scroll-mt-24 flex-col border border-border bg-surface p-4 transition-colors focus-within:border-ink hover:border-border-strong md:p-5"
+>
+  <div class="flex items-start gap-3">
+    <span class="mt-0.5 shrink-0 border border-border bg-surface-muted px-2 py-0.5 text-xs font-medium text-ink-muted">
+      {num}
+    </span>
+    <H class="flex-1 text-base leading-snug font-semibold">{titulo}</H>
+  </div>
+  {titular && (
+    <p class="mt-4 flex flex-wrap items-baseline gap-x-2 leading-none">
+      <span class="font-display text-5xl font-bold tracking-tight text-ink tabular-nums">
+        {titular.valor}
+      </span>
+      {titular.sufijo && <span class="text-lg font-semibold text-ink-muted">{titular.sufijo}</span>}
+    </p>
+  )}
+  {resumen && <p class="mt-3 leading-relaxed text-ink">{resumen}</p>}
+  <div class="mt-5 flex-1">
+    <slot />
+  </div>
+  <div class="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm">
+    {tema ? (
+      <a
+        href={tema.href}
+        class="relative z-10 font-semibold underline underline-offset-4 hover:no-underline"
+      >
+        Más sobre {tema.titulo}
+      </a>
+    ) : (
+      <span />
+    )}
+    <span
+      class="ml-auto inline-flex items-center gap-1 font-medium text-ink-muted group-hover:text-ink"
+      aria-hidden="true"
+    >
+      Ver detalle
+      <Icon
+        name="lucide:chevron-right"
+        class="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+      />
+    </span>
+  </div>
+  <button
+    type="button"
+    class="absolute inset-0 h-full w-full cursor-pointer"
+    data-indicador={indicador}
+    data-tarjeta={tarjeta}
+    aria-haspopup="dialog"
+  >
+    <span class="sr-only">{accessibleName}</span>
+  </button>
+</article>

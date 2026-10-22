@@ -1,0 +1,103 @@
+---
+import { r2, slopeLayout, type PuntoSlope } from '../../lib/charts';
+import { decimal, pct } from '../../lib/format';
+
+/**
+ * Pendiente entre rondas (R1 → R2 → R3) con intervalos opcionales.
+ * Línea e intervalos en SVG (se estira al ancho con non-scaling-stroke); puntos y textos en
+ * HTML posicionados en % / px para que no se deformen ni escalen.
+ */
+export interface Props {
+  serie: readonly PuntoSlope[];
+  lo: number;
+  hi: number;
+  stat: 'pct' | 'media';
+  id: string;
+  titulo: string;
+  /**
+   * Muestra los intervalos de confianza como bigotes. Por defecto NO: la muestra no es
+   * probabilística y el sitio no presenta márgenes de error (PLAN.md §5.1).
+   */
+  conIc?: boolean;
+  /** Nota bajo la gráfica ("Mismas personas en las rondas"). */
+  nota?: string;
+  class?: string;
+}
+
+const ALTO = 150;
+const { serie, lo, hi, stat, id, titulo, conIc = false, nota, class: className } = Astro.props;
+const { puntos, path } = slopeLayout(serie, lo, hi, ALTO, { conIc, margenY: 30 });
+const fmt = (v: number) => (stat === 'pct' ? pct(v) : decimal(v));
+const desc = puntos.map((p) => `${p.label}: ${fmt(p.valor)}`).join('; ');
+---
+
+<figure class:list={['w-full', className]}>
+  <div class="relative" style={`height:${ALTO}px`}>
+    <svg
+      viewBox={`0 0 100 ${ALTO}`}
+      preserveAspectRatio="none"
+      role="img"
+      aria-labelledby={`${id}-t ${id}-d`}
+      class="absolute inset-0 block h-full w-full"
+    >
+      <title id={`${id}-t`}>{titulo}</title>
+      <desc id={`${id}-d`}>{desc}</desc>
+      <line
+        x1="0"
+        x2="100"
+        y1={ALTO - 18}
+        y2={ALTO - 18}
+        class="stroke-chart-track"
+        stroke-width="1"
+        vector-effect="non-scaling-stroke"
+      />
+      {conIc &&
+        puntos.map((p) => (
+          <line
+            x1={r2(p.x)}
+            x2={r2(p.x)}
+            y1={r2(p.y0)}
+            y2={r2(p.y1)}
+            class="stroke-chart-accent-soft"
+            stroke-width="6"
+            stroke-linecap="round"
+            vector-effect="non-scaling-stroke"
+          />
+        ))}
+      <path
+        d={path}
+        fill="none"
+        class="stroke-chart-accent"
+        stroke-width="2.5"
+        stroke-linejoin="round"
+        vector-effect="non-scaling-stroke"
+      />
+    </svg>
+    <div aria-hidden="true">
+      {puntos.map((p, k) => (
+        <>
+          <span
+            class="absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface bg-chart-accent"
+            style={`left:${r2(p.x)}%;top:${r2(p.y)}px`}
+          />
+          <span
+            class:list={[
+              'absolute -translate-x-1/2 -translate-y-full text-sm whitespace-nowrap tabular-nums',
+              k === puntos.length - 1 ? 'font-bold text-chart-accent' : 'font-semibold text-ink',
+            ]}
+            style={`left:${r2(p.x)}%;top:${r2(Math.min(p.y1, p.y) - 6)}px`}
+          >
+            {fmt(p.valor)}
+          </span>
+          <span
+            class="absolute bottom-0 -translate-x-1/2 text-xs whitespace-nowrap text-ink-muted"
+            style={`left:${r2(p.x)}%`}
+          >
+            {p.label}
+          </span>
+        </>
+      ))}
+    </div>
+  </div>
+  {nota && <figcaption class="mt-2 text-xs text-ink-muted">{nota}</figcaption>}
+</figure>

@@ -1,0 +1,68 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHeader from '../../components/ui/SectionHeader.astro';
+import TopicTabs from '../../components/ui/TopicTabs.astro';
+import StatsRow from '../../components/ui/StatsRow.astro';
+import FindingsGrid from '../../components/results/FindingsGrid.astro';
+import QuestionModal from '../../components/results/QuestionModal.astro';
+import { temas } from '../../data/temas';
+import { getIndicadores, getTarjetasDestacadas } from '../../lib/tablero';
+import { datasetJsonLd } from '../../lib/seo';
+import { titulo } from '../../lib/format';
+
+const lead =
+  'Explora los hallazgos sobre las percepciones, opiniones y actitudes de los colombianos durante la campaña presidencial de 2026.';
+
+// 1–3 indicadores `destacado: true` por tema, en el orden de las pestañas.
+const ordenTemas = temas.flatMap((t) => (t.dataKey ? [t.dataKey] : []));
+const destacados = getTarjetasDestacadas(ordenTemas);
+const dataset = datasetJsonLd(
+  { variables: getIndicadores().map((i) => i.titulo), path: '/resultados' },
+  Astro.site,
+);
+---
+
+<BaseLayout
+  title={titulo('Resultados de la encuesta')}
+  description="Principales hallazgos de la encuesta panel CNEP Colombia 2026: polarización, populismo, desinformación, inteligencia artificial, consumo mediático y jóvenes."
+  jsonLd={dataset}
+>
+  <div class="container-page py-10 md:py-14">
+    <SectionHeader title="Resultados de la encuesta" lead={lead}>
+      <p class="mt-3 text-lg leading-relaxed text-ink-muted">
+        Aquí presentamos, por temática, los resultados{' '}
+        <strong class="font-semibold text-brand">más relevantes</strong> de la encuesta.
+      </p>
+    </SectionHeader>
+
+    <div class="mt-8">
+      <TopicTabs active="principales" />
+    </div>
+
+    <section aria-labelledby="cifras-titulo" class="mt-8">
+      <h2 id="cifras-titulo" class="sr-only">
+        La encuesta en cifras
+      </h2>
+      <StatsRow variant="boxed" />
+    </section>
+
+    <section aria-labelledby="hallazgos-titulo" class="mt-12">
+      <SectionHeader
+        as="h2"
+        id="hallazgos-titulo"
+        eyebrow={false}
+        title="Principales hallazgos"
+        lead="Una mirada global a los resultados de la encuesta."
+      />
+      <div class="mt-6">
+        <FindingsGrid
+          tarjetas={destacados}
+          conTema
+          mostrarCambio={false}
+          label="Principales hallazgos"
+        />
+      </div>
+    </section>
+  </div>
+  <QuestionModal tarjetas={destacados} />
+</BaseLayout>

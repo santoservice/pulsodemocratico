@@ -1,0 +1,35 @@
+---
+import InstitutionLogos from '../ui/InstitutionLogos.astro';
+import { creditos, nav } from '../../data/sitio';
+---
+
+<footer class="mt-16 border-t-4 border-brand bg-page">
+  <div class="container-page py-12">
+    <p
+      id="footer-instituciones"
+      class="mb-6 text-center text-xs font-semibold tracking-[0.2em] text-brand uppercase"
+    >
+      Una iniciativa de
+    </p>
+    <InstitutionLogos size="sm" labelledby="footer-instituciones" />
+
+    <nav aria-label="Pie de página" class="mt-10 border-t border-border pt-8">
+      <ul class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
+        {nav.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              class="text-ink-muted underline-offset-4 hover:text-accent hover:underline"
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <p class="mx-auto mt-8 max-w-3xl text-center text-xs leading-relaxed text-ink-muted">
+      {creditos}
+    </p>
+  </div>
+</footer>

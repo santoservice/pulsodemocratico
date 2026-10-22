@@ -1,0 +1,44 @@
+---
+import { Icon } from 'astro-icon/components';
+import { orcidId, partesCorreo, type Integrante } from '../../data/equipo';
+
+/**
+ * Enlace ORCID + correos. Los correos no aparecen completos en el HTML: el `mailto:` se arma
+ * en el navegador a partir de data-u / data-d (protección leve contra recolectores; el script
+ * está en TeamGrid). Sin JS queda el texto "usuario [arroba] dominio".
+ */
+export interface Props {
+  persona: Integrante;
+  class?: string;
+}
+
+const { persona, class: className } = Astro.props;
+---
+
+<ul class:list={['relative z-10 space-y-1.5 text-sm', className]}>
+  <li>
+    <a
+      href={persona.orcid}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-flex items-center gap-1.5 font-medium text-accent underline-offset-4 hover:underline"
+    >
+      <Icon name="lucide:id-card" class="h-4 w-4 shrink-0" aria-hidden="true" />
+      ORCID
+      <span class="sr-only">
+        de {persona.nombre}: {orcidId(persona.orcid)} (abre en una pestaña nueva)
+      </span>
+    </a>
+  </li>
+  {persona.correos.map((correo) => {
+    const { usuario, dominio } = partesCorreo(correo);
+    return (
+      <li class="flex items-center gap-1.5 break-all">
+        <Icon name="lucide:mail" class="h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
+        <span data-correo data-u={usuario} data-d={dominio} class="text-ink-muted">
+          {usuario} [arroba] {dominio}
+        </span>
+      </li>
+    );
+  })}
+</ul>

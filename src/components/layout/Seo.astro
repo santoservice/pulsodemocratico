@@ -1,0 +1,56 @@
+---
+import { sitio } from '../../data/sitio';
+import {
+  absoluteUrl,
+  organizationJsonLd,
+  pageTitle,
+  serializeJsonLd,
+  websiteJsonLd,
+  type JsonLd,
+} from '../../lib/seo';
+
+export interface Props {
+  /** Título de la página (sin el sufijo del sitio). */
+  title?: string;
+  description?: string;
+  /** Ruta de la imagen social. TODO Fase 5: imagen generada por tema. */
+  image?: string;
+  /** JSON-LD adicional de la página (BreadcrumbList, Dataset…). */
+  jsonLd?: JsonLd | JsonLd[];
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = sitio.descripcion,
+  image = sitio.ogImage,
+  jsonLd,
+  noindex = false,
+} = Astro.props;
+
+const fullTitle = pageTitle(title);
+const canonical = absoluteUrl(Astro.url.pathname, Astro.site);
+const imageUrl = absoluteUrl(image, Astro.site);
+const extra = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+const graph = [websiteJsonLd(Astro.site), organizationJsonLd(Astro.site), ...extra];
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex" />}
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content={sitio.nombre} />
+<meta property="og:locale" content={sitio.locale} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={imageUrl} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageUrl} />
+
+<script type="application/ld+json" is:inline set:html={serializeJsonLd(graph)} />

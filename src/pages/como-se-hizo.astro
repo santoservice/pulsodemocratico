@@ -1,0 +1,130 @@
+---
+import { Icon } from 'astro-icon/components';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeader from '../components/ui/SectionHeader.astro';
+import LinkButton from '../components/ui/LinkButton.astro';
+import { cnep } from '../data/sitio';
+import LineaPanel from '../components/ui/LineaPanel.astro';
+import RematePanel from '../components/ui/RematePanel.astro';
+import { fichaTecnica } from '../data/ficha-tecnica';
+import { titulo } from '../lib/format';
+import { datasetJsonLd } from '../lib/seo';
+import { getIndicadores } from '../lib/tablero';
+
+const intro =
+  'Seguimos a un mismo grupo de colombianos en tres momentos de la campaña presidencial de 2026 para entender cómo se informan, qué piensan y cómo cambian sus opiniones.';
+
+const dataset = datasetJsonLd(
+  { variables: getIndicadores().map((i) => i.titulo), path: '/como-se-hizo' },
+  Astro.site,
+);
+---
+
+<BaseLayout
+  title={titulo('¿Cómo se hizo la encuesta?')}
+  description="Ficha técnica y metodología de la encuesta panel CNEP Colombia 2026: tres rondas en línea con las mismas personas durante la campaña presidencial."
+  jsonLd={dataset}
+>
+  <div class="container-page py-10 md:py-14">
+    <SectionHeader title="¿Cómo se hizo la encuesta?" lead={intro} />
+
+    <!-- Ficha técnica -->
+    <section aria-labelledby="ficha-titulo" class="mt-12 bg-surface-muted p-5 md:p-8">
+      <h2 id="ficha-titulo" class="text-2xl font-bold text-brand md:text-3xl">
+        {titulo('Ficha técnica')}
+      </h2>
+      <p class="mt-2 text-ink-muted">Los datos clave del estudio.</p>
+      <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {fichaTecnica.map((item, i) => (
+          <li class="relative flex flex-col overflow-hidden border border-border bg-surface p-5 md:p-6">
+            {/* Ícono grande y tenue de fondo, cortado por una esquina (alterna abajo/arriba). */}
+            <Icon
+              name={item.icono}
+              aria-hidden="true"
+              class:list={[
+                'pointer-events-none absolute text-gold/30',
+                item.id === 'cobertura'
+                  ? '-right-8 -bottom-14 h-56 w-44'
+                  : i % 2 === 0 || item.id === 'trabajo-de-campo'
+                    ? '-right-8 -bottom-8 h-36 w-36'
+                    : '-top-8 -right-8 h-36 w-36',
+              ]}
+            />
+            <h3 class="relative text-lg font-bold text-brand">{item.titulo}</h3>
+            <p class="relative mt-2 leading-relaxed text-ink-muted">{item.texto}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- Panel -->
+    <section aria-labelledby="panel-titulo" class="mt-16">
+      <h2 id="panel-titulo" class="text-2xl font-bold text-brand md:text-3xl">
+        {titulo('Así funciona el panel')}
+      </h2>
+      <p class="mt-2 text-ink-muted">
+        Consultamos a las mismas personas antes, durante y después de las dos vueltas
+        presidenciales.
+      </p>
+      <LineaPanel />
+      <div class="mt-12">
+        <RematePanel />
+      </div>
+      <div class="mt-8 max-w-3xl space-y-3 leading-relaxed text-ink-muted">
+        <p>
+          En las encuestas tipo panel es normal que algunas personas dejen de participar entre una
+          ronda y otra, por falta de tiempo, porque no ven la invitación o porque deciden no
+          continuar. Por eso el número de participantes baja de una ronda a la siguiente.
+        </p>
+        <p>
+          El número de preguntas también varía: cada ronda combina un núcleo común, que permite
+          comparar los cambios, con preguntas propias de cada momento de la campaña.
+        </p>
+      </div>
+    </section>
+
+    <!-- Qué puede y qué no puede decir (propuesta de diseño) -->
+    <section aria-labelledby="alcance-titulo" class="mt-16 border border-border p-5 md:p-8">
+      <h2 id="alcance-titulo" class="text-2xl font-bold text-brand md:text-3xl">
+        {titulo('Qué puede y qué no puede decir esta encuesta')}
+      </h2>
+      <div class="mt-6 grid gap-6 md:grid-cols-2">
+        <div class="bg-surface-muted p-5">
+          <h3 class="flex items-center gap-2 font-bold text-brand">
+            <Icon name="lucide:check" class="h-5 w-5" aria-hidden="true" /> Sí sirve para
+          </h3>
+          <ul class="mt-3 list-disc space-y-2 pl-5 text-ink-muted">
+            <li>Comparar grupos (por edad, sexo, estudios o estrato).</li>
+            <li>Ver si la gente cambió de opinión entre rondas.</li>
+          </ul>
+        </div>
+        <div class="bg-surface-muted p-5">
+          <h3 class="flex items-center gap-2 font-bold text-brand">
+            <Icon name="lucide:x" class="h-5 w-5" aria-hidden="true" /> No sirve para
+          </h3>
+          <ul class="mt-3 list-disc space-y-2 pl-5 text-ink-muted">
+            <li>Decir qué porcentaje del país piensa cada cosa.</li>
+            <li>Calcular un margen de error.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="mt-4 text-sm text-ink-muted">
+        La muestra no es probabilística: los resultados describen a las personas encuestadas.
+      </p>
+    </section>
+
+    <!-- Cierre -->
+    <section aria-labelledby="cta-titulo" class="mt-16 bg-surface-sunken p-6 text-center md:p-10">
+      <h2 id="cta-titulo" class="sr-only">
+        {titulo('Datos completos de la encuesta')}
+      </h2>
+      <p class="mx-auto max-w-2xl text-lg text-ink">
+        Si quieres conocer los datos de toda la encuesta, consúltalos en la página oficial del
+        Comparative National Elections Project (CNEP).
+      </p>
+      <LinkButton href={cnep.url} external variant="primary" class="mt-6">
+        Página web de CNEP
+      </LinkButton>
+    </section>
+  </div>
+</BaseLayout>

@@ -1,0 +1,61 @@
+---
+import { Icon } from 'astro-icon/components';
+import { temas, temaHref } from '../../data/temas';
+import { titulo } from '../../lib/format';
+import { ruta } from '../../lib/rutas';
+
+/**
+ * Pestañas de resultados: "Principales hallazgos" + los 6 temas.
+ * Son enlaces a páginas (no tabs ARIA). En móvil se desplazan horizontalmente.
+ */
+export interface Props {
+  /** 'principales' o el slug del tema activo. */
+  active: string;
+}
+
+const { active } = Astro.props;
+const items = [
+  {
+    key: 'principales',
+    label: titulo('Principales hallazgos'),
+    href: ruta('/resultados'),
+    icon: 'lucide:sparkles',
+  },
+  ...temas.map((t) => ({
+    key: t.slug,
+    label: titulo(t.titulo),
+    href: temaHref(t.slug),
+    icon: t.icono,
+  })),
+];
+---
+
+<nav aria-label="Temas de resultados" class="-mx-4 md:mx-0">
+  <ul class="flex snap-x gap-2 overflow-x-auto px-4 pb-2 md:grid md:grid-cols-7 md:overflow-visible md:px-0 md:pb-0">
+    {items.map((item) => {
+      const isActive = item.key === active;
+      return (
+        <li class="shrink-0 snap-start">
+          <a
+            href={item.href}
+            aria-current={isActive ? 'page' : undefined}
+            class:list={[
+              'flex h-full min-h-24 w-32 flex-col items-center justify-center gap-2 border p-3 text-center text-sm leading-tight font-semibold md:w-auto',
+              isActive
+                ? 'border-accent bg-surface-sunken text-brand'
+                : 'border-border bg-surface text-ink hover:border-accent hover:bg-surface-muted',
+            ]}
+          >
+            <span
+              class="flex h-9 w-12 items-center justify-center bg-surface-sunken text-accent"
+              aria-hidden="true"
+            >
+              <Icon name={item.icon} class="h-5 w-5" />
+            </span>
+            {item.label}
+          </a>
+        </li>
+      );
+    })}
+  </ul>
+</nav>

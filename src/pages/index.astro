@@ -1,0 +1,169 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Placeholder from '../components/ui/Placeholder.astro';
+import { Icon } from 'astro-icon/components';
+import TopicCard from '../components/ui/TopicCard.astro';
+import Quiz from '../components/islands/Quiz';
+import { quiz } from '../data/quiz';
+import { PROMEDIO_ENCUESTADOS } from '../lib/quiz';
+import { cifrasEncuesta, sitio } from '../data/sitio';
+import { getTemaByDataKey, temas, temaHref } from '../data/temas';
+import { getDestacados, getIndicador, getStats, tarjetaIndicador } from '../lib/tablero';
+import { resumenTarjeta, titularTarjeta } from '../lib/textos';
+import { entero, titulo } from '../lib/format';
+
+// Hero: "Pulso" en azul 281 y "Democrático" en Grana 187C.
+const [nombre1, ...resto] = sitio.nombre.split(' ');
+const nombre2 = resto.join(' ');
+const cifras = cifrasEncuesta(getStats(), entero);
+
+// PROPUESTA (PLAN.md §4.1): "Datos que sorprenden" = 3 indicadores `destacado: true`.
+// Selección editorial (temas distintos, cifras fáciles de leer); si alguno deja de ser
+// destacado en el JSON, se completa con los primeros destacados.
+const SORPRESAS = ['desinf_frec', 'outdislike', 'rs_tk'];
+const elegidos = [
+  ...SORPRESAS.map((k) => getIndicador(k)).filter((i) => i?.destacado),
+  ...getDestacados(),
+]
+  .filter((i, k, xs) => i && xs.findIndex((x) => x?.key === i.key) === k)
+  .slice(0, 3);
+const sorpresas = elegidos.map((ind) => {
+  const t = tarjetaIndicador(ind!);
+  const tema = getTemaByDataKey(t.tema)!;
+  return { titular: titularTarjeta(t), frase: resumenTarjeta(t), tema };
+});
+---
+
+<BaseLayout title={sitio.nombre}>
+  <!-- Hero -->
+  <section aria-labelledby="titulo-principal" class="border-b border-border">
+    <div class="container-page grid items-center gap-10 py-12 md:py-16 lg:grid-cols-[1.15fr_1fr] lg:gap-14 lg:py-20">
+      <div>
+        <p class="text-xs font-bold tracking-[0.2em] text-ink uppercase">
+          Encuesta CNEP · Colombia 2026
+        </p>
+        <h1
+          id="titulo-principal"
+          class="mt-4 font-display text-[3.25rem] leading-[0.95] sm:text-6xl font-extrabold tracking-tight md:text-8xl"
+        >
+          <span class="block text-brand">{nombre1}</span>
+          <span class="block text-grana">{nombre2}</span>
+        </h1>
+        <p class="mt-6 max-w-xl text-lg leading-relaxed text-ink md:text-xl">{sitio.descripcion}</p>
+
+        <!-- Cifras -->
+        <h2 id="cifras-titulo" class="sr-only">
+          La encuesta en cifras
+        </h2>
+        <ul
+          aria-labelledby="cifras-titulo"
+          class="mt-8 grid grid-cols-2 overflow-hidden rounded-xl bg-brand text-white shadow-lg shadow-brand/20 sm:grid-cols-4"
+        >
+          {cifras.map((c, k) => (
+            <li
+              class:list={[
+                'flex flex-col items-center gap-1 px-3 py-5 text-center',
+                k % 2 === 1 && 'border-l border-white/15',
+                k >= 2 && 'border-t border-white/15 sm:border-t-0',
+                k === 2 && 'sm:border-l',
+              ]}
+            >
+              <span class="flex items-center gap-2">
+                {c.icon && <Icon name={c.icon} class="h-5 w-5 text-gold" aria-hidden="true" />}
+                <span class="text-2xl font-bold tabular-nums md:text-3xl">{c.value}</span>
+              </span>
+              <span class="text-xs leading-snug text-surface-sunken md:text-sm">{c.label}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- TODO (diseñadora): ilustración principal del hero -->
+      <Placeholder
+        class="aspect-square w-full max-lg:max-w-md max-lg:justify-self-center"
+        label="Ilustración principal"
+        note="Imagen hero"
+      />
+    </div>
+  </section>
+
+  <!-- Quiz -->
+  <section aria-labelledby="quiz-titulo" class="border-b border-border bg-surface/50">
+    <div class="container-page grid gap-8 py-12 md:py-16 lg:grid-cols-[1fr_2.5fr] lg:items-start">
+      <div class="max-w-2xl">
+        <h2 id="quiz-titulo" class="text-3xl leading-tight font-bold text-brand">
+          {titulo(quiz.titulo)}
+        </h2>
+        <p class="mt-4 leading-relaxed text-ink-muted">
+          Responde {quiz.preguntas.length} preguntas de la encuesta y compara tus respuestas con el{' '}
+          {PROMEDIO_ENCUESTADOS}.
+        </p>
+        <p class="mt-4 text-sm text-ink-muted">Toma 2 minutos. Tus respuestas no se guardan.</p>
+      </div>
+
+      {/* Isla React (PLAN.md §6): el HTML de la 1.ª pregunta se pre-renderiza; el JS carga al llegar aquí. */}
+      <div>
+        <Quiz client:visible preguntas={quiz.preguntas} />
+        <noscript>
+          <p class="mt-3 text-sm text-ink-muted">
+            Activa JavaScript para responder el cuestionario.
+          </p>
+        </noscript>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROPUESTA: Datos que sorprenden (no está en la maqueta; PLAN.md §4.1) -->
+  <section aria-labelledby="sorpresas-titulo" class="border-b border-border">
+    <div class="container-page py-12">
+      <div class="flex flex-wrap items-baseline gap-3">
+        <h2 id="sorpresas-titulo" class="text-2xl font-bold text-brand md:text-3xl">
+          {titulo('Datos que sorprenden')}
+        </h2>
+        <span class="border border-dashed border-border-strong px-2 py-0.5 text-xs text-ink-muted">
+          Propuesta
+        </span>
+      </div>
+      <ul class="mt-6 grid gap-4 md:grid-cols-3">
+        {sorpresas.map((s) => (
+          <li class="flex flex-col border-t-4 border-accent bg-surface-highlight p-5">
+            <p class="flex flex-wrap items-baseline gap-x-2 leading-none">
+              <span class="text-5xl font-bold tracking-tight text-brand tabular-nums">
+                {s.titular.valor}
+              </span>
+              {s.titular.sufijo && (
+                <span class="text-lg font-semibold text-ink-muted">{s.titular.sufijo}</span>
+              )}
+            </p>
+            <p class="mt-3 flex-1 leading-relaxed text-ink">{s.frase}</p>
+            <a
+              href={temaHref(s.tema.slug)}
+              class="mt-4 text-sm font-semibold text-accent underline underline-offset-4"
+            >
+              Ver {s.tema.titulo}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- Temas -->
+  <section aria-labelledby="temas-titulo" class="bg-surface/50">
+    <div class="container-page py-12 md:py-16">
+      <h2 id="temas-titulo" class="text-3xl font-bold text-brand">
+        {titulo('Explora los temas principales')}
+      </h2>
+      <p class="mt-2 text-ink-muted">
+        Seis conversaciones clave para entender la percepción política.
+      </p>
+      <ul class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {temas.map((t) => (
+          <li>
+            <TopicCard titulo={t.titulo} pregunta={t.pregunta} href={temaHref(t.slug)} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,209 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { Icon } from 'astro-icon/components';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHeader from '../../components/ui/SectionHeader.astro';
+import TopicTabs from '../../components/ui/TopicTabs.astro';
+import StatsRow from '../../components/ui/StatsRow.astro';
+import FindingsGrid from '../../components/results/FindingsGrid.astro';
+import FindingCard from '../../components/results/FindingCard.astro';
+import QuestionModal from '../../components/results/QuestionModal.astro';
+import DotPlot from '../../components/charts/DotPlot.astro';
+import { getTemaByDataKey, temas, temaHref, type Tema } from '../../data/temas';
+import { breadcrumbJsonLd } from '../../lib/seo';
+import { ruta } from '../../lib/rutas';
+import { entero, titulo } from '../../lib/format';
+import { CODIGO_JOVENES, getJovenes, getMeta, getTarjetasTema } from '../../lib/tablero';
+import { resumenJovenes, titularJovenes } from '../../lib/textos';
+
+export const getStaticPaths = (() =>
+  temas.map((tema) => ({ params: { tema: tema.slug }, props: { tema } }))) satisfies GetStaticPaths;
+
+interface Props {
+  tema: Tema;
+}
+
+const { tema } = Astro.props;
+const breadcrumb = breadcrumbJsonLd(
+  [
+    { name: 'Inicio', path: '/' },
+    { name: 'Resultados', path: '/resultados' },
+    { name: tema.titulo, path: temaHref(tema.slug) },
+  ],
+  Astro.site,
+);
+
+const tarjetas = tema.dataKey ? getTarjetasTema(tema.dataKey) : [];
+const jovenes = tema.dataKey ? [] : getJovenes();
+// getJovenes() ya viene ordenado por brecha relativa: las primeras son las diferencias más grandes.
+const JOVENES_VISIBLES = 6;
+const bloquesJovenes = [
+  { inicio: 0, datos: jovenes.slice(0, JOVENES_VISIBLES) },
+  { inicio: JOVENES_VISIBLES, datos: jovenes.slice(JOVENES_VISIBLES) },
+];
+const { n_min_celda, n_olas } = getMeta();
+---
+
+<BaseLayout title={tema.titulo} description={tema.descripcion} jsonLd={breadcrumb}>
+  <div class="container-page py-10 md:py-14">
+    <nav aria-label="Ruta de navegación" class="mb-6 text-sm text-ink-muted">
+      <ol class="flex flex-wrap items-center gap-2">
+        <li>
+          <a href={ruta('/')} class="underline-offset-4 hover:underline">
+            Inicio
+          </a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li>
+          <a href={ruta('/resultados')} class="underline-offset-4 hover:underline">
+            Resultados
+          </a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li>
+          <span aria-current="page" class="text-ink">
+            {tema.titulo}
+          </span>
+        </li>
+      </ol>
+    </nav>
+
+    <SectionHeader title={tema.titulo} lead={tema.intro} />
+
+    <div class="mt-8">
+      <TopicTabs active={tema.slug} />
+    </div>
+
+    <section aria-labelledby="cifras-titulo" class="mt-8">
+      <h2 id="cifras-titulo" class="sr-only">
+        La encuesta en cifras
+      </h2>
+      <StatsRow variant="boxed" />
+    </section>
+
+    <section aria-labelledby="hallazgos-titulo" class="mt-12">
+      <h2 id="hallazgos-titulo" class="text-2xl font-bold text-brand md:text-3xl">
+        {titulo(`Hallazgos sobre ${tema.titulo}`)}
+      </h2>
+      {tema.dataKey ? (
+        <p class="mt-2 max-w-3xl text-ink-muted">
+          Cada tarjeta resume una pregunta de la encuesta: primero el dato, luego la gráfica. Toca
+          una tarjeta para ver el detalle.
+        </p>
+      ) : (
+        <p class="mt-2 max-w-3xl text-ink-muted">
+          Comparamos a las personas de 18 a 30 años con el resto de encuestados. Solo aparecen las
+          preguntas en las que la edad marca una diferencia clara, que además se mantiene al
+          comparar personas con características parecidas (sexo y región). En las demás, jóvenes y
+          mayores responden de forma parecida.
+        </p>
+      )}
+
+      <details class="mt-4 max-w-3xl border border-border bg-surface-muted p-4 text-sm">
+        <summary class="flex cursor-pointer items-center gap-2 font-semibold">
+          <Icon name="lucide:info" class="h-4 w-4 shrink-0" aria-hidden="true" />
+          Cómo leer estos datos
+        </summary>
+        <ul class="mt-3 list-disc space-y-2 pl-5 leading-relaxed text-ink-muted">
+          <li>
+            La muestra no es probabilística: los resultados describen a las personas encuestadas, no
+            a toda la población. Por eso no hablamos de margen de error.
+          </li>
+          <li>
+            Las mismas personas respondieron en tres rondas (1.ª: {entero(n_olas.w1)}; 2.ª:{' '}
+            {entero(n_olas.w15)}; 3.ª: {entero(n_olas.w2)}). Cada dato es de la última ronda en que
+            se hizo la pregunta.
+          </li>
+          <li>
+            Cuando decimos que algo «subió» o «bajó», el cambio entre rondas es claro; si es
+            pequeño, lo tratamos como estable.
+          </li>
+          <li>
+            Las diferencias entre grupos solo se muestran si son claras y se mantienen con
+            controles. No mostramos grupos de menos de {n_min_celda} personas.
+          </li>
+          <li>Los porcentajes no llevan decimales; los promedios, uno.</li>
+        </ul>
+        <a
+          href={ruta('/como-se-hizo')}
+          class="mt-3 inline-block font-semibold underline underline-offset-4"
+        >
+          ¿Cómo se hizo la encuesta?
+        </a>
+      </details>
+
+      <div class="mt-8">
+        {tema.dataKey ? (
+          <FindingsGrid tarjetas={tarjetas} label={`Hallazgos sobre ${tema.titulo}`} />
+        ) : (
+          bloquesJovenes.map(({ inicio, datos }) => {
+            const grid = (
+              <FindingsGrid
+                label={
+                  inicio === 0
+                    ? `Diferencias más grandes entre jóvenes y el resto`
+                    : `Otras diferencias entre jóvenes y el resto`
+                }
+              >
+                {datos.map((d, j) => {
+                  const i = inicio + j;
+                  const temaInd = getTemaByDataKey(d.indicador.tema);
+                  const grupos = d.cruce.grupos;
+                  return (
+                    <li>
+                      <FindingCard
+                        numero={i + 1}
+                        titulo={d.indicador.titulo}
+                        titular={titularJovenes(d)}
+                        resumen={resumenJovenes(d)}
+                        indicador={d.indicador.key}
+                        tarjeta={`jovenes-${d.indicador.key}`}
+                        tema={
+                          temaInd
+                            ? { titulo: temaInd.titulo, href: temaHref(temaInd.slug) }
+                            : undefined
+                        }
+                      >
+                        <DotPlot
+                          titulo={`${d.indicador.titulo}, por edad`}
+                          grupos={grupos.map((g) => ({
+                            label: g.code === CODIGO_JOVENES ? g.cat : `${g.cat} años`,
+                            valor: g.valor,
+                            ic: g.ic,
+                            n: g.n,
+                          }))}
+                          resaltar={grupos.findIndex((g) => g.code === CODIGO_JOVENES)}
+                          lo={d.indicador.esc_lo}
+                          hi={d.indicador.esc_hi}
+                          stat={d.indicador.stat}
+                          nMin={n_min_celda}
+                        />
+                      </FindingCard>
+                    </li>
+                  );
+                })}
+              </FindingsGrid>
+            );
+            if (inicio === 0) return grid;
+            if (datos.length === 0) return null;
+            return (
+              <details class="group mt-8">
+                <summary class="mx-auto flex w-fit cursor-pointer list-none items-center gap-2 border border-ink px-5 py-3 font-semibold hover:bg-surface-muted [&::-webkit-details-marker]:hidden">
+                  <span class="group-open:hidden">Ver {datos.length} diferencias más</span>
+                  <span class="hidden group-open:inline">Ver menos</span>
+                  <Icon
+                    name="lucide:chevron-down"
+                    class="h-4 w-4 transition-transform group-open:rotate-180 motion-reduce:transition-none"
+                    aria-hidden="true"
+                  />
+                </summary>
+                <div class="mt-8">{grid}</div>
+              </details>
+            );
+          })
+        )}
+      </div>
+    </section>
+  </div>
+  <QuestionModal tarjetas={tarjetas} jovenes={jovenes} />
+</BaseLayout>

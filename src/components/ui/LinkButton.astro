@@ -1,0 +1,53 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { HTMLAttributes } from 'astro/types';
+
+/** Enlace con aspecto de botón. `variant="outline"` = recuadro como en la maqueta. */
+export interface Props extends HTMLAttributes<'a'> {
+  href: string;
+  variant?: 'primary' | 'outline' | 'ghost';
+  size?: 'sm' | 'md';
+  /** Abre en otra pestaña con rel="noopener noreferrer" e icono ↗. */
+  external?: boolean;
+  /** Icono final (lucide). Por defecto: flecha para internos, ↗ para externos. */
+  icon?: string | false;
+  fullWidth?: boolean;
+}
+
+const {
+  href,
+  variant = 'outline',
+  size = 'md',
+  external = false,
+  icon,
+  fullWidth = false,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const iconName = icon === false ? null : (icon ?? (external ? 'lucide:arrow-up-right' : undefined));
+const variants = {
+  primary: 'bg-accent text-on-accent border-accent hover:bg-accent-hover',
+  outline: 'bg-surface text-accent border-accent hover:bg-surface-muted',
+  ghost: 'border-transparent text-ink hover:underline underline-offset-4',
+};
+const sizes = { sm: 'px-3 py-1.5 text-sm', md: 'px-5 py-2.5 text-base' };
+---
+
+<a
+  href={href}
+  class:list={[
+    'inline-flex items-center justify-center gap-2 border font-semibold transition-colors',
+    variants[variant],
+    sizes[size],
+    fullWidth && 'w-full',
+    className,
+  ]}
+  target={external ? '_blank' : undefined}
+  rel={external ? 'noopener noreferrer' : undefined}
+  {...rest}
+>
+  <slot />
+  {iconName && <Icon name={iconName} class="h-4 w-4 shrink-0" aria-hidden="true" />}
+  {external && <span class="sr-only">(abre en una pestaña nueva)</span>}
+</a>

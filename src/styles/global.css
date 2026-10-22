@@ -1,0 +1,152 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/libre-franklin';
+
+/*
+ * Tokens de diseño — Guía de marca Universidad de La Sabana (pág. 22 y ss.).
+ *   Pantone 281  #00205B  azul marino (marca)
+ *   Pantone 286  #00387D  azul (interacción / acento / dato principal)
+ *   Pantone 292  #93AAC9  azul claro (solo relleno / decoración: 2,4:1 sobre blanco, NO texto)
+ *   Pantone 2707 #D9E1EF  azul pálido (superficies)
+ *   Pantone 7499 #F7EFD9  crema (resaltado)
+ *   Pantone Black C #2D2926 y sus tintas 90/80/70/50/30 % (mezcla con blanco).
+ * Tipografía (guía pág. 40–42): Libre Franklin = principal (cuerpo, títulos, logo de La Sabana).
+ * Publico Banner (titulares destacados) y Cabinet Grotesk (apoyo) quedan pendientes de los archivos.
+ * Los componentes solo usan estas utilidades (bg-surface, text-ink, border-border…),
+ * nunca colores fijos: al cambiar los tokens cambia todo el sitio.
+ *
+ * Contraste WCAG (texto normal ≥ 4,5:1), medido sobre page #FAF7ED / surface #F7EFD9 /
+ * surface-muted #F0E6C9 / surface-sunken #D9E1EF:
+ *   ink #2D2926        13,4 / 12,6 / 11,6 / 11,0
+ *   ink-muted #575451   7,0 /  6,6 /  6,0 /  5,7   (Black 80 %; Black 70 % no llega a 4,5 sobre 2707)
+ *   brand #00205B      14,4 / 13,5 / 12,4 / 11,8
+ *   accent #00387D     10,5 /  9,8 /  9,1 /  8,6   (blanco sobre accent: 11,3)
+ *   grana #A6192E       7,0 /  6,5 /  6,0
+ */
+@theme {
+  /* Tipografía de marca: Libre Franklin (variable, 100–900, autoalojada vía @fontsource). */
+  --font-sans: 'Libre Franklin Variable', 'Libre Franklin', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Libre Franklin Variable', 'Libre Franklin', ui-sans-serif, system-ui, sans-serif;
+
+  /* Marca */
+  --color-brand: #00205b;
+  --color-brand-strong: #001640;
+  --color-brand-light: #93aac9;
+  /*
+   * Secundarios UniSabana. Grana 187C: acento de titular (6,5:1 sobre crema 7499).
+   * Gold 871C: solo decoración/iconos sobre azul (1,8:1 sobre crema: NO texto sobre fondos claros).
+   * Ojo: en la guía, HEX y RGB no coinciden (Grana HEX A6192E vs RGB 150/58/34; Gold HEX 89764B
+   * vs RGB 215/179/107). Se usa el HEX de Grana y el RGB de Gold (el que se ve dorado).
+   */
+  --color-grana: #a6192e;
+  --color-gold: #d7b36b;
+
+  /* Superficies */
+  --color-surface: #f7efd9; /* tarjetas: 7499 */
+  --color-surface-muted: #f0e6c9; /* 7499 oscurecido (hover, paneles secundarios) */
+  --color-surface-sunken: #d9e1ef; /* 2707 */
+  --color-surface-highlight: #f7efd9; /* 7499 */
+  --color-page: #faf7ed; /* fondo de página: 7499 aclarado */
+
+  /* Bordes y esqueletos (tintas de Pantone Black) */
+  --color-border: #e3d7b6; /* 7499 oscurecido: borde de tarjetas */
+  --color-border-strong: #969492; /* Black 50 % */
+  --color-placeholder: #969492;
+  --color-skeleton: #c0bfbe;
+
+  /* Texto */
+  --color-ink: #2d2926; /* Pantone Black C */
+  --color-ink-muted: #575451; /* Black 80 % */
+  --color-on-accent: #ffffff;
+
+  /* Interacción */
+  --color-accent: #00387d; /* 286 */
+  --color-accent-hover: #00205b; /* 281 */
+  --color-focus: #00387d;
+
+  /*
+   * Gráficas. Las gráficas SOLO usan estos tokens (fill-chart-*, bg-chart-*…).
+   * chart-accent, chart-strong y chart-ink se usan también como texto (≥ 4,5:1 sobre blanco).
+   * chart-muted / chart-track / chart-highlight son solo rellenos.
+   */
+  --color-chart-accent: #00387d;
+  --color-chart-strong: #00205b;
+  --color-chart-accent-soft: #93aac9;
+  --color-chart-ink: #2d2926;
+  --color-chart-muted: #93aac9;
+  --color-chart-track: #d9e1ef;
+  --color-chart-highlight: #f7efd9;
+  --color-chart-grid: #f7efd9; /* = surface: separa segmentos */
+  /* Categorías de la barra apilada (izquierda · centro · derecha): neutras, sin colores partidistas. */
+  --color-chart-cat-1: #00387d;
+  --color-chart-cat-2: #c0bfbe;
+  --color-chart-cat-3: #2d2926;
+
+  /* Layout */
+  --container-page: 72rem;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background-color: var(--color-page);
+    scroll-behavior: smooth;
+  }
+
+  /* Sin fondo propio: el fondo lo pinta <html> y la malla de puntos (DotField) queda encima. */
+  body {
+    background-color: transparent;
+  }
+
+  /*
+   * Malla de puntos de fondo (DotField.astro): base = puntos en reposo, glow = luz del cursor,
+   * pulse = onda del clic. Solo colores de relleno/decoración (no texto).
+   */
+  :root {
+    --dots-base: #93aac9; /* 292 */
+    --dots-base-alpha: 0.45;
+    --dots-glow: #00387d; /* 286 */
+    --dots-pulse: #00387d;
+  }
+
+  /*
+   * Tema oscuro (AÚN NO ACTIVO). Para probarlo: <html data-theme="dark">. Faltaría también
+   * redefinir los tokens --color-* de @theme (superficies, texto, bordes, gráficas).
+   */
+  :root[data-theme='dark'] {
+    --dots-base: #93aac9;
+    --dots-base-alpha: 0.3;
+    --dots-glow: #ffffff;
+    --dots-pulse: #e8b84a; /* dorado, como el ejemplo del equipo */
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--container-page);
+  padding-inline: 1rem;
+
+  @media (width >= 48rem) {
+    padding-inline: 2rem;
+  }
+}

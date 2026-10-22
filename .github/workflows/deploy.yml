@@ -1,0 +1,42 @@
+# Compila el sitio y publica dist/ en la rama gh-pages en cada push a main.
+# Una sola vez en GitHub: Settings → Pages → Source: "Deploy from a branch" → gh-pages / (root).
+name: Desplegar en GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Versión de pnpm tomada de "packageManager" en package.json.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm build
+        env:
+          SITE_URL: https://${{ github.repository_owner }}.github.io
+          BASE_PATH: /${{ github.event.repository.name }}
+
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages

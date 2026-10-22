@@ -1,0 +1,129 @@
+---
+import { Icon } from 'astro-icon/components';
+import MobileMenu from '../islands/MobileMenu';
+import { isActive, isCurrent, nav, sitio } from '../../data/sitio';
+import { ruta } from '../../lib/rutas';
+
+const path = Astro.url.pathname;
+---
+
+<header class="relative z-30 border-t-4 border-b border-t-brand border-b-border bg-page">
+  <div class="container-page flex h-16 items-center justify-between gap-6 md:h-20">
+    <!-- TODO (cliente): sin logo; va el texto "Pulso Democrático" -->
+    <a href={ruta('/')} class="text-lg font-bold tracking-tight text-brand md:text-xl">
+      {sitio.nombre}
+    </a>
+
+    <nav aria-label="Principal" class="hidden md:block">
+      <ul class="flex items-center gap-1 lg:gap-4">
+        {nav.map((item) => {
+          const active = isActive(path, item.href);
+          const linkClass = [
+            'inline-flex items-center gap-1 border-b-2 px-2 py-2 text-[0.95rem] text-ink',
+            active
+              ? 'border-accent font-semibold text-brand'
+              : 'border-transparent hover:border-brand-light',
+          ].join(' ');
+          if (!item.children) {
+            return (
+              <li>
+                <a
+                  href={item.href}
+                  class={linkClass}
+                  aria-current={isCurrent(path, item.href) ? 'page' : undefined}
+                >
+                  {item.label}
+                </a>
+              </li>
+            );
+          }
+          return (
+            <li class="nav-dropdown group relative" data-dropdown>
+              <div class="flex items-center">
+                <a
+                  href={item.href}
+                  class={linkClass}
+                  aria-current={isCurrent(path, item.href) ? 'page' : undefined}
+                >
+                  {item.label}
+                </a>
+                <button
+                  type="button"
+                  class="-ml-1 inline-flex h-8 w-6 items-center justify-center text-ink"
+                  aria-expanded="false"
+                  aria-controls="submenu-resultados"
+                  data-dropdown-toggle
+                >
+                  <span class="sr-only">Mostrar temas de {item.label}</span>
+                  <Icon name="lucide:chevron-down" class="h-4 w-4" aria-hidden="true" />
+                </button>
+              </div>
+              <ul
+                id="submenu-resultados"
+                class="invisible absolute top-full left-0 mt-1 w-60 border border-border bg-surface py-1 opacity-0 shadow-lg transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100 group-data-[open]:visible group-data-[open]:opacity-100 group-data-[closed]:invisible! group-data-[closed]:opacity-0!"
+              >
+                {item.children.map((child) => (
+                  <li class="border-b border-surface-sunken last:border-b-0">
+                    <a
+                      href={child.href}
+                      class:list={[
+                        'block px-4 py-2.5 text-sm text-ink hover:bg-surface-muted focus-visible:bg-surface-muted',
+                        isCurrent(path, child.href) && 'font-semibold',
+                      ]}
+                      aria-current={isCurrent(path, child.href) ? 'page' : undefined}
+                    >
+                      {child.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+
+    <MobileMenu client:media="(max-width: 767px)" items={nav} currentPath={path} />
+  </div>
+</header>
+
+<script>
+  // Mejora progresiva del desplegable de escritorio: el CSS (:hover / :focus-within)
+  // ya lo abre; este script sincroniza aria-expanded, permite abrir con el botón y
+  // cerrar con Escape.
+  document.querySelectorAll<HTMLElement>('[data-dropdown]').forEach((root) => {
+    const toggle = root.querySelector<HTMLButtonElement>('[data-dropdown-toggle]');
+    if (!toggle) return;
+    const set = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      root.toggleAttribute('data-open', open);
+      // data-closed fuerza el cierre aunque el foco siga dentro (tras Escape).
+      root.toggleAttribute('data-closed', !open);
+    };
+    const reset = () => {
+      root.removeAttribute('data-open');
+      root.removeAttribute('data-closed');
+      toggle.setAttribute('aria-expanded', 'false');
+    };
+    toggle.addEventListener('click', () => set(toggle.getAttribute('aria-expanded') !== 'true'));
+    root.addEventListener('mouseenter', () => {
+      root.removeAttribute('data-closed');
+      toggle.setAttribute('aria-expanded', 'true');
+    });
+    root.addEventListener('mouseleave', () => {
+      if (!root.contains(document.activeElement)) reset();
+    });
+    root.addEventListener('focusin', () => {
+      if (!root.hasAttribute('data-closed')) toggle.setAttribute('aria-expanded', 'true');
+    });
+    root.addEventListener('focusout', (e) => {
+      if (!root.contains(e.relatedTarget as Node | null)) reset();
+    });
+    root.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        set(false);
+        toggle.focus();
+      }
+    });
+  });
+</script>

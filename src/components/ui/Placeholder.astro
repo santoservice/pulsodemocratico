@@ -1,0 +1,69 @@
+---
+/**
+ * Caja gris con diagonales en X y una etiqueta, como en la maqueta del cliente.
+ * Marca dónde irá una imagen, ilustración, logo o gráfica definitiva.
+ */
+export interface Props {
+  label?: string;
+  /** Nota secundaria (p. ej. "Foto 1"). */
+  note?: string;
+  /** Clases extra: tamaño/aspect ratio (por defecto aspect-video). */
+  class?: string;
+  /** Si es decorativo, se oculta a lectores de pantalla. */
+  decorative?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const {
+  label,
+  note,
+  class: className = 'aspect-video',
+  decorative = true,
+  size = 'md',
+} = Astro.props;
+const textSize = { sm: 'text-[0.65rem]', md: 'text-sm', lg: 'text-base' }[size];
+---
+
+<div
+  class:list={[
+    'relative flex items-center justify-center overflow-hidden border border-border-strong bg-surface-sunken text-ink-muted',
+    className,
+  ]}
+  aria-hidden={decorative ? 'true' : undefined}
+  role={decorative ? undefined : 'img'}
+  aria-label={decorative ? undefined : label}
+>
+  <svg
+    class="absolute inset-0 h-full w-full text-placeholder"
+    preserveAspectRatio="none"
+    viewBox="0 0 100 100"
+    aria-hidden="true"
+  >
+    <line
+      x1="0"
+      y1="0"
+      x2="100"
+      y2="100"
+      stroke="currentColor"
+      vector-effect="non-scaling-stroke"
+    ></line>
+    <line
+      x1="100"
+      y1="0"
+      x2="0"
+      y2="100"
+      stroke="currentColor"
+      vector-effect="non-scaling-stroke"
+    ></line>
+  </svg>
+  {label && (
+    <span class:list={['relative bg-surface-sunken px-2 text-center leading-snug', textSize]}>
+      {label}
+    </span>
+  )}
+  {note && (
+    <span class="absolute right-2 bottom-2 border border-border-strong bg-surface px-2 py-0.5 text-xs text-ink-muted">
+      {note}
+    </span>
+  )}
+</div>

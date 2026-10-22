@@ -1,0 +1,28 @@
+---
+import StatCard from './StatCard.astro';
+import { cifrasEncuesta, type Cifra } from '../../data/sitio';
+import { entero } from '../../lib/format';
+import { getStats } from '../../lib/tablero';
+
+export interface Props {
+  /** Por defecto: cifras derivadas de tablero.json (`getStats()`). */
+  stats?: Cifra[];
+  variant?: 'plain' | 'boxed';
+  /** Título accesible de la lista. */
+  label?: string;
+}
+
+const {
+  stats = cifrasEncuesta(getStats(), entero),
+  variant = 'plain',
+  label = 'La encuesta en cifras',
+} = Astro.props;
+---
+
+<ul aria-label={label} class="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
+  {stats.map((s) => (
+    <li>
+      <StatCard {...s} variant={variant} />
+    </li>
+  ))}
+</ul>

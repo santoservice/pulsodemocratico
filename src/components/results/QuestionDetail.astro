@@ -1,0 +1,235 @@
+---
+import DotPlot from '../charts/DotPlot.astro';
+import SlopeChart from '../charts/SlopeChart.astro';
+import IndicatorChart from './IndicatorChart.astro';
+import { getTemaByDataKey } from '../../data/temas';
+import { pctOrMedia } from '../../lib/format';
+import {
+  crucesModal,
+  filasTecnicas,
+  fraseCruceTecnica,
+  idDetalle,
+  serieModal,
+} from '../../lib/detalle';
+import {
+  CODIGO_JOVENES,
+  getMeta,
+  getUltimoValor,
+  type Cruce,
+  type DatoJovenes,
+  type Tarjeta,
+} from '../../lib/tablero';
+import {
+  fraseCambio,
+  resumenJovenes,
+  resumenTarjeta,
+  titularJovenes,
+  titularTarjeta,
+} from '../../lib/textos';
+
+/**
+ * Contenido del modal de detalle de UNA tarjeta (PLAN.md §4.2). Se pre-renderiza en el HTML
+ * (oculto, indexable) y QuestionModal lo mueve al <dialog> al abrirlo.
+ * Recibe una tarjeta de resultados o un dato de Jóvenes.
+ */
+export interface Props {
+  tarjeta?: Tarjeta;
+  jovenes?: DatoJovenes;
+}
+
+const { tarjeta, jovenes } = Astro.props;
+const { n_min_celda } = getMeta();
+
+const ind = jovenes ? jovenes.indicador : tarjeta!.indicadores[0]!;
+const tarjetaId = jovenes ? `jovenes-${ind.key}` : tarjeta!.id;
+const clave = jovenes ? ind.key : tarjeta!.id;
+const id = idDetalle(tarjetaId);
+const grupo = !jovenes && tarjeta!.indicadores.length > 1;
+const miembros = jovenes ? [ind] : tarjeta!.indicadores;
+const temaInd = getTemaByDataKey(ind.tema);
+const eyebrow = jovenes ? `Jóvenes · ${temaInd?.titulo ?? ''}` : (temaInd?.titulo ?? '');
+const titulo = jovenes ? ind.titulo : tarjeta!.titulo;
+const titular = jovenes ? titularJovenes(jovenes) : titularTarjeta(tarjeta!);
+const resumen = jovenes ? resumenJovenes(jovenes) : resumenTarjeta(tarjeta!);
+
+const serie = grupo ? null : serieModal(ind);
+const cambio = grupo ? null : fraseCambio(ind);
+const cruces: Cruce[] = grupo ? [] : crucesModal(ind, jovenes ? 'edad' : undefined);
+const etiquetaGrupo = (c: Cruce, cat: string, code: number) =>
+  c.socio === 'edad' && code !== CODIGO_JOVENES && !/años/.test(cat) ? `${cat} años` : cat;
+const altos = [...new Set(miembros.map((i) => i.alto).filter(Boolean))];
+const notas = [...new Set(miembros.map((i) => i.nota).filter((n): n is string => !!n))];
+---
+
+<article
+  id={id}
+  data-pregunta={clave}
+  data-tarjeta={tarjetaId}
+  data-eyebrow={eyebrow}
+  aria-labelledby={`${id}-titulo`}
+  class="flex flex-col gap-8"
+>
+  <header>
+    <h2 id={`${id}-titulo`} class="text-2xl leading-tight font-bold text-brand md:text-3xl">
+      {titulo}
+    </h2>
+    {!grupo && (
+      <p class="mt-3 border-l-4 border-brand-light pl-3 leading-relaxed text-ink-muted">
+        <span class="sr-only">Pregunta original: </span>«{ind.pregunta}»
+      </p>
+    )}
+  </header>
+
+  <div>
+    <p class="flex flex-wrap items-baseline gap-x-2 leading-none">
+      <span class="font-display text-5xl font-bold tracking-tight text-ink tabular-nums">
+        {titular.valor}
+      </span>
+      {titular.sufijo && <span class="text-lg font-semibold text-ink-muted">{titular.sufijo}</span>}
+    </p>
+    <p class="mt-3 leading-relaxed text-ink">{resumen}</p>
+    {grupo && (
+      <div class="mt-5">
+        <IndicatorChart tarjeta={tarjeta!} mostrarCambio={false} idPrefijo="m" />
+      </div>
+    )}
+  </div>
+
+  {(altos.length === 1 || notas.length > 0) && (
+    <section>
+      <h3 class="text-sm font-semibold tracking-wide text-ink-muted uppercase">Cómo se lee</h3>
+      {altos.length === 1 && <p class="mt-2 leading-relaxed">{altos[0]}</p>}
+      {notas.map((n) => (
+        <p class="mt-2 text-sm leading-relaxed text-ink-muted">{n}</p>
+      ))}
+    </section>
+  )}
+
+  {grupo && (
+    <section>
+      <h3 class="text-sm font-semibold tracking-wide text-ink-muted uppercase">
+        Preguntas de este grupo
+      </h3>
+      <ul class="mt-3 divide-y divide-border border-y border-border">
+        {miembros.map((m) => (
+          <li class="py-3">
+            <p class="flex items-baseline justify-between gap-3">
+              <span class="font-semibold">{m.titulo}</span>
+              <span class="shrink-0 font-bold text-chart-accent tabular-nums">
+                {pctOrMedia(m, getUltimoValor(m).valor)}
+              </span>
+            </p>
+            <p class="mt-1 text-sm leading-relaxed text-ink-muted">«{m.pregunta}»</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {!grupo && (
+    <section>
+      <h3 class="text-sm font-semibold tracking-wide text-ink-muted uppercase">
+        Cambio entre rondas
+      </h3>
+      {serie ? (
+        <>
+          {cambio && <p class="mt-2 leading-relaxed">{cambio}</p>}
+          <SlopeChart
+            class="mt-4"
+            id={`${id}-rondas`}
+            titulo={`${titulo}: cambio entre rondas`}
+            serie={serie.serie}
+            lo={ind.esc_lo}
+            hi={ind.esc_hi}
+            stat={ind.stat}
+            nota={
+              serie.fuente === 'panel'
+                ? 'Solo personas que respondieron en todas estas rondas; por eso las cifras pueden diferir un poco del dato principal.'
+                : undefined
+            }
+          />
+        </>
+      ) : (
+        <p class="mt-2 leading-relaxed text-ink-muted">
+          Esta pregunta se hizo solo en la {getUltimoValor(ind).label}.
+        </p>
+      )}
+    </section>
+  )}
+
+  {!grupo && (
+    <section>
+      <h3 class="text-sm font-semibold tracking-wide text-ink-muted uppercase">
+        Quiénes se diferencian
+      </h3>
+      {cruces.length ? (
+        <>
+          <p class="mt-2 text-sm leading-relaxed text-ink-muted">
+            Solo mostramos diferencias claras entre grupos que se mantienen al comparar personas con
+            características parecidas.
+          </p>
+          <div class="mt-4 flex flex-col gap-6">
+            {cruces.map((c) => (
+              <div>
+                <h4 class="mb-2 font-semibold">{c.socio_label}</h4>
+                <DotPlot
+                  titulo={`${titulo}, por ${c.socio_label.toLowerCase()}`}
+                  grupos={c.grupos.map((g) => ({
+                    label: etiquetaGrupo(c, g.cat, g.code),
+                    valor: g.valor,
+                    ic: g.ic,
+                    n: g.n,
+                  }))}
+                  resaltar={
+                    jovenes && c.socio === 'edad'
+                      ? c.grupos.findIndex((g) => g.code === CODIGO_JOVENES)
+                      : undefined
+                  }
+                  lo={ind.esc_lo}
+                  hi={ind.esc_hi}
+                  stat={ind.stat}
+                  nMin={n_min_celda}
+                />
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <p class="mt-2 leading-relaxed text-ink-muted">
+          En esta pregunta no hay diferencias claras por edad, sexo, nivel de estudios ni estrato:
+          los grupos responden de forma parecida.
+        </p>
+      )}
+    </section>
+  )}
+
+  <details class="group border border-border bg-surface-muted p-4 text-sm">
+    <summary class="cursor-pointer font-semibold">Detalle técnico</summary>
+    <div class="mt-3 flex flex-col gap-4 leading-relaxed">
+      {miembros.map((m) => (
+        <div>
+          {grupo && <p class="font-semibold">{m.titulo}</p>}
+          <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+            {filasTecnicas(m).map((f) => (
+              <>
+                <dt class="text-ink-muted">{f.etiqueta}</dt>
+                <dd>{f.valor}</dd>
+              </>
+            ))}
+          </dl>
+        </div>
+      ))}
+      {cruces.length > 0 && (
+        <ul class="list-disc space-y-2 pl-5">
+          {cruces.map((c) => (
+            <li>{fraseCruceTecnica(c, ind.stat)}</li>
+          ))}
+        </ul>
+      )}
+      <p class="text-ink-muted">
+        La muestra no es probabilística: las cifras describen a las personas encuestadas, no a toda
+        la población.
+      </p>
+    </div>
+  </details>
+</article>

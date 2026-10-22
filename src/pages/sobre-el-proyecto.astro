@@ -1,0 +1,92 @@
+---
+import { Icon } from 'astro-icon/components';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeader from '../components/ui/SectionHeader.astro';
+import InstitutionLogos from '../components/ui/InstitutionLogos.astro';
+import TeamGrid from '../components/team/TeamGrid.astro';
+import { titulo } from '../lib/format';
+
+const intro =
+  'Investigamos cómo la polarización, el populismo, la desinformación, la inteligencia artificial y el consumo mediático influyen en la forma en que los colombianos viven la democracia.';
+
+const razones = [
+  {
+    icono: 'lucide:globe',
+    titulo: 'Colombia en perspectiva',
+    texto:
+      'El mismo cuestionario se aplica en 32 países. Así, los resultados de Colombia se pueden comparar con los de otras democracias.',
+  },
+  {
+    icono: 'lucide:calendar-range',
+    titulo: 'Una campaña en tres momentos',
+    texto:
+      'Las mismas personas respondieron antes, durante y después de las elecciones. Así se ve cómo cambian sus opiniones durante la campaña.',
+  },
+];
+---
+
+<BaseLayout
+  title={titulo('Sobre el proyecto')}
+  description="Pulso Democrático presenta los resultados de la encuesta Colombia 2026 del Comparative National Elections Project (CNEP), una iniciativa de universidades de Colombia, Estados Unidos y España."
+>
+  <div class="container-page py-10 md:py-14">
+    <SectionHeader title="Sobre el proyecto" lead={intro} />
+
+    <section aria-labelledby="que-es" class="mt-16 grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:gap-12">
+      <div>
+        <h2 id="que-es" class="text-2xl font-bold text-brand md:text-3xl">
+          {titulo('¿Qué es?')}
+        </h2>
+        <div class="mt-6 space-y-4 leading-relaxed text-ink">
+          <p>
+            Pulso Democrático presenta los resultados de la encuesta Colombia 2026 del Comparative
+            National Elections Project (CNEP), una red internacional de investigadores que estudia
+            las elecciones en distintos países con un cuestionario común.
+          </p>
+          <p>
+            La encuesta hace parte del proyecto «Alfabetización digital juvenil contra la
+            polarización, los discursos de odio, el populismo y la desinformación», que lidera la
+            Universidad de La Sabana junto con aliados nacionales e internacionales.
+          </p>
+        </div>
+      </div>
+      <div class="lg:border-l lg:border-border lg:pl-12">
+        <h3 id="iniciativa" class="text-xs font-semibold tracking-[0.25em] text-accent uppercase">
+          Una iniciativa de
+        </h3>
+        <InstitutionLogos class="mt-6" labelledby="iniciativa" enlaces />
+      </div>
+    </section>
+
+    <section aria-labelledby="importancia" class="mt-16">
+      <h2 id="importancia" class="text-2xl font-bold text-brand md:text-3xl">
+        {titulo('¿Por qué es importante?')}
+      </h2>
+      <ul class="mt-6 grid gap-6 md:grid-cols-2">
+        {razones.map((r) => (
+          <li class="flex items-start gap-5 border border-border bg-surface-muted p-6 md:p-8">
+            <span
+              class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-accent md:h-20 md:w-20"
+              aria-hidden="true"
+            >
+              <Icon name={r.icono} class="h-8 w-8 md:h-9 md:w-9" />
+            </span>
+            <div class="flex-1">
+              <h3 class="text-lg font-bold text-brand">{titulo(r.titulo)}</h3>
+              <p class="mt-2 leading-relaxed text-ink-muted">{r.texto}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section aria-labelledby="equipo" class="mt-16">
+      <h2 id="equipo" class="text-2xl font-bold text-brand md:text-3xl">
+        {titulo('Equipo de trabajo')}
+      </h2>
+      <div class="mt-6">
+        <TeamGrid labelledby="equipo" />
+      </div>
+    </section>
+  </div>
+</BaseLayout>
