@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# TODO: actualizar con el dominio final
+Sitemap: https://pulsodemocratico.pages.dev/sitemap-index.xml
