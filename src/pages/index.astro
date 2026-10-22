@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Placeholder from '../components/ui/Placeholder.astro';
+import { Image } from 'astro:assets';
 import { Icon } from 'astro-icon/components';
+import imagenInicio from '../assets/Inicio.png';
 import TopicCard from '../components/ui/TopicCard.astro';
 import Quiz from '../components/islands/Quiz';
 import { quiz } from '../data/quiz';
@@ -36,20 +37,17 @@ const sorpresas = elegidos.map((ind) => {
 
 <BaseLayout title={sitio.nombre}>
   <!-- Hero -->
-  <section aria-labelledby="titulo-principal" class="border-b border-border">
-    <div class="container-page grid items-center gap-10 py-12 md:py-16 lg:grid-cols-[1.15fr_1fr] lg:gap-14 lg:py-20">
+  <section aria-labelledby="titulo-principal" class="overflow-x-clip border-b border-border">
+    <div class="container-page grid items-center gap-8 py-10 md:py-14 lg:grid-cols-[1fr_1.15fr] lg:gap-6 lg:py-12">
       <div>
-        <p class="text-xs font-bold tracking-[0.2em] text-ink uppercase">
-          Encuesta CNEP · Colombia 2026
-        </p>
         <h1
           id="titulo-principal"
-          class="mt-4 font-display text-[3.25rem] leading-[0.95] sm:text-6xl font-extrabold tracking-tight md:text-8xl"
+          class="font-display text-[3.25rem] leading-[0.95] font-extrabold tracking-tight sm:text-6xl lg:text-7xl"
         >
           <span class="block text-brand">{nombre1}</span>
           <span class="block text-grana">{nombre2}</span>
         </h1>
-        <p class="mt-6 max-w-xl text-lg leading-relaxed text-ink md:text-xl">{sitio.descripcion}</p>
+        <p class="mt-5 max-w-md text-lg leading-relaxed text-ink">{sitio.descripcion}</p>
 
         <!-- Cifras -->
         <h2 id="cifras-titulo" class="sr-only">
@@ -57,7 +55,7 @@ const sorpresas = elegidos.map((ind) => {
         </h2>
         <ul
           aria-labelledby="cifras-titulo"
-          class="mt-8 grid grid-cols-2 overflow-hidden rounded-xl bg-brand text-white shadow-lg shadow-brand/20 sm:grid-cols-4"
+          class="mt-8 grid max-w-md grid-cols-2 overflow-hidden rounded-xl bg-brand text-white shadow-lg shadow-brand/20 sm:grid-cols-4"
         >
           {cifras.map((c, k) => (
             <li
@@ -70,19 +68,23 @@ const sorpresas = elegidos.map((ind) => {
             >
               <span class="flex items-center gap-2">
                 {c.icon && <Icon name={c.icon} class="h-5 w-5 text-gold" aria-hidden="true" />}
-                <span class="text-2xl font-bold tabular-nums md:text-3xl">{c.value}</span>
+                <span class="text-2xl font-bold tabular-nums">{c.value}</span>
               </span>
-              <span class="text-xs leading-snug text-surface-sunken md:text-sm">{c.label}</span>
+              <span class="text-xs leading-snug text-surface-sunken">{c.label}</span>
             </li>
           ))}
         </ul>
       </div>
 
-      <!-- TODO (diseñadora): ilustración principal del hero -->
-      <Placeholder
-        class="aspect-square w-full max-lg:max-w-md max-lg:justify-self-center"
-        label="Ilustración principal"
-        note="Imagen hero"
+      <!-- Ilustración del hero: en escritorio se sale del contenedor hacia la derecha. -->
+      <Image
+        src={imagenInicio}
+        alt="Collage sobre el mapa de Colombia: la bandera, una mujer joven, un campesino con sombrero, la estatua de Bolívar y el Capitolio."
+        widths={[480, 720, 960, 1080]}
+        sizes="(min-width: 1024px) 640px, (min-width: 640px) 28rem, 90vw"
+        loading="eager"
+        fetchpriority="high"
+        class="h-auto w-full max-lg:max-w-md max-lg:justify-self-center lg:-mr-8 lg:w-[calc(100%+2rem)] xl:-mr-20 xl:w-[calc(100%+5rem)] xl:max-w-none"
       />
     </div>
   </section>

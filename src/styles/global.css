@@ -91,6 +91,8 @@
     color: var(--color-ink);
     background-color: var(--color-page);
     scroll-behavior: smooth;
+    /* Anclas (#) por debajo del header fijo (h-16 / md:h-20 + borde). */
+    scroll-padding-top: 5.5rem;
   }
 
   /* Sin fondo propio: el fondo lo pinta <html> y la malla de puntos (DotField) queda encima. */
