@@ -1,7 +1,7 @@
 /**
  * Ficha técnica de la encuesta (página "¿Cómo se hizo la encuesta?", PLAN.md §4.3).
  * Textos exactos del documento de especificaciones del cliente (8 cajas, en su orden).
- * `icono` es un nombre de Lucide (sin prefijo; con astro-icon usar `lucide:<icono>`).
+ * `icono` es un nombre de astro-icon: `lucide:<nombre>` o un SVG propio de `src/icons/`.
  */
 
 export interface ItemFicha {
@@ -17,7 +17,7 @@ export const fichaTecnica = [
     titulo: 'Objetivo del estudio',
     texto:
       'Analizar la comunicación y las actitudes políticas de los colombianos durante las elecciones de 2026.',
-    icono: 'target',
+    icono: 'diana',
   },
   {
     id: 'realizado-por',
@@ -25,45 +25,45 @@ export const fichaTecnica = [
     // Texto tal como lo entregó el cliente (incluye Universitat Pompeu Fabra).
     texto:
       'Universidad de Wisconsin, Universidad Externado de Colombia, Universitat Pompeu Fabra y Universidad de La Sabana.',
-    icono: 'landmark',
+    icono: 'lucide:university',
   },
   {
     id: 'poblacion',
     titulo: 'Población de referencia',
     texto: 'Personas adultas residentes en Colombia.',
-    icono: 'users',
+    icono: 'lucide:users-round',
   },
   {
     id: 'cobertura',
     titulo: 'Cobertura geográfica',
     texto: 'Nacional, en cuatro regiones: Atlántica, Central, Pacífica y Amazonía-Orinoquía.',
-    icono: 'map',
+    icono: 'colombia',
   },
   {
     id: 'tipo',
     titulo: 'Tipo de estudio',
     texto:
       'Encuesta tipo panel en línea, en tres rondas, parte del Comparative National Elections Project (CNEP).',
-    icono: 'clipboard-list',
+    icono: 'lucide:layers-3',
   },
   {
     id: 'trabajo-de-campo',
     titulo: 'Trabajo de campo',
     texto: 'Firma Netquest, a partir de su panel de 141.000 adultos inscritos previamente.',
-    icono: 'database',
+    icono: 'lucide:tent',
   },
   {
     id: 'seleccion',
     titulo: 'Selección de participantes',
     texto:
       'Cuotas por género, nivel educativo, estrato socioeconómico y región, según cifras del DANE (2026).',
-    icono: 'filter',
+    icono: 'lucide:chart-pie',
   },
   {
     id: 'recoleccion',
     titulo: 'Método de recolección',
     texto: 'Cuestionario en línea, con invitaciones por correo electrónico y aplicación móvil.',
-    icono: 'mail',
+    icono: 'lucide:monitor-smartphone',
   },
 ] as const satisfies readonly ItemFicha[];
 

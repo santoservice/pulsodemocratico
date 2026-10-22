@@ -35,16 +35,23 @@ const dataset = datasetJsonLd(
       </h2>
       <p class="mt-2 text-ink-muted">Los datos clave del estudio.</p>
       <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {fichaTecnica.map((item) => (
-          <li class="flex flex-col border border-border bg-surface p-5 md:p-6">
-            <span
-              class="mx-auto flex h-12 w-12 items-center justify-center bg-surface-sunken text-accent"
+        {fichaTecnica.map((item, i) => (
+          <li class="relative flex flex-col overflow-hidden border border-border bg-surface p-5 md:p-6">
+            {/* Ícono grande y tenue de fondo, cortado por una esquina (alterna abajo/arriba). */}
+            <Icon
+              name={item.icono}
               aria-hidden="true"
-            >
-              <Icon name={`lucide:${item.icono}`} class="h-6 w-6" />
-            </span>
-            <h3 class="mt-4 text-lg font-bold text-brand">{item.titulo}</h3>
-            <p class="mt-2 leading-relaxed text-ink-muted">{item.texto}</p>
+              class:list={[
+                'pointer-events-none absolute text-gold/30',
+                item.id === 'cobertura'
+                  ? '-right-8 -bottom-14 h-56 w-44'
+                  : i % 2 === 0 || item.id === 'trabajo-de-campo'
+                    ? '-right-8 -bottom-8 h-36 w-36'
+                    : '-top-8 -right-8 h-36 w-36',
+              ]}
+            />
+            <h3 class="relative text-lg font-bold text-brand">{item.titulo}</h3>
+            <p class="relative mt-2 leading-relaxed text-ink-muted">{item.texto}</p>
           </li>
         ))}
       </ul>
