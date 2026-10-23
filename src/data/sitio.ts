@@ -14,8 +14,12 @@ export const sitio = {
     'Lo que piensa la ciudadanía colombiana: resultados de la encuesta del Comparative National Elections Project (CNEP), aplicada durante las elecciones presidenciales de 2026.',
   locale: 'es_CO',
   lang: 'es-CO',
-  /** TODO: reemplazar por la imagen social real (Fase 5 genera una por tema). */
-  ogImage: ruta('/og/default.png'),
+  /** Imagen social por defecto (public/og). Fase 5 podría generar una por tema. */
+  ogImage: ruta('/og/pulso-democratico.webp'),
+  ogImageAncho: 1200,
+  ogImageAlto: 630,
+  ogImageAlt:
+    'Pulso Democrático: resultados de la encuesta CNEP Colombia 2026, junto a un collage con la bandera de Colombia y retratos de ciudadanos.',
 } as const;
 
 export interface NavItem {

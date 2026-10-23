@@ -31,6 +31,8 @@ const {
 const fullTitle = pageTitle(title);
 const canonical = absoluteUrl(Astro.url.pathname, Astro.site);
 const imageUrl = absoluteUrl(image, Astro.site);
+// Medidas y texto alternativo solo se conocen para la imagen por defecto.
+const imagenDefecto = image === sitio.ogImage;
 const extra = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 const graph = [websiteJsonLd(Astro.site), organizationJsonLd(Astro.site), ...extra];
 ---
@@ -47,10 +49,21 @@ const graph = [websiteJsonLd(Astro.site), organizationJsonLd(Astro.site), ...ext
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
 <meta property="og:image" content={imageUrl} />
+{
+  imagenDefecto && (
+    <>
+      <meta property="og:image:type" content="image/webp" />
+      <meta property="og:image:width" content={String(sitio.ogImageAncho)} />
+      <meta property="og:image:height" content={String(sitio.ogImageAlto)} />
+      <meta property="og:image:alt" content={sitio.ogImageAlt} />
+    </>
+  )
+}
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={fullTitle} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={imageUrl} />
+{imagenDefecto && <meta name="twitter:image:alt" content={sitio.ogImageAlt} />}
 
 <script type="application/ld+json" is:inline set:html={serializeJsonLd(graph)} />
