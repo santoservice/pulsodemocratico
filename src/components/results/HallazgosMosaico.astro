@@ -1,0 +1,128 @@
+---
+import { Icon } from 'astro-icon/components';
+import SlopeChart from '../charts/SlopeChart.astro';
+import { hallazgos } from '../../data/hallazgos';
+import { getTemaByDataKey, temaHref } from '../../data/temas';
+import { decimal, entero, pct } from '../../lib/format';
+import { getIndicador, getUltimoValor } from '../../lib/tablero';
+
+/**
+ * "Principales hallazgos" (/resultados): mosaico de tarjetas con cifra grande, frase corta y
+ * una gráfica mínima (línea, escala o anillo; ver src/data/hallazgos.ts). En escritorio la
+ * primera tarjeta ocupa 2×2. Cada tarjeta lleva a "Hallazgos sobre <tema>" en la página del tema.
+ */
+const R = 16;
+const L = 2 * Math.PI * R;
+
+const items = hallazgos.map((h, k) => {
+  const ind = getIndicador(h.indicador);
+  if (!ind) throw new Error(`hallazgos.ts: no existe el indicador «${h.indicador}»`);
+  const valor = getUltimoValor(ind).valor;
+  const esPct = ind.stat === 'pct';
+  const tema = getTemaByDataKey(ind.tema);
+  if (!tema) throw new Error(`hallazgos.ts: el indicador «${h.indicador}» no tiene tema`);
+  return {
+    h,
+    ind,
+    principal: k === 0,
+    tema: tema.titulo,
+    href: `${temaHref(tema.slug)}#hallazgos-titulo`,
+    cifra: esPct ? pct(valor) : decimal(valor),
+    escala: esPct ? null : `/${entero(ind.esc_hi)}`,
+    texto: h.texto ?? ind.titulo,
+    // Posición en la escala (0–1) o proporción del anillo.
+    fraccion: esPct ? valor / 100 : (valor - ind.esc_lo) / (ind.esc_hi - ind.esc_lo),
+  };
+});
+---
+
+<ul aria-label="Principales hallazgos" class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+  {
+    items.map(({ h, ind, principal, tema, href, cifra, escala, texto, fraccion }) => (
+      <li class:list={[principal && 'md:col-span-2 lg:row-span-2']}>
+        <article class="group relative flex h-full flex-col rounded-2xl border border-border bg-surface p-5 transition-colors hover:border-border-strong md:p-6">
+          <p class="text-xs font-bold tracking-[0.18em] text-ink-muted uppercase">{tema}</p>
+          <p class="mt-2 flex items-baseline leading-none">
+            <span
+              class:list={[
+                'font-display font-bold tracking-tight text-brand tabular-nums',
+                principal ? 'text-6xl md:text-7xl' : 'text-5xl',
+              ]}
+            >
+              {cifra}
+            </span>
+            {escala && <span class="text-xl font-semibold text-ink-muted">{escala}</span>}
+          </p>
+          <h3
+            class:list={[
+              'mt-3 leading-snug text-ink',
+              principal ? 'text-lg' : 'max-w-[15rem] text-sm',
+              h.grafica === 'anillo' && !principal && 'pr-14',
+            ]}
+          >
+            {texto}
+          </h3>
+
+          {h.grafica === 'linea' && (
+            <div class="mt-6 flex-1 rounded-xl bg-surface-sunken px-4 pt-8 pb-3">
+              <SlopeChart
+                serie={ind.serie}
+                lo={ind.esc_lo}
+                hi={ind.esc_hi}
+                stat={ind.stat}
+                id={`hallazgo-${ind.key}-g`}
+                titulo={`${ind.titulo}, ronda a ronda`}
+              />
+            </div>
+          )}
+
+          {h.grafica === 'escala' && (
+            <div class="mt-auto pt-6" aria-hidden="true">
+              <div class="h-3 overflow-hidden rounded-full bg-chart-track">
+                <div
+                  class="h-full rounded-full bg-chart-accent"
+                  style={`width:${(fraccion * 100).toFixed(1)}%`}
+                />
+              </div>
+              <div class="mt-1.5 flex justify-between text-xs text-ink-muted tabular-nums">
+                <span>{entero(ind.esc_lo)}</span>
+                <span>{entero(ind.esc_hi)}</span>
+              </div>
+            </div>
+          )}
+
+          {h.grafica === 'anillo' && (
+            <svg
+              viewBox="0 0 40 40"
+              aria-hidden="true"
+              class="absolute top-5 right-5 h-12 w-12 -rotate-90 md:top-6 md:right-6"
+            >
+              <circle cx="20" cy="20" r={R} fill="none" stroke-width="6" class="stroke-chart-track" />
+              <circle
+                cx="20"
+                cy="20"
+                r={R}
+                fill="none"
+                stroke-width="6"
+                stroke-linecap="round"
+                class="stroke-chart-accent"
+                stroke-dasharray={`${(fraccion * L).toFixed(2)} ${L.toFixed(2)}`}
+              />
+            </svg>
+          )}
+
+          <span
+            class="mt-4 inline-flex items-center gap-1 self-end text-sm font-medium text-ink-muted group-hover:text-ink"
+            aria-hidden="true"
+          >
+            Ver {tema}
+            <Icon name="lucide:chevron-right" class="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </span>
+          <a href={href} class="absolute inset-0 rounded-2xl">
+            <span class="sr-only">Ver hallazgos sobre {tema}: {ind.titulo}</span>
+          </a>
+        </article>
+      </li>
+    ))
+  }
+</ul>

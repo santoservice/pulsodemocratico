@@ -11,7 +11,7 @@ import type { DatoJovenes, Tarjeta } from '../../lib/tablero';
  *
  * - `?pregunta=<clave>` en la URL al abrir (replaceState); se abre al cargar si viene en la URL.
  * - Esc cierra (nativo); el foco queda atrapado (showModal) y vuelve al botón al cerrar.
- * - Bloquea el scroll del fondo; en ≤ 640px es una hoja a pantalla completa.
+ * - Bloquea el scroll del fondo; ocupa toda la pantalla (barra fija con título y cerrar).
  * - Pie con los logos de las instituciones y los créditos (pedido del cliente).
  */
 export interface Props {
@@ -34,64 +34,93 @@ const logos = instituciones.flatMap((i) => (i.logo ? [{ nombre: i.nombre, src: i
   ))}
 </div>
 
+<!--
+  Pantalla completa sobre la página (no una ventana pequeña): barra fija con tema, título y
+  cerrar; debajo, el mosaico del detalle y el pie con los logos (en tema claro).
+-->
 <dialog
   id="modal-pregunta"
-  class="m-auto h-dvh max-h-none w-full max-w-none overflow-y-auto overscroll-contain border-0 bg-surface p-0 text-ink backdrop:bg-navy/70 sm:h-auto sm:rounded-2xl sm:max-h-[90dvh] sm:w-[calc(100%-2rem)] sm:max-w-3xl sm:border sm:border-border sm:shadow-xl"
+  class="modal-pregunta fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto overscroll-contain border-0 bg-page p-0 text-ink backdrop:bg-navy/80"
 >
   <div class="flex min-h-full flex-col">
-    <div class="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-border bg-surface px-4 py-2 sm:px-6">
-      <p
-        data-modal-eyebrow
-        class="min-w-0 truncate text-xs font-semibold tracking-wide text-accent uppercase"
-      ></p>
-      <button
-        type="button"
-        data-modal-cerrar
-        class="inline-flex min-h-11 shrink-0 items-center gap-2 px-2 font-medium text-ink underline-offset-4 hover:underline"
-      >
-        <svg
-          aria-hidden="true"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
+    <div class="sticky top-0 z-10 border-b border-border bg-page/95 backdrop-blur">
+      <div class="container-page flex items-center justify-between gap-4 py-3 md:py-4">
+        <div class="min-w-0">
+          <p
+            data-modal-eyebrow
+            class="truncate text-xs font-bold tracking-[0.18em] text-ink-muted uppercase"
+          ></p>
+          <p
+            data-modal-titulo
+            aria-hidden="true"
+            class="mt-1 line-clamp-2 text-xl leading-tight font-bold text-brand md:text-3xl"
+          ></p>
+        </div>
+        <button
+          type="button"
+          data-modal-cerrar
+          class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-cream text-navy shadow-md transition-transform hover:scale-105 md:h-12 md:w-12"
         >
-          <path d="M6 6l12 12M18 6L6 18"></path>
-        </svg>
-        Cerrar
-      </button>
+          <span class="sr-only">Cerrar</span>
+          <svg
+            aria-hidden="true"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.25"
+            stroke-linecap="round"
+          >
+            <path d="M6 6l12 12M18 6L6 18"></path>
+          </svg>
+        </button>
+      </div>
     </div>
-    <div data-modal-cuerpo class="flex-1 px-4 py-6 sm:px-6"></div>
-    <footer class="border-t border-border bg-surface-muted px-4 py-5 sm:px-6">
+    <div data-modal-cuerpo class="container-page flex-1 py-6 md:py-8"></div>
+    <!-- Tema claro: los logos (azules) no se leen sobre el fondo oscuro. -->
+    <footer data-theme="light" class="mt-8 border-t border-border bg-page py-6">
       <p id="modal-pregunta-logos" class="sr-only">
         Instituciones participantes
       </p>
-      <ul
-        aria-labelledby="modal-pregunta-logos"
-        class="flex flex-wrap items-center justify-center gap-x-6 gap-y-4"
-      >
-        {logos.map((l) => (
-          <li>
-            <Image
-              src={l.src}
-              alt={l.nombre}
-              height={40}
-              loading="lazy"
-              class="h-10 w-auto object-contain"
-            />
-          </li>
-        ))}
-      </ul>
-      <p class="mt-4 text-center text-xs leading-relaxed text-ink-muted">
+      <!-- En una fila: centrada si cabe; si no (celular), se desliza de lado. -->
+      <div class="overflow-x-auto">
+        <ul
+          aria-labelledby="modal-pregunta-logos"
+          class="mx-auto flex w-max items-center gap-8 px-4 md:gap-10"
+        >
+          {logos.map((l) => (
+            <li class="shrink-0">
+              <Image
+                src={l.src}
+                alt={l.nombre}
+                height={40}
+                loading="lazy"
+                class="h-10 w-auto object-contain"
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+      <p class="container-page mt-4 text-center text-xs leading-relaxed text-ink-muted">
         © 2026 Pulso Democrático. Encuesta Colombia 2026, Comparative National Elections Project
         (CNEP).
       </p>
     </footer>
   </div>
 </dialog>
+
+<style>
+  .modal-pregunta[open] {
+    animation: modal-entra 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  @keyframes modal-entra {
+    from {
+      opacity: 0;
+      translate: 0 1.5rem;
+    }
+  }
+</style>
 
 <script>
   // Parámetro de URL del modal. No se importa de lib/detalle.ts para no meter tablero.json
@@ -104,6 +133,7 @@ const logos = instituciones.flatMap((i) => (i.logo ? [{ nombre: i.nombre, src: i
   if (dialog && almacen) {
     const cuerpo = dialog.querySelector<HTMLElement>('[data-modal-cuerpo]')!;
     const eyebrow = dialog.querySelector<HTMLElement>('[data-modal-eyebrow]')!;
+    const tituloBarra = dialog.querySelector<HTMLElement>('[data-modal-titulo]')!;
     let actual: HTMLElement | null = null;
     let origen: HTMLElement | null = null;
 
@@ -126,6 +156,8 @@ const logos = instituciones.flatMap((i) => (i.logo ? [{ nombre: i.nombre, src: i
       eyebrow.textContent = art.dataset.eyebrow ?? '';
       const lbl = art.getAttribute('aria-labelledby');
       if (lbl) dialog.setAttribute('aria-labelledby', lbl);
+      // Título visible en la barra fija (el h2 del detalle queda solo para lectores de pantalla).
+      tituloBarra.textContent = (lbl && document.getElementById(lbl)?.textContent) || '';
       origen = disparador;
       if (!dialog.open) dialog.showModal();
       dialog.scrollTop = 0;

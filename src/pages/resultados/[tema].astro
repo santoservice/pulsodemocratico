@@ -9,7 +9,9 @@ import FindingsGrid from '../../components/results/FindingsGrid.astro';
 import FindingCard from '../../components/results/FindingCard.astro';
 import QuestionModal from '../../components/results/QuestionModal.astro';
 import DotPlot from '../../components/charts/DotPlot.astro';
+import LinkButton from '../../components/ui/LinkButton.astro';
 import { getTemaByDataKey, temas, temaHref, type Tema } from '../../data/temas';
+import { cnep } from '../../data/sitio';
 import { breadcrumbJsonLd } from '../../lib/seo';
 import { ruta } from '../../lib/rutas';
 import { entero, titulo } from '../../lib/format';
@@ -48,12 +50,6 @@ const { n_min_celda, n_olas } = getMeta();
   <div class="container-page py-10 md:py-14">
     <nav aria-label="Ruta de navegación" class="mb-6 text-sm text-ink-muted">
       <ol class="flex flex-wrap items-center gap-2">
-        <li>
-          <a href={ruta('/')} class="underline-offset-4 hover:underline">
-            Inicio
-          </a>
-        </li>
-        <li aria-hidden="true">/</li>
         <li>
           <a href={ruta('/resultados')} class="underline-offset-4 hover:underline">
             Resultados
@@ -185,25 +181,22 @@ const { n_min_celda, n_olas } = getMeta();
               </FindingsGrid>
             );
             if (inicio === 0) return grid;
+            // El cliente pidió mostrar solo las 6 primeras: el resto se consulta en la web del CNEP.
             if (datos.length === 0) return null;
             return (
-              <details class="group mt-8">
-                <summary class="mx-auto flex w-fit cursor-pointer list-none items-center gap-2 rounded-full border border-ink px-5 py-3 font-semibold hover:bg-surface-muted [&::-webkit-details-marker]:hidden">
-                  <span class="group-open:hidden">Ver {datos.length} diferencias más</span>
-                  <span class="hidden group-open:inline">Ver menos</span>
-                  <Icon
-                    name="lucide:chevron-down"
-                    class="h-4 w-4 transition-transform group-open:rotate-180 motion-reduce:transition-none"
-                    aria-hidden="true"
-                  />
-                </summary>
-                <div class="mt-8">{grid}</div>
-              </details>
+              <div class="mt-10 flex flex-col items-center gap-3 text-center">
+                <p class="text-ink-muted">
+                  Hay {datos.length} diferencias más entre jóvenes y el resto de encuestados.
+                </p>
+                <LinkButton href={cnep.url} external variant="primary">
+                  Ver más en la web del CNEP
+                </LinkButton>
+              </div>
             );
           })
         )}
       </div>
     </section>
   </div>
-  <QuestionModal tarjetas={tarjetas} jovenes={jovenes} />
+  <QuestionModal tarjetas={tarjetas} jovenes={jovenes.slice(0, JOVENES_VISIBLES)} />
 </BaseLayout>

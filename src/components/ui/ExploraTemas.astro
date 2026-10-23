@@ -1,7 +1,7 @@
 ---
 /**
- * "Explora los temas principales" (Inicio). En escritorio: menú de temas fijo a la
- * izquierda y una tarjeta por tema a la derecha; al hacer scroll, el tema cuya tarjeta
+ * "Explora los temas principales" (Inicio). En escritorio: título y menú de temas fijos a la
+ * izquierda y las tarjetas, una debajo de otra, a la derecha; al hacer scroll, el tema cuya tarjeta
  * está en el centro de la pantalla se marca en el menú. En celular: solo las tarjetas.
  * Datos y gráficas de cada tema: src/data/explora.ts.
  */
@@ -82,29 +82,24 @@ const items = explora.map((item) => {
 });
 ---
 
-<section
-  aria-labelledby="temas-titulo"
-  class="overflow-x-clip bg-surface/50 [--explora-titulo:6.5rem] [--explora-tope:5.25rem]"
->
-  <div class="container-page py-12 md:py-16">
-    <!-- En escritorio el título queda fijo bajo el header mientras se recorren las tarjetas. -->
-    <div class="explora-titulo lg:sticky lg:top-[var(--explora-tope)] lg:z-20 lg:flex lg:h-[var(--explora-titulo)] lg:flex-col lg:justify-center">
-      <h2 id="temas-titulo" class="text-3xl font-bold text-brand md:text-4xl">
+<section aria-labelledby="temas-titulo" class="bg-surface/50">
+  <div class="container-page py-12 md:py-16 lg:grid lg:grid-cols-[19rem_minmax(0,1fr)] lg:gap-16">
+    <!-- En escritorio, título y menú van juntos en la columna izquierda y quedan fijos. -->
+    <div class="lg:sticky lg:top-[calc(5.25rem+1.5rem)] lg:self-start">
+      <h2 id="temas-titulo" class="text-3xl font-bold text-brand md:text-4xl lg:text-[2.6rem] lg:leading-[1.05]">
         {titulo('Explora los temas principales')}
       </h2>
-      <p class="mt-2 text-ink-muted">Seis conversaciones clave para entender la percepción política.</p>
-    </div>
+      <p class="mt-3 text-ink-muted">Seis conversaciones clave para entender la percepción política.</p>
 
-    <div class="mt-10 lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-12">
-      <nav aria-label="Temas" class="hidden lg:block">
-        <ol class="sticky top-[calc(var(--explora-tope)+var(--explora-titulo)+2.5rem)] flex flex-col gap-1">
+      <nav aria-label="Temas" class="mt-8 hidden lg:block">
+        <ol class="flex flex-col gap-1">
           {
             items.map(({ tema }) => (
               <li>
                 <a
                   href={`#explora-${tema.slug}`}
                   data-explora-link={tema.slug}
-                  class="group flex items-center justify-between gap-3 rounded-lg px-5 py-4 text-lg font-semibold text-ink transition-[background-color,box-shadow,color] duration-300 hover:bg-white/60 data-[activo]:bg-white data-[activo]:text-brand data-[activo]:shadow-md data-[activo]:ring-4 data-[activo]:ring-white/60 dark:hover:bg-surface/60 dark:data-[activo]:bg-surface-muted dark:data-[activo]:ring-surface-muted/50"
+                  class="group flex items-center justify-between gap-3 rounded-full px-6 py-4 text-lg font-semibold text-ink transition-[background-color,box-shadow,color] duration-300 hover:bg-white/60 data-[activo]:bg-white data-[activo]:text-brand data-[activo]:shadow-md data-[activo]:ring-4 data-[activo]:ring-white/60 dark:hover:bg-surface/60 dark:data-[activo]:bg-surface-sunken dark:data-[activo]:ring-surface-muted"
                 >
                   {titulo(tema.titulo)}
                   <Icon
@@ -118,15 +113,16 @@ const items = explora.map((item) => {
           }
         </ol>
       </nav>
-
-      <div class="flex flex-col gap-8 lg:gap-[30vh] lg:pt-10 lg:pb-[10vh]" data-explora-pila>
+    </div>
+    <!-- Escritorio: mucho aire entre tarjetas para ver una a la vez, y la primera más abajo. -->
+    <div class="mt-10 flex flex-col gap-8 lg:mt-0 lg:gap-[35vh] lg:pt-[18vh] lg:pb-[12vh]">
         {
           items.map(({ item, tema, pregunta, cifra, rondas, evolucion, proporcion, barras, columnas, tituloGrafica }) => (
             <article
               id={`explora-${tema.slug}`}
               data-explora-tarjeta={tema.slug}
               aria-labelledby={`explora-${tema.slug}-t`}
-              class="explora-tarjeta scroll-mt-32 rounded-2xl border border-border bg-surface p-5 md:p-8 lg:sticky lg:top-[calc(var(--explora-tope)+var(--explora-titulo)+2.5rem)] lg:shadow-[0_-12px_32px_-20px_rgb(0_0_0/0.25)]"
+              class="explora-tarjeta scroll-mt-28 rounded-2xl border border-border bg-surface p-5 md:p-8"
             >
               <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
                 <div>
@@ -207,34 +203,11 @@ const items = explora.map((item) => {
             </article>
           ))
         }
-      </div>
     </div>
   </div>
 </section>
 
 <style>
-  /*
-   * Título fijo (escritorio): fondo opaco del mismo tono que la sección (surface al 50 % sobre
-   * page) extendido a todo el ancho de la ventana, y un desvanecido debajo para que las
-   * tarjetas se escondan suave al pasar por debajo.
-   */
-  @media (min-width: 64rem) {
-    .explora-titulo {
-      --fondo: color-mix(in srgb, var(--color-surface) 50%, var(--color-page));
-      background: var(--fondo);
-      box-shadow: 0 0 0 100vmax var(--fondo);
-      clip-path: inset(0 -100vmax -1.5rem);
-    }
-    .explora-titulo::after {
-      content: '';
-      position: absolute;
-      inset: 100% -100vmax auto;
-      height: 1.5rem;
-      background: linear-gradient(var(--fondo), transparent);
-      pointer-events: none;
-    }
-  }
-
   /* Aparición suave de cada tarjeta al entrar en pantalla (solo con JS y sin movimiento reducido). */
   :global([data-explora-anim]) .explora-tarjeta {
     opacity: 0;
@@ -247,58 +220,23 @@ const items = explora.map((item) => {
     opacity: 1;
     translate: 0 0;
   }
-
-  /* Pila (escritorio): la tarjeta que ya quedó tapada por la siguiente se desvanece. */
-  .explora-tarjeta {
-    transition: opacity 0.35s ease-out;
-  }
-  :global([data-explora-anim]) .explora-tarjeta[data-visible][data-tapada],
-  .explora-tarjeta[data-tapada] {
-    opacity: 0;
-  }
 </style>
 
 <script>
   const tarjetas = [...document.querySelectorAll<HTMLElement>('[data-explora-tarjeta]')];
   const links = [...document.querySelectorAll<HTMLElement>('[data-explora-link]')];
 
-  const pila = document.querySelector<HTMLElement>('[data-explora-pila]');
-  const escritorio = window.matchMedia('(min-width: 64rem)');
-
-  if (tarjetas.length && pila && 'IntersectionObserver' in window) {
+  if (tarjetas.length && 'IntersectionObserver' in window) {
     const activar = (slug: string) =>
       links.forEach((a) => a.toggleAttribute('data-activo', a.dataset.exploraLink === slug));
 
-    // En escritorio las tarjetas son sticky y se apilan. Cada una se pega a `topeBase`, salvo
-    // que no quepa en la pantalla: entonces se pega más arriba para que se vea hasta su botón.
-    let topeBase = 0;
-    const ajustarTopes = () => {
-      tarjetas.forEach((t) => (t.style.top = ''));
-      if (!escritorio.matches) return;
-      topeBase = parseFloat(getComputedStyle(tarjetas[0]!).top);
-      for (const t of tarjetas) {
-        const tope = Math.min(topeBase, window.innerHeight - t.offsetHeight - 24);
-        if (tope < topeBase) t.style.top = `${tope}px`;
-      }
-    };
-
-    // Tema activo: la última tarjeta que ya llegó a la mitad de la pantalla. La anterior a
-    // una tarjeta ya pegada queda tapada y se desvanece.
+    // Tema activo: la última tarjeta que ya llegó a la mitad de la pantalla.
     let pendiente = false;
     const actualizar = () => {
       pendiente = false;
       const mitad = window.innerHeight / 2;
       let activa = tarjetas[0]!;
-      tarjetas.forEach((t, k) => {
-        const arriba = t.getBoundingClientRect().top;
-        if (arriba <= mitad) activa = t;
-        const siguiente = tarjetas[k + 1];
-        const tapada =
-          escritorio.matches &&
-          !!siguiente &&
-          siguiente.getBoundingClientRect().top <= parseFloat(getComputedStyle(siguiente).top) + 8;
-        t.toggleAttribute('data-tapada', tapada);
-      });
+      for (const t of tarjetas) if (t.getBoundingClientRect().top <= mitad) activa = t;
       activar(activa.dataset.exploraTarjeta!);
     };
     const programar = () => {
@@ -307,29 +245,9 @@ const items = explora.map((item) => {
       requestAnimationFrame(actualizar);
     };
 
-    // Clic en el menú: lleva a la posición en la que esa tarjeta acaba de pegarse (con sticky,
-    // el ancla nativa no sirve porque las tarjetas anteriores siguen en el mismo lugar).
-    links.forEach((a) =>
-      a.addEventListener('click', (ev) => {
-        const k = tarjetas.findIndex((t) => t.dataset.exploraTarjeta === a.dataset.exploraLink);
-        if (k < 0 || !escritorio.matches) return;
-        ev.preventDefault();
-        const estilo = getComputedStyle(pila);
-        let y = pila.getBoundingClientRect().top + window.scrollY + parseFloat(estilo.paddingTop);
-        for (let i = 0; i < k; i++) y += tarjetas[i]!.offsetHeight + parseFloat(estilo.rowGap);
-        const tope = parseFloat(getComputedStyle(tarjetas[k]!).top);
-        window.scrollTo({ top: y - tope + 1, behavior: 'smooth' });
-        history.replaceState(null, '', a.getAttribute('href'));
-      }),
-    );
-
-    ajustarTopes();
     actualizar();
     window.addEventListener('scroll', programar, { passive: true });
-    window.addEventListener('resize', () => {
-      ajustarTopes();
-      programar();
-    });
+    window.addEventListener('resize', programar);
 
     if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       document.documentElement.toggleAttribute('data-explora-anim', true);

@@ -5,8 +5,7 @@ import { decimal, entero, pct } from '../../lib/format';
 /**
  * Grupos sociodemográficos de un cruce: una fila por grupo con su punto (y su intervalo,
  * opcional) sobre un eje común. Se resalta el grupo que más se diferencia (o el indicado).
- * Los grupos con n < 
-Min` no se dibujan (regla PLAN.md §5.1).
+ * Los grupos con n < `nMin` no se dibujan (regla PLAN.md §5.1).
  */
 export interface GrupoDot {
   label: string;
