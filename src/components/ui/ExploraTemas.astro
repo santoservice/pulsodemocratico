@@ -84,7 +84,7 @@ const items = explora.map((item) => {
 
 <section
   aria-labelledby="temas-titulo"
-  class="bg-surface/50 [--explora-titulo:6.5rem] [--explora-tope:5.25rem]"
+  class="overflow-x-clip bg-surface/50 [--explora-titulo:6.5rem] [--explora-tope:5.25rem]"
 >
   <div class="container-page py-12 md:py-16">
     <!-- En escritorio el título queda fijo bajo el header mientras se recorren las tarjetas. -->
@@ -104,7 +104,7 @@ const items = explora.map((item) => {
                 <a
                   href={`#explora-${tema.slug}`}
                   data-explora-link={tema.slug}
-                  class="group flex items-center justify-between gap-3 rounded-lg px-5 py-4 text-lg font-semibold text-ink transition-[background-color,box-shadow,color] duration-300 hover:bg-white/60 data-[activo]:bg-white data-[activo]:text-brand data-[activo]:shadow-md data-[activo]:ring-4 data-[activo]:ring-white/60"
+                  class="group flex items-center justify-between gap-3 rounded-lg px-5 py-4 text-lg font-semibold text-ink transition-[background-color,box-shadow,color] duration-300 hover:bg-white/60 data-[activo]:bg-white data-[activo]:text-brand data-[activo]:shadow-md data-[activo]:ring-4 data-[activo]:ring-white/60 dark:hover:bg-surface/60 dark:data-[activo]:bg-surface-muted dark:data-[activo]:ring-surface-muted/50"
                 >
                   {titulo(tema.titulo)}
                   <Icon
@@ -126,7 +126,7 @@ const items = explora.map((item) => {
               id={`explora-${tema.slug}`}
               data-explora-tarjeta={tema.slug}
               aria-labelledby={`explora-${tema.slug}-t`}
-              class="explora-tarjeta scroll-mt-32 border border-border bg-surface p-5 md:p-8 lg:sticky lg:top-[calc(var(--explora-tope)+var(--explora-titulo)+2.5rem)] lg:shadow-[0_-12px_32px_-20px_rgb(0_0_0/0.25)]"
+              class="explora-tarjeta scroll-mt-32 rounded-2xl border border-border bg-surface p-5 md:p-8 lg:sticky lg:top-[calc(var(--explora-tope)+var(--explora-titulo)+2.5rem)] lg:shadow-[0_-12px_32px_-20px_rgb(0_0_0/0.25)]"
             >
               <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
                 <div>
@@ -140,7 +140,7 @@ const items = explora.map((item) => {
                     {pregunta}
                   </h3>
                 </div>
-                <p class="shrink-0 bg-surface-muted px-5 py-4 sm:w-52">
+                <p class="shrink-0 rounded-xl bg-surface-muted px-5 py-4 sm:w-52">
                   <span class="block text-4xl leading-none font-bold text-grana tabular-nums">
                     {cifra.valor}
                     {cifra.escala && <span class="text-base font-semibold">{cifra.escala}</span>}
@@ -149,7 +149,7 @@ const items = explora.map((item) => {
                 </p>
               </div>
 
-              <div class="mt-6 bg-surface-muted p-5 md:p-6">
+              <div class="mt-6 rounded-xl bg-surface-muted p-5 md:p-6">
                 <p class="mb-4 text-sm font-semibold text-ink">{tituloGrafica}</p>
                 {rondas && (
                   <EscalaRondas

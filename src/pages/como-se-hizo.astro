@@ -29,14 +29,14 @@ const dataset = datasetJsonLd(
     <SectionHeader title="¿Cómo se hizo la encuesta?" lead={intro} />
 
     <!-- Ficha técnica -->
-    <section aria-labelledby="ficha-titulo" class="mt-12 bg-surface-muted p-5 md:p-8">
+    <section aria-labelledby="ficha-titulo" class="mt-12 rounded-2xl bg-surface-muted p-5 md:p-8">
       <h2 id="ficha-titulo" class="text-2xl font-bold text-brand md:text-3xl">
         {titulo('Ficha técnica')}
       </h2>
       <p class="mt-2 text-ink-muted">Los datos clave del estudio.</p>
       <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {fichaTecnica.map((item, i) => (
-          <li class="relative flex flex-col overflow-hidden border border-border bg-surface p-5 md:p-6">
+          <li class="relative flex flex-col overflow-hidden rounded-2xl border border-border bg-surface p-5 md:p-6">
             {/* Ícono grande y tenue de fondo, cortado por una esquina (alterna abajo/arriba). */}
             <Icon
               name={item.icono}
@@ -63,8 +63,8 @@ const dataset = datasetJsonLd(
         {titulo('Así funciona el panel')}
       </h2>
       <p class="mt-2 text-ink-muted">
-        Consultamos a las mismas personas antes, durante y después de las dos vueltas
-        presidenciales.
+        Consultamos a las mismas personas antes, durante y después de las{' '}
+        <strong class="font-bold text-ink">dos vueltas presidenciales</strong>.
       </p>
       <LineaPanel />
       <div class="mt-12">
@@ -83,38 +83,36 @@ const dataset = datasetJsonLd(
       </div>
     </section>
 
-    <!-- Qué puede y qué no puede decir (propuesta de diseño) -->
-    <section aria-labelledby="alcance-titulo" class="mt-16 border border-border p-5 md:p-8">
+    <!-- Consideraciones: alcance de la encuesta -->
+    <section aria-labelledby="alcance-titulo" class="mt-16 rounded-2xl border border-border p-5 md:p-8">
       <h2 id="alcance-titulo" class="text-2xl font-bold text-brand md:text-3xl">
-        {titulo('Qué puede y qué no puede decir esta encuesta')}
+        {titulo('Consideraciones')}
       </h2>
+      <p class="mt-2 text-ink-muted">Antes de leer los resultados, ten en cuenta lo siguiente.</p>
       <div class="mt-6 grid gap-6 md:grid-cols-2">
-        <div class="bg-surface-muted p-5">
-          <h3 class="flex items-center gap-2 font-bold text-brand">
-            <Icon name="lucide:check" class="h-5 w-5" aria-hidden="true" /> Sí sirve para
-          </h3>
+        <div class="rounded-xl bg-surface-muted p-5">
+          <h3 class="font-bold text-brand">Esta encuesta es útil para</h3>
           <ul class="mt-3 list-disc space-y-2 pl-5 text-ink-muted">
-            <li>Comparar grupos (por edad, sexo, estudios o estrato).</li>
-            <li>Ver si la gente cambió de opinión entre rondas.</li>
+            <li>Comparar grupos de personas por edad, sexo, nivel educativo o estrato.</li>
+            <li>Seguir cómo cambiaron las opiniones de una ronda a otra.</li>
           </ul>
         </div>
-        <div class="bg-surface-muted p-5">
-          <h3 class="flex items-center gap-2 font-bold text-brand">
-            <Icon name="lucide:x" class="h-5 w-5" aria-hidden="true" /> No sirve para
-          </h3>
+        <div class="rounded-xl bg-surface-muted p-5">
+          <h3 class="font-bold text-brand">No es la herramienta indicada para</h3>
           <ul class="mt-3 list-disc space-y-2 pl-5 text-ink-muted">
-            <li>Decir qué porcentaje del país piensa cada cosa.</li>
+            <li>Afirmar qué porcentaje del país piensa de cierta manera.</li>
             <li>Calcular un margen de error.</li>
           </ul>
         </div>
       </div>
       <p class="mt-4 text-sm text-ink-muted">
-        La muestra no es probabilística: los resultados describen a las personas encuestadas.
+        La muestra no es probabilística, así que los resultados describen a las personas
+        encuestadas y no a toda la población.
       </p>
     </section>
 
     <!-- Cierre -->
-    <section aria-labelledby="cta-titulo" class="mt-16 bg-surface-sunken p-6 text-center md:p-10">
+    <section aria-labelledby="cta-titulo" class="mt-16 rounded-2xl bg-surface-sunken p-6 text-center md:p-10">
       <h2 id="cta-titulo" class="sr-only">
         {titulo('Datos completos de la encuesta')}
       </h2>

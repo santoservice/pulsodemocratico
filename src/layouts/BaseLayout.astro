@@ -21,7 +21,8 @@ const props = Astro.props;
 ---
 
 <!doctype html>
-<html lang={sitio.lang}>
+<!-- Tema oscuro fijo mientras se evalúa (sin selector todavía). Quitar data-theme = tema claro. -->
+<html lang={sitio.lang} data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

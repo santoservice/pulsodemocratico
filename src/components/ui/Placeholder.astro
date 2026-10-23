@@ -26,7 +26,7 @@ const textSize = { sm: 'text-[0.65rem]', md: 'text-sm', lg: 'text-base' }[size];
 
 <div
   class:list={[
-    'relative flex items-center justify-center overflow-hidden border border-border-strong bg-surface-sunken text-ink-muted',
+    'relative flex items-center justify-center overflow-hidden rounded-2xl border border-border-strong bg-surface-sunken text-ink-muted',
     className,
   ]}
   aria-hidden={decorative ? 'true' : undefined}
@@ -62,7 +62,7 @@ const textSize = { sm: 'text-[0.65rem]', md: 'text-sm', lg: 'text-base' }[size];
     </span>
   )}
   {note && (
-    <span class="absolute right-2 bottom-2 border border-border-strong bg-surface px-2 py-0.5 text-xs text-ink-muted">
+    <span class="absolute right-2 bottom-2 rounded-full border border-border-strong bg-surface px-2 py-0.5 text-xs text-ink-muted">
       {note}
     </span>
   )}

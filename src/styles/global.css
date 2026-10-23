@@ -81,9 +81,19 @@
   --color-chart-cat-2: #c0bfbe;
   --color-chart-cat-3: #2d2926;
 
+  /* Fijos: no cambian con el tema (piezas que siempre van en azul 281 o crema 7499). */
+  --color-navy: #00205b;
+  --color-cream: #f7efd9;
+  --color-negro: #2d2926; /* Pantone Black C */
+  --color-on-grana: #ffffff;
+  --color-rojo: #a6192e; /* Grana 187C fijo: el personaje «Tú» del quiz */
+
   /* Layout */
   --container-page: 72rem;
 }
+
+/* `dark:` = tema oscuro activado con <html data-theme="dark"> (no depende del sistema). */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 @layer base {
   html {
@@ -112,14 +122,80 @@
   }
 
   /*
-   * Tema oscuro (AÚN NO ACTIVO). Para probarlo: <html data-theme="dark">. Faltaría también
-   * redefinir los tokens --color-* de @theme (superficies, texto, bordes, gráficas).
+   * Tema oscuro (<html data-theme="dark">): fondo azul noche derivado del 281, tarjetas un
+   * escalón más claras, texto 2707/blanco y el azul claro 292 como color de interacción.
+   * Grana 187C no llega a 4,5:1 sobre azul oscuro: el color de resaltado pasa a Gold 871C.
+   * Contraste medido sobre surface #0E2550: ink 14,6 · ink-muted 8,5 · brand 12,9 ·
+   * accent 7,3 · grana (gold) 7,7.
    */
   :root[data-theme='dark'] {
+    color-scheme: dark;
+
+    --color-brand: #d9e1ef;
+    --color-brand-strong: #ffffff;
+    --color-brand-light: #93aac9;
+    --color-grana: #d7b36b;
+    --color-on-grana: #00205b;
+
+    --color-page: #071735;
+    --color-surface: #0e2550;
+    --color-surface-muted: #15305f;
+    --color-surface-sunken: #0a1c40;
+    --color-surface-highlight: #10295a;
+
+    --color-border: #213d6e;
+    --color-border-strong: #4f6894;
+    --color-placeholder: #7f93b5;
+    --color-skeleton: #263f6b;
+
+    --color-ink: #e9eef6;
+    --color-ink-muted: #a9bad4;
+    --color-on-accent: #00205b;
+
+    --color-accent: #93aac9;
+    --color-accent-hover: #d9e1ef;
+    --color-focus: #d7b36b;
+
+    --color-chart-accent: #93aac9;
+    --color-chart-strong: #d9e1ef;
+    --color-chart-accent-soft: #4a6796;
+    --color-chart-ink: #e9eef6;
+    --color-chart-muted: #4a6796;
+    --color-chart-track: #1c3563;
+    --color-chart-highlight: #1f3a6b;
+    --color-chart-grid: #0e2550;
+    --color-chart-cat-1: #93aac9;
+    --color-chart-cat-2: #5d6f8f;
+    --color-chart-cat-3: #f7efd9;
+
     --dots-base: #93aac9;
     --dots-base-alpha: 0.3;
     --dots-glow: #ffffff;
-    --dots-pulse: #e8b84a; /* dorado, como el ejemplo del equipo */
+    --dots-pulse: #d7b36b; /* Gold 871C */
+  }
+
+  /*
+   * Isla de tema claro dentro del oscuro (footer, bloque de logos): data-theme="light" en el
+   * contenedor. Repite solo los tokens claros que usan esas piezas (logos a color sobre crema).
+   */
+  [data-theme='dark'] [data-theme='light'] {
+    color-scheme: light;
+    color: var(--color-ink);
+
+    --color-brand: #00205b;
+    --color-grana: #a6192e;
+    --color-page: #faf7ed;
+    --color-surface: #f7efd9;
+    --color-surface-muted: #f0e6c9;
+    --color-surface-sunken: #d9e1ef;
+    --color-border: #e3d7b6;
+    --color-border-strong: #969492;
+    --color-ink: #2d2926;
+    --color-ink-muted: #575451;
+    --color-on-accent: #ffffff;
+    --color-accent: #00387d;
+    --color-accent-hover: #00205b;
+    --color-focus: #00387d;
   }
 
   :focus-visible {

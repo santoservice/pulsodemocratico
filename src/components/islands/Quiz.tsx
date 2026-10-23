@@ -37,8 +37,8 @@ type Vista = 'pregunta' | 'resultado' | 'final';
 
 const temaHref = (slug: string) => ruta(`/resultados/${slug}`);
 const btnBase =
-  'inline-flex min-h-11 items-center justify-center gap-2 border px-4 py-2 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40';
-const btnPrimario = `${btnBase} border-accent bg-accent text-on-accent hover:enabled:bg-accent-hover`;
+  'inline-flex min-h-11 items-center justify-center gap-2 rounded-full border px-5 py-2 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40';
+const btnPrimario = `${btnBase} border-accent bg-accent text-on-accent hover:enabled:bg-accent-hover dark:border-white dark:bg-white dark:text-negro dark:hover:enabled:border-cream dark:hover:enabled:bg-cream`;
 const btnTexto =
   'inline-flex min-h-11 items-center gap-1 px-1 font-medium text-ink underline-offset-4 hover:underline disabled:cursor-not-allowed disabled:text-ink-muted disabled:no-underline disabled:opacity-60';
 const enlaceTexto =
@@ -89,7 +89,7 @@ export default function Quiz({ preguntas }: Props) {
     'text-xl leading-snug font-semibold text-ink focus:outline-none focus-visible:outline-2 sm:text-2xl';
 
   return (
-    <div className="flex min-h-[30rem] min-w-0 flex-col border border-border bg-surface p-4 sm:p-6 md:p-8">
+    <div className="flex min-h-[30rem] min-w-0 flex-col rounded-2xl border border-border bg-surface p-4 sm:p-6 md:p-8">
       <div className="mb-3 flex items-center justify-between gap-3 text-sm text-ink-muted">
         <p>
           Pregunta {vista === 'final' ? total : paso + 1} de {total}
@@ -105,7 +105,7 @@ export default function Quiz({ preguntas }: Props) {
             <li
               key={q.id}
               className={`h-1.5 flex-1 transition-colors duration-300 ${
-                hecha ? 'bg-accent' : k === paso ? 'bg-accent/40' : 'bg-surface-sunken'
+                hecha ? 'bg-accent dark:bg-cream' : k === paso ? 'bg-accent/40 dark:bg-cream/40' : 'bg-surface-sunken'
               }`}
             />
           );
@@ -300,11 +300,11 @@ function Opciones({
               onKeyDown={(e) => onKeyDown(e, k)}
               className={`border text-center font-semibold tabular-nums transition-colors ${
                 esOpciones
-                  ? 'min-h-18 px-3 py-4 text-base leading-tight'
-                  : 'h-12 min-w-0 flex-1 px-0 text-sm sm:h-14 sm:text-base'
+                  ? 'min-h-18 rounded-xl px-3 py-4 text-base leading-tight'
+                  : 'h-12 min-w-0 flex-1 rounded-lg px-0 text-sm sm:h-14 sm:text-base'
               } ${
                 sel
-                  ? 'border-accent bg-accent text-on-accent'
+                  ? 'border-accent bg-accent text-on-accent dark:border-cream dark:bg-cream dark:text-navy'
                   : 'border-border-strong bg-surface text-ink hover:border-ink hover:bg-surface-muted'
               }`}
             >

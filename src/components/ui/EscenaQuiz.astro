@@ -35,7 +35,7 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
           <p class="mt-4 max-w-md text-lg leading-relaxed text-ink lg:max-w-none">
             <span class="lg:block lg:whitespace-nowrap">
               Responde {quiz.preguntas.length} preguntas de la encuesta y compara tus
-            </span>
+            </span>{' '}
             <span class="lg:block lg:whitespace-nowrap">respuestas con el {PROMEDIO_ENCUESTADOS}.</span>
           </p>
         </div>
@@ -46,16 +46,16 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
 
         <figure class="mt-8 hidden w-fit lg:block" aria-hidden="true">
           <div class="quiz-tu flex w-24 flex-col items-center" data-quiz-tu>
-            <span class="rounded-full bg-white px-3 py-1 text-sm font-bold text-brand shadow-md">Tú</span>
+            <span class="rounded-full bg-rojo px-3 py-1 text-sm font-bold text-white shadow-md">Tú</span>
             <!-- Persona: cabeza, torso de hombros a cadera, brazos abiertos hacia abajo y piernas. -->
             <svg viewBox="0 0 100 140" class="mt-2 h-auto w-full">
               <ellipse cx="50" cy="133" rx="30" ry="4" class="fill-brand/15"></ellipse>
-              <g class="fill-none stroke-brand" stroke-linecap="round" stroke-linejoin="round">
+              <g class="fill-none stroke-rojo" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M37 46Q27 61 23 79M63 46q10 15 14 33" stroke-width="7.5"></path>
                 <path d="M45 84 43 126M55 84l2 42" stroke-width="10.5"></path>
               </g>
-              <circle cx="50" cy="20" r="13" class="fill-brand"></circle>
-              <path d="M39 40q11-3.5 22 0 7 2 6 10l-5 36q-.6 3-3.5 3h-17q-2.9 0-3.5-3l-5-36q-1-8 6-10Z" class="fill-brand"></path>
+              <circle cx="50" cy="20" r="13" class="fill-rojo"></circle>
+              <path d="M39 40q11-3.5 22 0 7 2 6 10l-5 36q-.6 3-3.5 3h-17q-2.9 0-3.5-3l-5-36q-1-8 6-10Z" class="fill-rojo"></path>
             </svg>
           </div>
           <figcaption class="quiz-desvanece mt-3 max-w-60 text-sm leading-snug text-ink-muted">

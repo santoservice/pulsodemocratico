@@ -42,10 +42,10 @@ const accessibleName = `Ver detalle del hallazgo ${num}: ${titulo}`;
 
 <article
   id={tarjeta}
-  class="group relative flex h-full scroll-mt-24 flex-col border border-border bg-surface p-4 transition-colors focus-within:border-ink hover:border-border-strong md:p-5"
+  class="group relative flex h-full scroll-mt-24 flex-col rounded-2xl border border-border bg-surface p-4 transition-colors focus-within:border-ink hover:border-border-strong md:p-5"
 >
   <div class="flex items-start gap-3">
-    <span class="mt-0.5 shrink-0 border border-border bg-surface-muted px-2 py-0.5 text-xs font-medium text-ink-muted">
+    <span class="mt-0.5 shrink-0 rounded-full border border-border bg-surface-muted px-2 py-0.5 text-xs font-medium text-ink-muted">
       {num}
     </span>
     <H class="flex-1 text-base leading-snug font-semibold">{titulo}</H>

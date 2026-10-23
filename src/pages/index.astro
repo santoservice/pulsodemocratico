@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { Image } from 'astro:assets';
-import { Icon } from 'astro-icon/components';
 import imagenInicio from '../assets/Inicio.png';
 import ExploraTemas from '../components/ui/ExploraTemas.astro';
 import EscenaQuiz from '../components/ui/EscenaQuiz.astro';
@@ -53,22 +52,12 @@ const sorpresas = elegidos.map((ind) => {
         </h2>
         <ul
           aria-labelledby="cifras-titulo"
-          class="mt-8 grid max-w-md grid-cols-2 overflow-hidden rounded-xl bg-brand text-white shadow-lg shadow-brand/20 sm:grid-cols-4"
+          class="mt-8 grid max-w-md grid-cols-2 overflow-hidden rounded-2xl bg-brand text-white shadow-lg shadow-brand/20 sm:grid-cols-4 dark:bg-cream dark:text-negro dark:shadow-black/30"
         >
-          {cifras.map((c, k) => (
-            <li
-              class:list={[
-                'flex flex-col items-center gap-1 px-3 py-5 text-center',
-                k % 2 === 1 && 'border-l border-white/15',
-                k >= 2 && 'border-t border-white/15 sm:border-t-0',
-                k === 2 && 'sm:border-l',
-              ]}
-            >
-              <span class="flex items-center gap-2">
-                {c.icon && <Icon name={c.icon} class="h-5 w-5 text-gold" aria-hidden="true" />}
-                <span class="text-2xl font-bold tabular-nums">{c.value}</span>
-              </span>
-              <span class="text-xs leading-snug text-surface-sunken">{c.label}</span>
+          {cifras.map((c) => (
+            <li class="flex flex-col items-center gap-1 px-3 py-5 text-center">
+              <span class="text-2xl font-bold tabular-nums">{c.value}</span>
+              <span class="text-xs leading-snug text-surface-sunken dark:text-negro/80">{c.label}</span>
             </li>
           ))}
         </ul>
@@ -97,13 +86,13 @@ const sorpresas = elegidos.map((ind) => {
         <h2 id="sorpresas-titulo" class="text-2xl font-bold text-brand md:text-3xl">
           {titulo('Datos que sorprenden')}
         </h2>
-        <span class="border border-dashed border-border-strong px-2 py-0.5 text-xs text-ink-muted">
+        <span class="rounded-full border border-dashed border-border-strong px-2 py-0.5 text-xs text-ink-muted">
           Propuesta
         </span>
       </div>
       <ul class="mt-6 grid gap-4 md:grid-cols-3">
         {sorpresas.map((s) => (
-          <li class="flex flex-col border-t-4 border-accent bg-surface-highlight p-5">
+          <li class="flex flex-col rounded-2xl border-t-4 border-accent bg-surface-highlight p-5">
             <p class="flex flex-wrap items-baseline gap-x-2 leading-none">
               <span class="text-5xl font-bold tracking-tight text-brand tabular-nums">
                 {s.titular.valor}

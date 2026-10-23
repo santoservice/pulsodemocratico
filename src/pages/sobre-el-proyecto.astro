@@ -50,7 +50,8 @@ const razones = [
           </p>
         </div>
       </div>
-      <div class="lg:border-l lg:border-border lg:pl-12">
+      <!-- Tema claro: los logos (azules) no se leen sobre el fondo oscuro. -->
+      <div data-theme="light" class="rounded-2xl bg-page p-6 md:p-8">
         <h3 id="iniciativa" class="text-xs font-semibold tracking-[0.25em] text-accent uppercase">
           Una iniciativa de
         </h3>
@@ -64,7 +65,7 @@ const razones = [
       </h2>
       <ul class="mt-6 grid gap-6 md:grid-cols-2">
         {razones.map((r) => (
-          <li class="flex items-start gap-5 border border-border bg-surface-muted p-6 md:p-8">
+          <li class="flex items-start gap-5 rounded-2xl border border-border bg-surface-muted p-6 md:p-8">
             <span
               class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-accent md:h-20 md:w-20"
               aria-hidden="true"

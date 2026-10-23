@@ -99,7 +99,7 @@ const { n_min_celda, n_olas } = getMeta();
         </p>
       )}
 
-      <details class="mt-4 max-w-3xl border border-border bg-surface-muted p-4 text-sm">
+      <details class="mt-4 max-w-3xl rounded-xl border border-border bg-surface-muted p-4 text-sm">
         <summary class="flex cursor-pointer items-center gap-2 font-semibold">
           <Icon name="lucide:info" class="h-4 w-4 shrink-0" aria-hidden="true" />
           Cómo leer estos datos
@@ -188,7 +188,7 @@ const { n_min_celda, n_olas } = getMeta();
             if (datos.length === 0) return null;
             return (
               <details class="group mt-8">
-                <summary class="mx-auto flex w-fit cursor-pointer list-none items-center gap-2 border border-ink px-5 py-3 font-semibold hover:bg-surface-muted [&::-webkit-details-marker]:hidden">
+                <summary class="mx-auto flex w-fit cursor-pointer list-none items-center gap-2 rounded-full border border-ink px-5 py-3 font-semibold hover:bg-surface-muted [&::-webkit-details-marker]:hidden">
                   <span class="group-open:hidden">Ver {datos.length} diferencias más</span>
                   <span class="hidden group-open:inline">Ver menos</span>
                   <Icon

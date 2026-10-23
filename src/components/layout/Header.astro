@@ -7,6 +7,9 @@ import { ruta } from '../../lib/rutas';
 const path = Astro.url.pathname;
 // En Inicio el nombre del sitio se oculta mientras se ve el título grande del hero.
 const enInicio = isCurrent(path, ruta('/'));
+// Como en el hero: la segunda palabra con el color de resaltado (Grana; dorado en tema oscuro).
+const [nombre1, ...resto] = sitio.nombre.split(' ');
+const nombre2 = resto.join(' ');
 ---
 
 <!--
@@ -14,7 +17,7 @@ const enInicio = isCurrent(path, ruta('/'));
   aparece cuando el título del hero sale de pantalla (data-nombre).
 -->
 <header
-  class="group/header sticky top-0 z-40 border-t-4 border-b border-t-brand border-b-transparent bg-page transition-colors duration-300 data-[scroll]:border-b-border"
+  class="group/header sticky top-0 z-40 border-t-4 border-b border-t-brand dark:border-t-navy border-b-transparent bg-page transition-colors duration-300 data-[scroll]:border-b-border"
   data-header
   data-nombre={enInicio ? 'oculto' : undefined}
 >
@@ -24,7 +27,7 @@ const enInicio = isCurrent(path, ruta('/'));
       href={ruta('/')}
       class="text-lg font-bold tracking-tight text-brand transition-[opacity,translate] duration-300 group-data-[nombre=oculto]/header:pointer-events-none group-data-[nombre=oculto]/header:-translate-y-1 group-data-[nombre=oculto]/header:opacity-0 md:text-xl"
     >
-      {sitio.nombre}
+      {nombre1} <span class="text-grana">{nombre2}</span>
     </a>
 
     <nav aria-label="Principal" class="hidden md:block">
@@ -33,8 +36,8 @@ const enInicio = isCurrent(path, ruta('/'));
           const active = isActive(path, item.href);
           // Activo: "píldora" blanca con texto azul; al pasar el mouse, un blanco tenue.
           const pildora = active
-            ? 'bg-white font-semibold text-brand shadow-sm'
-            : 'text-ink hover:bg-white/60';
+            ? 'bg-white font-semibold text-brand shadow-sm dark:text-negro'
+            : 'text-ink hover:bg-white/60 dark:hover:bg-surface-muted/60';
           const linkClass = [
             'inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-[0.95rem] transition-colors',
             item.children ? '' : pildora,
@@ -75,7 +78,7 @@ const enInicio = isCurrent(path, ruta('/'));
               </div>
               <ul
                 id="submenu-resultados"
-                class="invisible absolute top-full left-0 mt-1 w-60 border border-border bg-surface py-1 opacity-0 shadow-lg transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100 group-data-[open]:visible group-data-[open]:opacity-100 group-data-[closed]:invisible! group-data-[closed]:opacity-0!"
+                class="invisible absolute top-full left-0 mt-1 w-60 rounded-xl before:absolute before:inset-x-0 before:-top-2 before:h-2 before:content-[''] border border-border bg-surface py-1 opacity-0 shadow-lg transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100 group-data-[hover]:visible group-data-[hover]:opacity-100 group-data-[open]:visible group-data-[open]:opacity-100 group-data-[closed]:invisible! group-data-[closed]:opacity-0!"
               >
                 {item.children.map((child) => (
                   <li class="border-b border-surface-sunken last:border-b-0">
@@ -139,12 +142,18 @@ const enInicio = isCurrent(path, ruta('/'));
       root.removeAttribute('data-closed');
       toggle.setAttribute('aria-expanded', 'false');
     };
-    toggle.addEventListener('click', () => set(toggle.getAttribute('aria-expanded') !== 'true'));
+    // Con el mouse encima el menú ya está abierto (hover): el primer clic lo deja fijo
+    // (data-open) y el siguiente lo cierra.
+    toggle.addEventListener('click', () => set(!root.hasAttribute('data-open')));
+    // Hover por JS: group-hover de Tailwind solo aplica con (hover: hover), y algunos equipos
+    // con pantalla táctil no lo reportan aunque usen mouse.
     root.addEventListener('mouseenter', () => {
       root.removeAttribute('data-closed');
+      root.setAttribute('data-hover', '');
       toggle.setAttribute('aria-expanded', 'true');
     });
     root.addEventListener('mouseleave', () => {
+      root.removeAttribute('data-hover');
       if (!root.contains(document.activeElement)) reset();
     });
     root.addEventListener('focusin', () => {

@@ -49,7 +49,7 @@ export default function MobileMenu({ items, currentPath }: Props) {
       <button
         ref={buttonRef}
         type="button"
-        className="inline-flex h-11 w-11 items-center justify-center rounded border border-border text-ink"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border text-ink"
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((v) => !v)}
@@ -73,7 +73,7 @@ export default function MobileMenu({ items, currentPath }: Props) {
         id={panelId}
         aria-label="Principal (móvil)"
         hidden={!open}
-        className="absolute inset-x-0 top-full z-40 border-b border-border bg-surface shadow-md"
+        className="absolute inset-x-0 top-full z-40 rounded-b-2xl border-b border-border bg-surface shadow-md"
       >
         <ul className="container-page flex flex-col py-2">
           {items.map((item) => {

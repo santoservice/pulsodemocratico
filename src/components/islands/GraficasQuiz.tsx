@@ -75,7 +75,7 @@ export function Figura({ pose = 'pie', className = '' }: { pose?: 'pie' | 'corre
 
 function ChipTu() {
   return (
-    <span className="rounded-full bg-grana px-2 py-0.5 text-xs leading-none font-bold text-white shadow-sm">
+    <span className="rounded-full bg-rojo px-2 py-0.5 text-xs leading-none font-bold text-white shadow-sm">
       Tú
     </span>
   );
@@ -98,7 +98,7 @@ export function Columnas({ pregunta: p, valor }: { pregunta: PreguntaQuiz; valor
           <div key={d.v} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end">
             {tuya && (
               <div
-                className="mb-1 flex flex-col items-center gap-1 text-brand"
+                className="mb-1 flex flex-col items-center gap-1 text-rojo"
                 style={{
                   opacity: cae ? 1 : 0,
                   filter: cae ? 'none' : 'blur(4px)',
@@ -155,7 +155,7 @@ export function BarraTramos({ pregunta: p, valor }: { pregunta: PreguntaQuiz; va
       <div className="relative">
         {/* Tú: corre desde el inicio hasta el centro de su tramo. */}
         <div
-          className="absolute bottom-full mb-1 flex -translate-x-1/2 flex-col items-center gap-1 text-brand"
+          className="absolute bottom-full mb-1 flex -translate-x-1/2 flex-col items-center gap-1 text-rojo"
           style={{
             left: `${corre ? tuyo.centro : 0}%`,
             transition: `left 1300ms ${curva}`,
@@ -249,7 +249,7 @@ export function Personas({
           return (
             <div
               key={k}
-              className={`relative ${tu && marca ? 'text-grana' : enSi ? 'text-chart-accent' : 'text-chart-muted/45'}`}
+              className={`relative ${tu && marca ? 'text-rojo' : enSi ? 'text-chart-accent' : 'text-chart-muted/45'}`}
               style={{
                 opacity: aparece ? 1 : 0,
                 transform: tu && marca ? 'scale(1.5)' : 'none',
@@ -349,9 +349,9 @@ export function Pastel({
             </g>
           ))}
         </svg>
-        {/* Tú: en el centro de tu parte (a 55 % del radio), en blanco sobre el color. */}
+        {/* Tú: en el centro de tu parte (a 55 % del radio), en contraste sobre el color. */}
         <div
-          className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-0.5 text-white"
+          className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-0.5 text-on-accent"
           style={{
             left: `${50 + dir.x * (27.5 + separa / 1.32)}%`,
             top: `${50 + dir.y * (27.5 + separa / 1.32)}%`,
