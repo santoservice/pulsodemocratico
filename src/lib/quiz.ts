@@ -77,6 +77,12 @@ export interface PreguntaQuiz {
   etiquetasExtremos?: readonly [string, string];
   comparacion: Comparacion;
   grafica: GraficaQuiz;
+  /**
+   * Dato curioso bajo el resultado: "{prefijo} **8 de cada 10 encuestados** {texto} (80 %)."
+   * `valores`: respuestas que cuentan; `texto` concuerda con la cifra ("8 de cada 10 dicen…",
+   * "1 de cada 4 responde…").
+   */
+  curioso?: { valores: readonly number[]; texto: string; prefijo?: string };
   /** Personas por respuesta (respuestas válidas). */
   distribucion: readonly { valor: number; n: number }[];
   /** Total de respuestas válidas. */
@@ -212,46 +218,106 @@ export function evaluarRespuesta(p: PreguntaQuiz, valor: number): Evaluacion {
   return { ...base, diferencia, posicion, texto: textoPromedio(diferencia, posicion) };
 }
 
+/** Trozo de texto; `b` = va en negrilla. */
+export interface Trozo {
+  t: string;
+  b?: boolean;
+}
+
 /**
- * Lo que se lee primero en «Tu resultado»: una cifra grande (`cifra` + `sufijo`), la frase
- * que la explica (termina en «como tú») y un dato de contexto corto.
+ * Lo que se lee en «Tu resultado»:
+ * - `sello`: etiqueta corta según qué tan común es tu respuesta («Estás con la mayoría»).
+ * - cifra grande (`valor` + `formato`) y `frase`, que la explica («de los encuestados… igual que tú»).
+ * - `curioso`: un dato de contexto llamativo («8 de cada 10 encuestados…»), si la pregunta lo tiene.
+ * - `contexto`: el promedio, en las preguntas de escala.
  */
 export interface Destacado {
   /** Valor numérico de la cifra (0–100), para animarla. */
   valor: number;
   formato: 'pct' | 'de100';
-  frase: string;
+  sello: string | null;
+  frase: Trozo[];
+  curioso: Trozo[] | null;
   contexto: string;
+}
+
+/**
+ * Proporción en palabras: 79,7 → "8 de cada 10"; 76,8 → "casi 8 de cada 10";
+ * 5,5 → "más de 1 de cada 20". Por debajo del 10 % usa "1 de cada N" (N redondo).
+ */
+export function deCada(porcentaje: number): string {
+  const matiz = (real: number, redondo: number) =>
+    real < redondo - 1 ? 'casi ' : real > redondo + 1 ? 'más de ' : '';
+  if (porcentaje >= 9.5) {
+    const n = Math.min(10, Math.round(porcentaje / 10));
+    if (n === 10) return 'casi todos los';
+    return `${matiz(porcentaje, n * 10)}${n} de cada 10`;
+  }
+  const bruto = 100 / Math.max(porcentaje, 0.5);
+  const n = bruto <= 5 ? Math.round(bruto) : Math.round(bruto / 5) * 5;
+  return `${matiz(porcentaje, 100 / n)}1 de cada ${n}`;
+}
+
+/** Sello según el % que dio tu misma respuesta. */
+function selloRespuesta(pctMisma: number): string | null {
+  if (pctMisma >= 50) return 'Estás con la mayoría';
+  if (pctMisma < 15) return 'Respuesta poco común';
+  return null;
 }
 
 export function destacadoResultado(p: PreguntaQuiz, valor: number): Destacado {
   const g = p.grafica;
   const c = p.comparacion;
-  const promedio =
+  const contexto =
     c.modo === 'promedio'
-      ? `${PROMEDIO_ENCUESTADOS[0]!.toUpperCase()}${PROMEDIO_ENCUESTADOS.slice(1)}: ${decimal(c.valor)}.`
+      ? `${PROMEDIO_ENCUESTADOS[0]!.toUpperCase()}${PROMEDIO_ENCUESTADOS.slice(1)}: ${decimal(c.valor)} (de ${rangoPregunta(p)[0]} a ${rangoPregunta(p)[1]}).`
       : '';
+  const cur = p.curioso;
+  const pctCurioso = cur ? pctGrupoDesdeDistribucion(p, cur.valores) : 0;
+  const quienes = `${deCada(pctCurioso)} encuestados`;
+  const curioso: Trozo[] | null = cur
+    ? [
+        ...(cur.prefijo ? [{ t: `${cur.prefijo} ` }] : []),
+        { t: cur.prefijo ? quienes : quienes.replace(/^./, (l) => l.toUpperCase()), b: true },
+        { t: ` ${cur.texto} ` },
+        { t: `(${pct(pctCurioso)}).` },
+      ]
+    : null;
+
   if (g.tipo === 'personas' || g.tipo === 'pastel') {
     const valores = g.tipo === 'personas' ? g.valores : c.modo === 'porcentaje' ? c.valoresGrupo : [];
     const pctSi = pctGrupoDesdeDistribucion(p, valores);
     const dentro = valores.includes(valor);
+    const v = dentro ? pctSi : 100 - pctSi;
     return {
-      valor: dentro ? pctSi : 100 - pctSi,
+      valor: v,
       formato: g.tipo === 'personas' ? 'de100' : 'pct',
-      frase: `${dentro ? g.si : g.no}, como tú.`,
-      // La leyenda de la gráfica ya muestra los dos grupos.
-      contexto: promedio,
+      sello: selloRespuesta(v),
+      frase: [
+        { t: g.tipo === 'personas' ? 'encuestados ' : `${DE_LOS_ENCUESTADOS} ` },
+        { t: dentro ? g.si : g.no, b: true },
+        { t: ', igual que tú.' },
+      ],
+      curioso,
+      contexto,
     };
   }
   const etiqueta = etiquetaRespuesta(p, valor);
+  const misma = pctMismaRespuesta(p, valor);
   return {
-    valor: pctMismaRespuesta(p, valor),
+    valor: misma,
     formato: 'pct',
-    frase: `respondió ${p.tipo === 'opciones' ? `«${etiqueta}»` : etiqueta}, como tú.`,
-    contexto:
-      c.modo === 'promedio'
-        ? promedio
-        : `En total, ${pct(c.valor)}: ${c.etiquetaGrupo.toLowerCase()}.`,
+    sello: selloRespuesta(misma),
+    frase: [
+      { t: `${DE_LOS_ENCUESTADOS} respondió ` },
+      {
+        t: p.tipo === 'opciones' ? `«${etiqueta}»` : `${etiqueta} de ${rangoPregunta(p)[1]}`,
+        b: true,
+      },
+      { t: ', igual que tú.' },
+    ],
+    curioso,
+    contexto,
   };
 }
 

@@ -1,0 +1,58 @@
+---
+/**
+ * Odio en plataformas digitales: barras apiladas de "ver" a "vivir" el odio, con el % "a veces"
+ * o más a la derecha (y una última fila de sí/no). Réplica del visor.
+ */
+import { CLS, SEQ_FILL, SEQ_TEXTO, ZONA, fmt, fmtN } from '../../lib/visor/comun';
+import type { GraficaVisor } from '../../lib/visor/tipos';
+
+type Props = Omit<Extract<GraficaVisor, { tipo: 'odio' }>, 'tipo'>;
+
+const { C, aria } = Astro.props;
+const P = C.pasos;
+const K = C.cats;
+const COL = ['fill-chart-track', SEQ_FILL[1]!, SEQ_FILL[3]!, SEQ_FILL[5]!];
+const TXT = ['fill-ink', SEQ_TEXTO[1]!, SEQ_TEXTO[3]!, SEQ_TEXTO[5]!];
+const SN = ['fill-chart-track', SEQ_FILL[3]!];
+const SN_TXT = ['fill-ink', SEQ_TEXTO[3]!];
+const W = 320;
+const fila = 58;
+const alto = 26;
+const et = 20;
+const m = { r: 50 };
+const H = P.length * fila;
+const ancho = W - m.r;
+---
+
+<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} class="block h-auto w-full overflow-visible">
+  {P.map((p, i) => {
+    const y = i * fila;
+    const yb = y + et;
+    const siNo = 'si_no' in p && p.si_no;
+    const nombres = siNo ? ['No', 'Sí'] : K;
+    let x = 0;
+    const tramos = p.dist.map((v) => {
+      const t = { x, w: (v / 100) * ancho, v };
+      x += t.w;
+      return t;
+    });
+    const tip = `«${p.texto}»\n${p.dist.map((v, j) => `${nombres[j]}: ${fmt(v)} %`).join('\n')}\n${fmtN(p.n)} personas`;
+    return (
+      <>
+        <text x="0" y={y + 14} class={CLS.et}>{p.corto}</text>
+        {tramos.map((t, j) => (
+          <>
+            <rect x={t.x + 1} y={yb} width={Math.max(t.w - 2, 0)} height={alto} rx="3" class={(siNo ? SN : COL)[j]} />
+            {t.w >= 26 && (
+              <text x={t.x + t.w / 2} y={yb + alto / 2 + 4.5} text-anchor="middle" class:list={[(siNo ? SN_TXT : TXT)[j], 'text-[12px] font-extrabold']}>
+                {siNo ? `${nombres[j]} ` : ''}{Math.round(t.v)}
+              </text>
+            )}
+          </>
+        ))}
+        <text x={W} y={yb + alto / 2 + 5} text-anchor="end" class="fill-ink text-[15px] font-extrabold">{Math.round(p.pct)} %</text>
+        <rect x="0" y={y} width={W} height={fila - 6} fill="transparent" tabindex="0" data-tip={tip} aria-label={p.corto} class={ZONA} />
+      </>
+    );
+  })}
+</svg>

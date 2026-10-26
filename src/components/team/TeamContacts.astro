@@ -6,13 +6,16 @@ import { orcidId, partesCorreo, type Integrante } from '../../data/equipo';
  * Enlace ORCID + correos. Los correos no aparecen completos en el HTML: el `mailto:` se arma
  * en el navegador a partir de data-u / data-d (protección leve contra recolectores; el script
  * está en TeamGrid). Sin JS queda el texto "usuario [arroba] dominio".
+ * `completo` (perfil en el modal): ORCID con su número y botón para copiar cada correo.
  */
 export interface Props {
   persona: Integrante;
+  completo?: boolean;
   class?: string;
 }
 
-const { persona, class: className } = Astro.props;
+const { persona, completo = false, class: className } = Astro.props;
+const id = orcidId(persona.orcid);
 ---
 
 <ul class:list={['relative z-10 space-y-1.5 text-sm', className]}>
@@ -21,12 +24,20 @@ const { persona, class: className } = Astro.props;
       href={persona.orcid}
       target="_blank"
       rel="noopener noreferrer"
-      class="inline-flex items-center gap-1.5 font-medium text-accent underline-offset-4 hover:underline"
+      class="inline-flex items-center gap-1.5 font-medium text-accent underline decoration-accent/40 underline-offset-4 transition-colors hover:text-orcid hover:decoration-orcid"
     >
-      <Icon name="lucide:id-card" class="h-4 w-4 shrink-0" aria-hidden="true" />
-      ORCID
+      <!-- Ícono oficial de ORCID (iD verde); verde de la marca al pasar el mouse. -->
+      <svg viewBox="0 0 256 256" class="h-4 w-4 shrink-0" aria-hidden="true">
+        <circle cx="128" cy="128" r="128" fill="#A6CE39"></circle>
+        <path
+          fill="#FFF"
+          d="M86.3 186.2H70.9V79.1h15.4v107.1zM108.9 79.1h41.6c39.6 0 57 28.3 57 53.6 0 27.5-21.5 53.6-56.8 53.6h-41.8V79.1zm15.4 93.3h24.5c34.9 0 42.9-26.5 42.9-39.7 0-21.5-13.7-39.7-43.7-39.7h-23.7v79.4zM88.7 56.8c0 5.5-4.5 10.1-10.1 10.1s-10.1-4.6-10.1-10.1c0-5.6 4.5-10.1 10.1-10.1s10.1 4.6 10.1 10.1z"
+        ></path>
+      </svg>
+      {completo ? `ORCID ${id}` : 'ORCID'}
+      <Icon name="lucide:external-link" class="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
       <span class="sr-only">
-        de {persona.nombre}: {orcidId(persona.orcid)} (abre en una pestaña nueva)
+        {completo ? `de ${persona.nombre}` : `de ${persona.nombre}: ${id}`} (abre en una pestaña nueva)
       </span>
     </a>
   </li>
@@ -38,6 +49,19 @@ const { persona, class: className } = Astro.props;
         <span data-correo data-u={usuario} data-d={dominio} class="text-ink-muted">
           {usuario} [arroba] {dominio}
         </span>
+        {completo && (
+          <button
+            type="button"
+            data-copiar
+            data-u={usuario}
+            data-d={dominio}
+            class="ml-1 inline-flex shrink-0 items-center gap-1 rounded-full border border-border-strong px-2.5 py-0.5 text-xs font-semibold text-ink transition-colors hover:border-cream hover:bg-cream hover:text-navy"
+          >
+            <Icon name="lucide:copy" class="h-3.5 w-3.5" aria-hidden="true" />
+            <span data-copiar-texto aria-live="polite">Copiar</span>
+            <span class="sr-only"> correo</span>
+          </button>
+        )}
       </li>
     );
   })}

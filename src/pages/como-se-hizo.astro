@@ -112,15 +112,22 @@ const dataset = datasetJsonLd(
     </section>
 
     <!-- Cierre -->
-    <section aria-labelledby="cta-titulo" class="mt-16 rounded-2xl bg-surface-sunken p-6 text-center md:p-10">
+    <!--
+      Franja azul en degradado (como la maqueta): texto y botón en azul 281. En escritorio, texto
+      a la izquierda y botón a la derecha; si no caben, el botón baja y todo queda centrado.
+    -->
+    <section
+      aria-labelledby="cta-titulo"
+      class="mt-16 flex flex-col items-center gap-6 rounded-3xl bg-linear-to-r from-[#5f8cf2] to-[#8db3fa] p-6 text-center text-navy md:p-10 lg:flex-row lg:justify-between lg:gap-10 lg:text-left"
+    >
       <h2 id="cta-titulo" class="sr-only">
         {titulo('Datos completos de la encuesta')}
       </h2>
-      <p class="mx-auto max-w-2xl text-lg text-ink">
+      <p class="max-w-2xl text-lg leading-snug font-semibold md:text-xl">
         Si quieres conocer los datos de toda la encuesta, consúltalos en la página oficial del
         Comparative National Elections Project (CNEP).
       </p>
-      <LinkButton href={cnep.url} external variant="primary" class="mt-6">
+      <LinkButton href={cnep.url} external variant="navy" class="shrink-0">
         Página web de CNEP
       </LinkButton>
     </section>

@@ -1,0 +1,2498 @@
+{
+  "meta": {
+    "fuente": "Encuesta nacional CNEP Colombia 2026 realizada por Universidad de La Sabana, Universidad de Wisconsin y Universidad Externado de Colombia; tres rondas, datos sin ponderar.",
+    "n_total": 2008,
+    "elecciones": [
+      {
+        "fecha": "2026-05-31",
+        "label": "1.ª vuelta"
+      },
+      {
+        "fecha": "2026-06-21",
+        "label": "2.ª vuelta"
+      }
+    ]
+  },
+  "polarizacion_wapsv": {
+    "rondas": [
+      {
+        "label": "1.ª ronda",
+        "fechas": "4 al 19 de mayo",
+        "contexto": "Antes de la primera vuelta",
+        "inicio": "2026-05-04",
+        "fin": "2026-05-19",
+        "n": 906,
+        "media": 3.02,
+        "ic_lo": 2.923,
+        "ic_hi": 3.118,
+        "pct_alto": 38.7
+      },
+      {
+        "label": "2.ª ronda",
+        "fechas": "4 al 16 de junio",
+        "contexto": "Entre la primera y la segunda vuelta",
+        "inicio": "2026-06-04",
+        "fin": "2026-06-16",
+        "n": 906,
+        "media": 3.496,
+        "ic_lo": 3.395,
+        "ic_hi": 3.598,
+        "pct_alto": 50.6
+      },
+      {
+        "label": "3.ª ronda",
+        "fechas": "24 de junio al 5 de julio",
+        "contexto": "Después de la segunda vuelta",
+        "inicio": "2026-06-24",
+        "fin": "2026-07-05",
+        "n": 906,
+        "media": 3.389,
+        "ic_lo": 3.268,
+        "ic_hi": 3.51,
+        "pct_alto": 49
+      }
+    ],
+    "cambios": [
+      {
+        "n": 906,
+        "dif": 0.48,
+        "p": 2.0798574965269465e-23
+      },
+      {
+        "n": 906,
+        "dif": -0.11,
+        "p": 0.0319113140633727
+      }
+    ],
+    "panel": {
+      "n": 906,
+      "n_inicial": 1748,
+      "media_r1_no_siguen": 2.711,
+      "excluidos_r3_un_grupo": 42
+    }
+  },
+  "polarizacion_wapsl": {
+    "rondas": [
+      {
+        "label": "1.ª ronda",
+        "fechas": "4 al 19 de mayo",
+        "contexto": "Antes de la primera vuelta",
+        "inicio": "2026-05-04",
+        "fin": "2026-05-19",
+        "n": 964,
+        "media": 3.158,
+        "ic_lo": 3.071,
+        "ic_hi": 3.245,
+        "pct_alto": 38.6
+      },
+      {
+        "label": "2.ª ronda",
+        "fechas": "4 al 16 de junio",
+        "contexto": "Entre la primera y la segunda vuelta",
+        "inicio": "2026-06-04",
+        "fin": "2026-06-16",
+        "n": 964,
+        "media": 3.545,
+        "ic_lo": 3.453,
+        "ic_hi": 3.636,
+        "pct_alto": 48.8
+      },
+      {
+        "label": "3.ª ronda",
+        "fechas": "24 de junio al 5 de julio",
+        "contexto": "Después de la segunda vuelta",
+        "inicio": "2026-06-24",
+        "fin": "2026-07-05",
+        "n": 964,
+        "media": 3.71,
+        "ic_lo": 3.606,
+        "ic_hi": 3.814,
+        "pct_alto": 54
+      }
+    ],
+    "cambios": [
+      {
+        "n": 964,
+        "dif": 0.38,
+        "p": 3.8132676789435604e-23
+      },
+      {
+        "n": 964,
+        "dif": 0.17,
+        "p": 0.00025290663415540604
+      }
+    ],
+    "panel": {
+      "n": 964,
+      "n_inicial": 1830,
+      "media_r1_no_siguen": 2.79,
+      "excluidos_r3_un_grupo": 31
+    }
+  },
+  "polarizacion_extremos": {
+    "n": 870,
+    "umbral": 4,
+    "tramos": [
+      "Menos de 1",
+      "1 a 2",
+      "2 a 3",
+      "3 a 4",
+      "4 o más"
+    ],
+    "rondas": [
+      {
+        "label": "1.ª ronda",
+        "fechas": "4 al 19 de mayo",
+        "contexto": "Antes de la primera vuelta",
+        "inicio": "2026-05-04",
+        "fin": "2026-05-19",
+        "tramos": [
+          33.8,
+          12,
+          13.4,
+          6.9,
+          33.9
+        ],
+        "pct_lejos": 33.9,
+        "media": 2.53,
+        "ic_lo": 2.397,
+        "ic_hi": 2.658,
+        "valores": [
+          {
+            "v": 0.17,
+            "pct": 26.09
+          },
+          {
+            "v": 0.83,
+            "pct": 7.7
+          },
+          {
+            "v": 1.17,
+            "pct": 5.63
+          },
+          {
+            "v": 1.83,
+            "pct": 6.32
+          },
+          {
+            "v": 2.17,
+            "pct": 7.13
+          },
+          {
+            "v": 2.83,
+            "pct": 6.32
+          },
+          {
+            "v": 3.17,
+            "pct": 4.25
+          },
+          {
+            "v": 3.83,
+            "pct": 2.64
+          },
+          {
+            "v": 4.17,
+            "pct": 2.53
+          },
+          {
+            "v": 4.83,
+            "pct": 17.47
+          },
+          {
+            "v": 5.17,
+            "pct": 13.91
+          }
+        ]
+      },
+      {
+        "label": "2.ª ronda",
+        "fechas": "4 al 16 de junio",
+        "contexto": "Entre la primera y la segunda vuelta",
+        "inicio": "2026-06-04",
+        "fin": "2026-06-16",
+        "tramos": [
+          31.1,
+          11.6,
+          10.9,
+          8.5,
+          37.8
+        ],
+        "pct_lejos": 37.8,
+        "media": 2.66,
+        "ic_lo": 2.53,
+        "ic_hi": 2.798,
+        "valores": [
+          {
+            "v": 0.11,
+            "pct": 26.09
+          },
+          {
+            "v": 0.89,
+            "pct": 5.06
+          },
+          {
+            "v": 1.11,
+            "pct": 5.4
+          },
+          {
+            "v": 1.89,
+            "pct": 6.21
+          },
+          {
+            "v": 2.11,
+            "pct": 6.21
+          },
+          {
+            "v": 2.89,
+            "pct": 4.71
+          },
+          {
+            "v": 3.11,
+            "pct": 5.75
+          },
+          {
+            "v": 3.89,
+            "pct": 2.76
+          },
+          {
+            "v": 4.11,
+            "pct": 2.87
+          },
+          {
+            "v": 4.89,
+            "pct": 19.77
+          },
+          {
+            "v": 5.11,
+            "pct": 15.17
+          }
+        ]
+      },
+      {
+        "label": "3.ª ronda",
+        "fechas": "24 de junio al 5 de julio",
+        "contexto": "Después de la segunda vuelta",
+        "inicio": "2026-06-24",
+        "fin": "2026-07-05",
+        "tramos": [
+          29.2,
+          11.5,
+          14.8,
+          8.6,
+          35.9
+        ],
+        "pct_lejos": 35.9,
+        "media": 2.69,
+        "ic_lo": 2.561,
+        "ic_hi": 2.819,
+        "valores": [
+          {
+            "v": 0.18,
+            "pct": 25.06
+          },
+          {
+            "v": 0.82,
+            "pct": 4.14
+          },
+          {
+            "v": 1.18,
+            "pct": 4.25
+          },
+          {
+            "v": 1.82,
+            "pct": 7.24
+          },
+          {
+            "v": 2.18,
+            "pct": 8.28
+          },
+          {
+            "v": 2.82,
+            "pct": 6.55
+          },
+          {
+            "v": 3.18,
+            "pct": 5.4
+          },
+          {
+            "v": 3.82,
+            "pct": 3.22
+          },
+          {
+            "v": 4.18,
+            "pct": 2.3
+          },
+          {
+            "v": 4.82,
+            "pct": 18.39
+          },
+          {
+            "v": 5.18,
+            "pct": 15.17
+          }
+        ]
+      }
+    ],
+    "maximo": 5.18,
+    "cambios": [
+      {
+        "dif_pp": 3.9,
+        "pasan_a_alto": 84,
+        "salen_de_alto": 50,
+        "p": 0.004187533834532413
+      },
+      {
+        "dif_pp": -1.9,
+        "pasan_a_alto": 50,
+        "salen_de_alto": 67,
+        "p": 0.13875316894302603
+      }
+    ],
+    "cambios_media": [
+      {
+        "n": 870,
+        "dif": 0.13,
+        "p": 0.007764326962502266
+      },
+      {
+        "n": 870,
+        "dif": 0.03,
+        "p": 0.5726995094698069
+      }
+    ]
+  },
+  "polarizacion_wpip": {
+    "n": 872,
+    "niveles": [
+      {
+        "nombre": "Cerca",
+        "desde": 0,
+        "hasta": 1.4
+      },
+      {
+        "nombre": "Distancia intermedia",
+        "desde": 1.4,
+        "hasta": 3.4
+      },
+      {
+        "nombre": "Muy lejos",
+        "desde": 3.4,
+        "hasta": 99
+      }
+    ],
+    "rondas": [
+      {
+        "label": "1.ª ronda",
+        "fechas": "4 al 19 de mayo",
+        "contexto": "Antes de la primera vuelta",
+        "partidos": [
+          "Pacto Histórico",
+          "Centro Democrático"
+        ],
+        "media": 3.51,
+        "niveles": [
+          15.1,
+          17.9,
+          67
+        ]
+      },
+      {
+        "label": "3.ª ronda",
+        "fechas": "24 de junio al 5 de julio",
+        "contexto": "Después de la segunda vuelta",
+        "partidos": [
+          "Pacto Histórico",
+          "Defensores de la Patria"
+        ],
+        "media": 3.51,
+        "niveles": [
+          19.3,
+          13.4,
+          67.3
+        ]
+      }
+    ],
+    "flujos": [
+      [
+        62,
+        21,
+        49
+      ],
+      [
+        40,
+        33,
+        83
+      ],
+      [
+        66,
+        63,
+        455
+      ]
+    ],
+    "excluidos": {
+      "1.ª ronda": 0,
+      "3.ª ronda": 137
+    },
+    "cambio_media": {
+      "n": 872,
+      "dif": -0.01,
+      "p": 0.9390026667374962
+    },
+    "cambio_lejos": {
+      "dif_pp": 0.3,
+      "pasan_a_alto": 132,
+      "salen_de_alto": 129,
+      "p": 0.9015070808432794
+    }
+  },
+  "polarizacion_alto": {
+    "umbral": 4,
+    "rondas": [
+      {
+        "label": "1.ª ronda",
+        "fechas": "4 al 19 de mayo",
+        "contexto": "Antes de la primera vuelta",
+        "inicio": "2026-05-04",
+        "fin": "2026-05-19",
+        "n": 906,
+        "n_alto": 351,
+        "pct": 38.7
+      },
+      {
+        "label": "2.ª ronda",
+        "fechas": "4 al 16 de junio",
+        "contexto": "Entre la primera y la segunda vuelta",
+        "inicio": "2026-06-04",
+        "fin": "2026-06-16",
+        "n": 906,
+        "n_alto": 458,
+        "pct": 50.6
+      },
+      {
+        "label": "3.ª ronda",
+        "fechas": "24 de junio al 5 de julio",
+        "contexto": "Después de la segunda vuelta",
+        "inicio": "2026-06-24",
+        "fin": "2026-07-05",
+        "n": 906,
+        "n_alto": 444,
+        "pct": 49
+      }
+    ],
+    "cambios": [
+      {
+        "dif_pp": 11.9,
+        "pasan_a_alto": 156,
+        "salen_de_alto": 49,
+        "p": 3.36436380578954e-14
+      },
+      {
+        "dif_pp": -1.6,
+        "pasan_a_alto": 96,
+        "salen_de_alto": 110,
+        "p": 0.36510278592037154
+      }
+    ],
+    "panel": {
+      "n": 906,
+      "n_inicial": 1748,
+      "media_r1_no_siguen": 2.711,
+      "excluidos_r3_un_grupo": 42
+    }
+  },
+  "desinformacion_exposicion": {
+    "categorias": [
+      "Nunca",
+      "Casi nunca",
+      "Algunas veces",
+      "Con frecuencia"
+    ],
+    "rondas": [
+      {
+        "label": "1.ª ronda",
+        "fechas": "4 al 19 de mayo",
+        "contexto": "Antes de la primera vuelta",
+        "inicio": "2026-05-04",
+        "fin": "2026-05-19",
+        "n": 912,
+        "n_alto": 399,
+        "pct": 43.8,
+        "dist": [
+          3.1,
+          7.7,
+          45.5,
+          43.8
+        ]
+      },
+      {
+        "label": "2.ª ronda",
+        "fechas": "4 al 16 de junio",
+        "contexto": "Entre la primera y la segunda vuelta",
+        "inicio": "2026-06-04",
+        "fin": "2026-06-16",
+        "n": 912,
+        "n_alto": 497,
+        "pct": 54.5,
+        "dist": [
+          0.3,
+          5.4,
+          39.8,
+          54.5
+        ]
+      },
+      {
+        "label": "3.ª ronda",
+        "fechas": "24 de junio al 5 de julio",
+        "contexto": "Después de la segunda vuelta",
+        "inicio": "2026-06-24",
+        "fin": "2026-07-05",
+        "n": 912,
+        "n_alto": 370,
+        "pct": 40.6,
+        "dist": [
+          9.2,
+          8.8,
+          41.4,
+          40.6
+        ]
+      }
+    ],
+    "cambios": [
+      {
+        "dif_pp": 10.7,
+        "pasan_a_alto": 213,
+        "salen_de_alto": 115,
+        "p": 6.858127272910069e-8
+      },
+      {
+        "dif_pp": -13.9,
+        "pasan_a_alto": 88,
+        "salen_de_alto": 215,
+        "p": 2.0143826036876825e-13
+      }
+    ],
+    "panel": {
+      "n": 912
+    }
+  },
+  "desinformacion_promedio": {
+    "rondas": [
+      {
+        "label": "1.ª ronda",
+        "fechas": "4 al 19 de mayo",
+        "contexto": "Antes de la primera vuelta",
+        "inicio": "2026-05-04",
+        "fin": "2026-05-19",
+        "n": 912,
+        "media": 3.299,
+        "ic_lo": 3.251,
+        "ic_hi": 3.347,
+        "pct_alto": 43.8
+      },
+      {
+        "label": "2.ª ronda",
+        "fechas": "4 al 16 de junio",
+        "contexto": "Entre la primera y la segunda vuelta",
+        "inicio": "2026-06-04",
+        "fin": "2026-06-16",
+        "n": 912,
+        "media": 3.485,
+        "ic_lo": 3.445,
+        "ic_hi": 3.525,
+        "pct_alto": 54.5
+      },
+      {
+        "label": "3.ª ronda",
+        "fechas": "24 de junio al 5 de julio",
+        "contexto": "Después de la segunda vuelta",
+        "inicio": "2026-06-24",
+        "fin": "2026-07-05",
+        "n": 912,
+        "media": 3.134,
+        "ic_lo": 3.074,
+        "ic_hi": 3.193,
+        "pct_alto": 40.6
+      }
+    ],
+    "cambios": [
+      {
+        "n": 912,
+        "dif": 0.18,
+        "p": 3.789263128543369e-12
+      },
+      {
+        "n": 912,
+        "dif": -0.35,
+        "p": 4.6093705742280353e-29
+      }
+    ],
+    "panel": {
+      "n": 912
+    }
+  },
+  "desinformacion_titulares": {
+    "n": 964,
+    "tipos": {
+      "falsos": {
+        "media": 2.32,
+        "titulares": [
+          {
+            "corto": "Petro con alias «Fito» en portada de Cosas",
+            "texto": "Apareció una portada de la revista Cosas del 30 de junio de 2025 con una foto del presidente Gustavo Petro junto al narcotraficante ecuatoriano alias 'Fito'",
+            "media": 2.63,
+            "pct_alto": 28,
+            "pct_bajo": 48.2
+          },
+          {
+            "corto": "Petro avaló que el ELN reclutara menores",
+            "texto": "El gobierno Petro avaló en 2024 que el ELN reclutara a menores de 15, 16 y 17 años en sus filas como parte del proceso de paz",
+            "media": 2.27,
+            "pct_alto": 23.1,
+            "pct_bajo": 60.9
+          },
+          {
+            "corto": "BBC: Miguel Uribe fue asesinado por deudas",
+            "texto": "La BBC reveló que el asesinato del senador Miguel Uribe Turbay habría sido un ajuste de cuentas por deuda del papá con mafias y esmeralderos",
+            "media": 2.21,
+            "pct_alto": 19.2,
+            "pct_bajo": 60.3
+          },
+          {
+            "corto": "Encuesta: 70 % ve mejor la seguridad con Petro",
+            "texto": "Una encuesta de abril de 2026 reveló que el 70% considera que la seguridad mejoró gracias al presidente Petro",
+            "media": 2.16,
+            "pct_alto": 17.8,
+            "pct_bajo": 61.6
+          }
+        ]
+      },
+      "verdaderos": {
+        "media": 3.27,
+        "titulares": [
+          {
+            "corto": "EE. UU. descertificó a Colombia en 2025",
+            "texto": "El gobierno de Donald Trump descertificó a Colombia en la lucha contra el narcotráfico en septiembre de 2025, atribuyendo la decisión a la falta de liderazgo del presidente Petro y al aumento histórico de cultivos de coca",
+            "media": 3.83,
+            "pct_alto": 65.1,
+            "pct_bajo": 17.3
+          },
+          {
+            "corto": "Récord de 884 t de cocaína incautadas (2024)",
+            "texto": "El gobierno Petro logró en 2024 la incautación récord de 884 toneladas de cocaína, la cifra anual más alta en la historia del país",
+            "media": 3.07,
+            "pct_alto": 43.2,
+            "pct_bajo": 36.8
+          },
+          {
+            "corto": "Petro subió los peajes tres veces en 2025",
+            "texto": "Pese a haber prometido lo contrario, el gobierno Petro aumentó los peajes tres veces en el 2025, con incrementos del 2,7%, 1,86% y 5,20%",
+            "media": 3.15,
+            "pct_alto": 44.1,
+            "pct_bajo": 34
+          },
+          {
+            "corto": "Bajó la mortalidad infantil (2022–2024)",
+            "texto": "La tasa de mortalidad infantil en menores de 1 año descendió durante el gobierno Petro, pasando de 6.689 muertes en 2022 a 4.615 muertes en 2024",
+            "media": 3.01,
+            "pct_alto": 39.7,
+            "pct_bajo": 34.3
+          }
+        ]
+      }
+    },
+    "diferencia": 0.95,
+    "p": 1.3934542475234517e-148,
+    "reparto": [
+      77.8,
+      13.5,
+      8.7
+    ],
+    "ronda": {
+      "label": "2.ª ronda",
+      "fechas": "4 al 16 de junio",
+      "contexto": "Entre la primera y la segunda vuelta"
+    }
+  },
+  "desinformacion_compartir": {
+    "n": 1179,
+    "tipos": {
+      "falsos": {
+        "media": 1.89,
+        "titulares": [
+          {
+            "corto": "Petro con alias «Fito» en portada de Cosas",
+            "texto": "Apareció una portada de la revista Cosas del 30 de junio de 2025 con una foto del presidente Gustavo Petro junto al narcotraficante ecuatoriano alias 'Fito'",
+            "media": 1.91,
+            "pct_alto": 15.8,
+            "pct_bajo": 72.3
+          },
+          {
+            "corto": "Petro avaló que el ELN reclutara menores",
+            "texto": "El gobierno Petro avaló en 2024 que el ELN reclutara a menores de 15, 16 y 17 años en sus filas como parte del proceso de paz",
+            "media": 1.9,
+            "pct_alto": 17.6,
+            "pct_bajo": 73.3
+          },
+          {
+            "corto": "BBC: Miguel Uribe fue asesinado por deudas",
+            "texto": "La BBC reveló que el asesinato del senador Miguel Uribe Turbay habría sido un ajuste de cuentas por deuda del papá con mafias y esmeralderos",
+            "media": 1.73,
+            "pct_alto": 13.1,
+            "pct_bajo": 77.3
+          },
+          {
+            "corto": "Encuesta: 70 % ve mejor la seguridad con Petro",
+            "texto": "Una encuesta de abril de 2026 reveló que el 70% considera que la seguridad mejoró gracias al presidente Petro",
+            "media": 2,
+            "pct_alto": 18,
+            "pct_bajo": 69.6
+          }
+        ]
+      },
+      "verdaderos": {
+        "media": 2.33,
+        "titulares": [
+          {
+            "corto": "EE. UU. descertificó a Colombia en 2025",
+            "texto": "El gobierno de Donald Trump descertificó a Colombia en la lucha contra el narcotráfico en septiembre de 2025, atribuyendo la decisión a la falta de liderazgo del presidente Petro y al aumento histórico de cultivos de coca",
+            "media": 2.42,
+            "pct_alto": 28.4,
+            "pct_bajo": 57.6
+          },
+          {
+            "corto": "Récord de 884 t de cocaína incautadas (2024)",
+            "texto": "El gobierno Petro logró en 2024 la incautación récord de 884 toneladas de cocaína, la cifra anual más alta en la historia del país",
+            "media": 2.36,
+            "pct_alto": 25.4,
+            "pct_bajo": 59.6
+          },
+          {
+            "corto": "Petro subió los peajes tres veces en 2025",
+            "texto": "Pese a haber prometido lo contrario, el gobierno Petro aumentó los peajes tres veces en el 2025, con incrementos del 2,7%, 1,86% y 5,20%",
+            "media": 2.21,
+            "pct_alto": 23.9,
+            "pct_bajo": 64
+          },
+          {
+            "corto": "Bajó la mortalidad infantil (2022–2024)",
+            "texto": "La tasa de mortalidad infantil en menores de 1 año descendió durante el gobierno Petro, pasando de 6.689 muertes en 2022 a 4.615 muertes en 2024",
+            "media": 2.32,
+            "pct_alto": 25.3,
+            "pct_bajo": 59.5
+          }
+        ]
+      }
+    },
+    "diferencia": 0.44,
+    "p": 4.108981937978769e-73,
+    "reparto": [
+      52.6,
+      34.1,
+      13.3
+    ],
+    "ronda": {
+      "label": "2.ª ronda",
+      "fechas": "4 al 16 de junio",
+      "contexto": "Entre la primera y la segunda vuelta"
+    }
+  },
+  "desinformacion_ia": {
+    "items": [
+      {
+        "var": "Z20_IA6_1_5",
+        "corto": "No distingue si un mensaje de WhatsApp viene de una persona o de una IA",
+        "texto": "En épocas electorales, muchas veces no distingo entre comunicaciones humanas y comunicaciones de Inteligencias artificiales que me llegan a mi WhatsApp",
+        "n": 1008,
+        "grupos": {
+          "creen": {
+            "n": 120,
+            "dist": [
+              11.7,
+              8.3,
+              10.8,
+              31.7,
+              20.8,
+              16.7
+            ],
+            "media": 2.92
+          },
+          "no_creen": {
+            "n": 888,
+            "dist": [
+              30,
+              12.3,
+              13.1,
+              19.7,
+              11.1,
+              13.9
+            ],
+            "media": 2.11
+          }
+        },
+        "dif_aj": 0.86,
+        "p_aj": 1.0484593857234976e-7
+      }
+    ],
+    "ronda": {
+      "label": "2.ª ronda",
+      "fechas": "4 al 16 de junio",
+      "contexto": "Entre la primera y la segunda vuelta"
+    }
+  },
+  "desinformacion_verificacion": {
+    "n": 1492,
+    "fuentes": [
+      {
+        "nombre": "Búsqueda en línea",
+        "pct_primero": 36.6
+      },
+      {
+        "nombre": "Medios de comunicación",
+        "pct_primero": 17.5
+      },
+      {
+        "nombre": "Inteligencia artificial",
+        "pct_primero": 13.7
+      },
+      {
+        "nombre": "Personas conocidas",
+        "pct_primero": 12.9
+      },
+      {
+        "nombre": "Redes sociales",
+        "pct_primero": 9.7
+      },
+      {
+        "nombre": "Chequeadores de datos",
+        "pct_primero": 9.7
+      }
+    ],
+    "ronda": {
+      "label": "2.ª ronda",
+      "fechas": "4 al 16 de junio",
+      "contexto": "Entre la primera y la segunda vuelta"
+    }
+  },
+  "populismo_items": {
+    "n": 841,
+    "items": [
+      {
+        "corto": "Los políticos hablan mucho y hacen poco",
+        "texto": "Los políticos hablan mucho y hacen poco",
+        "media": [
+          4.26,
+          4.2
+        ],
+        "p": 0.22124323924158515
+      },
+      {
+        "corto": "La brecha élite–pueblo es la mayor",
+        "texto": "Las diferencias políticas entre la élite y el pueblo son más grandes que las diferencias que existen entre el pueblo",
+        "media": [
+          3.87,
+          3.8
+        ],
+        "p": 0.19480162022793202
+      },
+      {
+        "corto": "Seguir solo la voluntad del pueblo",
+        "texto": "Los políticos deben seguir únicamente la voluntad del pueblo",
+        "media": [
+          3.85,
+          3.76
+        ],
+        "p": 0.06355536141977135
+      },
+      {
+        "corto": "El establecimiento traiciona al pueblo",
+        "texto": "El establecimiento con frecuencia traiciona al pueblo y se cuida sólo a sí mismo",
+        "media": [
+          3.78,
+          3.75
+        ],
+        "p": 0.4717053518773521
+      },
+      {
+        "corto": "Que el pueblo tome las grandes decisiones",
+        "texto": "Las decisiones más importantes de política pública deberían ser tomadas por el pueblo y no por los políticos",
+        "media": [
+          3.59,
+          3.44
+        ],
+        "p": 0.0019361030061839464
+      },
+      {
+        "corto": "Llegar a acuerdos es vender principios",
+        "texto": "Lo que las personas llaman un acuerdo en política en realidad es vender los principios de uno",
+        "media": [
+          3.4,
+          3.23
+        ],
+        "p": 0.003670681541740816
+      },
+      {
+        "corto": "Mejor un ciudadano común que un político",
+        "texto": "Es preferible ser representado por un ciudadano común que por un político profesional",
+        "media": [
+          3.3,
+          3.15
+        ],
+        "p": 0.00775373397095196
+      },
+      {
+        "corto": "Vale más la gente común que los expertos",
+        "texto": "La opinión de las personas comunes y corrientes vale más que la de los expertos",
+        "media": [
+          2.66,
+          2.53
+        ],
+        "p": 0.04057531657942672
+      }
+    ],
+    "rondas": [
+      {
+        "label": "1.ª ronda",
+        "fechas": "4 al 19 de mayo",
+        "contexto": "Antes de la primera vuelta"
+      },
+      {
+        "label": "3.ª ronda",
+        "fechas": "24 de junio al 5 de julio",
+        "contexto": "Después de la segunda vuelta"
+      }
+    ]
+  },
+  "populismo_ideologico": {
+    "n": 1272,
+    "constructos": [
+      {
+        "clave": "derecha",
+        "nombre": "Populismo de derecha",
+        "media": 2.72,
+        "items": [
+          {
+            "corto": "Colombianos de bien sobre las minorías",
+            "texto": "La voluntad de los colombianos de bien debe prevalecer siempre, incluso sobre los derechos de grupos minoritarios",
+            "media": 2.7
+          },
+          {
+            "corto": "Colombianos de bien antes que las ONG",
+            "texto": "Prefiero confiar en la sabiduría de los colombianos de bien antes que en las recomendaciones de organismos internacionales y ONGs",
+            "media": 2.74
+          }
+        ]
+      },
+      {
+        "clave": "izquierda",
+        "nombre": "Populismo de izquierda",
+        "media": 2.96,
+        "items": [
+          {
+            "corto": "Marginados sobre ricos y poderosos",
+            "texto": "La voluntad de los trabajadores y comunidades marginadas debe prevalecer siempre, incluso sobre los derechos de los ricos y poderosos",
+            "media": 2.96
+          },
+          {
+            "corto": "Clase trabajadora antes que empresarios",
+            "texto": "Prefiero confiar en la sabiduría de la clase trabajadora colombiana que en las opiniones de empresarios y banqueros",
+            "media": 2.97
+          }
+        ]
+      }
+    ],
+    "p": 0.000057072534377397406,
+    "ronda": {
+      "label": "2.ª ronda",
+      "fechas": "4 al 16 de junio",
+      "contexto": "Entre la primera y la segunda vuelta"
+    }
+  },
+  "populismo_ideologia": {
+    "n": 1176,
+    "tramos": [
+      {
+        "num": "0–1",
+        "nombre": "extrema izquierda",
+        "n": 219,
+        "derecha": 2.12,
+        "izquierda": 3.8
+      },
+      {
+        "num": "2–3",
+        "nombre": "izquierda",
+        "n": 142,
+        "derecha": 1.78,
+        "izquierda": 3.21
+      },
+      {
+        "num": "4–6",
+        "nombre": "centro",
+        "n": 449,
+        "derecha": 2.59,
+        "izquierda": 2.87
+      },
+      {
+        "num": "7–8",
+        "nombre": "derecha",
+        "n": 116,
+        "derecha": 3.31,
+        "izquierda": 2.23
+      },
+      {
+        "num": "9–10",
+        "nombre": "extrema derecha",
+        "n": 250,
+        "derecha": 3.73,
+        "izquierda": 2.45
+      }
+    ],
+    "p": {
+      "derecha": 2.7534201567855383e-37,
+      "izquierda": 5.635362154303031e-27
+    },
+    "constructos": [
+      {
+        "clave": "derecha",
+        "nombre": "Populismo de derecha"
+      },
+      {
+        "clave": "izquierda",
+        "nombre": "Populismo de izquierda"
+      }
+    ],
+    "ronda": {
+      "label": "2.ª ronda",
+      "fechas": "4 al 16 de junio",
+      "contexto": "Entre la primera y la segunda vuelta"
+    }
+  },
+  "ia_items": {
+    "items": {
+      "IA1": {
+        "var": "Z20_IA1_1_5",
+        "pregunta": "¿Con qué frecuencia usa la inteligencia artificial para informarse sobre asuntos de interés general o sobre política?",
+        "polos": [
+          "Nunca",
+          "Frecuentemente"
+        ],
+        "alto": "Con frecuencia",
+        "n": 1428,
+        "dist": [
+          29.2,
+          12.7,
+          11.4,
+          19,
+          10.4,
+          17.3
+        ],
+        "pct_alto": 27.7,
+        "media": 2.21
+      },
+      "IA3": {
+        "var": "Z20_IA3_1_5",
+        "pregunta": "En época electoral uso las inteligencias artificiales para conocer mejor a los candidatos y sus programas de gobierno.",
+        "polos": [
+          "Nunca",
+          "Frecuentemente"
+        ],
+        "alto": "Con frecuencia",
+        "n": 1424,
+        "dist": [
+          40.8,
+          11.2,
+          9.1,
+          15.1,
+          11.2,
+          12.5
+        ],
+        "pct_alto": 23.7,
+        "media": 1.82
+      },
+      "IA4": {
+        "var": "Z20_IA4_1_5",
+        "pregunta": "Confío plenamente en las inteligencias artificiales (tipo chat GPT u otras) para que me den los insumos base de los programas de gobierno de un candidato o candidata presidencial.",
+        "polos": [
+          "Total desacuerdo",
+          "Total acuerdo"
+        ],
+        "alto": "De acuerdo",
+        "n": 1363,
+        "dist": [
+          30.4,
+          11.4,
+          14.5,
+          22.3,
+          11.5,
+          9.9
+        ],
+        "pct_alto": 21.4,
+        "media": 2.03
+      },
+      "IA5": {
+        "var": "Z20_IA5_1_5",
+        "pregunta": "En contextos electorales, las inteligencias artificiales establecen una comunicación conmigo y por lo tanto les creo tanto como a los humanos.",
+        "polos": [
+          "Total desacuerdo",
+          "Total acuerdo"
+        ],
+        "alto": "De acuerdo",
+        "n": 1359,
+        "dist": [
+          35.4,
+          12.3,
+          13.8,
+          19.8,
+          10.6,
+          8.1
+        ],
+        "pct_alto": 18.7,
+        "media": 1.82
+      }
+    },
+    "ronda": {
+      "label": "2.ª ronda",
+      "fechas": "4 al 16 de junio",
+      "contexto": "Entre la primera y la segunda vuelta"
+    }
+  },
+  "consumo_redes": {
+    "redes": [
+      {
+        "nombre": "WhatsApp",
+        "n": 2008,
+        "pct_alto": 79.7,
+        "media": 4.24
+      },
+      {
+        "nombre": "Facebook",
+        "n": 2008,
+        "pct_alto": 59.9,
+        "media": 3.56
+      },
+      {
+        "nombre": "Instagram",
+        "n": 2008,
+        "pct_alto": 49.2,
+        "media": 3.17
+      },
+      {
+        "nombre": "TikTok",
+        "n": 2008,
+        "pct_alto": 42.1,
+        "media": 2.7
+      },
+      {
+        "nombre": "X (Twitter)",
+        "n": 2008,
+        "pct_alto": 18.2,
+        "media": 1.55
+      }
+    ],
+    "ronda": {
+      "label": "1.ª ronda",
+      "fechas": "4 al 19 de mayo",
+      "contexto": "Antes de la primera vuelta"
+    }
+  },
+  "consumo_publica": {
+    "var": "D_InterShareFreq_2",
+    "n": 1086,
+    "pregunta": "Durante la campaña electoral, ¿con qué frecuencia publicó usted sus opiniones personales sobre un candidato o partido específico por correo electrónico, mensaje de texto, o en las redes sociales en que tiene una cuenta?",
+    "cats": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7"
+    ],
+    "polos": [
+      "Nunca",
+      "Todos los días"
+    ],
+    "tramo": [
+      1,
+      7
+    ],
+    "alto": "Al menos un día",
+    "escala": "de 0 (nunca) a 7 días a la semana; 1 = un día a la semana o menos",
+    "dist": [
+      56.5,
+      14.1,
+      8,
+      5.4,
+      5.2,
+      2.9,
+      2.4,
+      5.4
+    ],
+    "pct_alto": 43.5,
+    "media": 1.34,
+    "fuente": "Pregunta D_InterShareFreq (variable D_InterShareFreq_2)",
+    "ronda": {
+      "label": "3.ª ronda",
+      "fechas": "24 de junio al 5 de julio",
+      "contexto": "Después de la segunda vuelta"
+    }
+  },
+  "consumo_chats": {
+    "n": 1039,
+    "cats": [
+      "No",
+      "Solo recibiendo",
+      "Solo compartiendo",
+      "Recibiendo y compartiendo"
+    ],
+    "vias": [
+      "Mensajería (WhatsApp, Telegram, Signal)",
+      "Redes sociales (Facebook, Instagram, X, TikTok)",
+      "Correo electrónico",
+      "SMS"
+    ],
+    "rondas": [
+      {
+        "label": "1.ª ronda",
+        "fechas": "4 al 19 de mayo",
+        "contexto": "Antes de la primera vuelta",
+        "dist": [
+          58,
+          21.8,
+          6.7,
+          13.4
+        ],
+        "pct_si": 42,
+        "n_si": 436,
+        "vias": [
+          67.4,
+          64.4,
+          17.4,
+          10.1
+        ]
+      },
+      {
+        "label": "3.ª ronda",
+        "fechas": "24 de junio al 5 de julio",
+        "contexto": "Después de la segunda vuelta",
+        "dist": [
+          52.7,
+          22.8,
+          8.5,
+          16
+        ],
+        "pct_si": 47.3,
+        "n_si": 491,
+        "vias": [
+          67.6,
+          64.2,
+          11.4,
+          11.8
+        ]
+      }
+    ],
+    "p": 0.002220096701884576
+  },
+  "consumo_medios_acuerdo": {
+    "var": "D_MediaAgree_1_5",
+    "n": 1230,
+    "pregunta": "Teniendo en cuenta todos los medios que utilizó para información sobre campaña, ¿cuántos considera que apoyaron el mismo partido político o candidato que usted?",
+    "cats": [
+      "Ninguno",
+      "Algunos",
+      "La mayoría",
+      "Todos o|casi todos"
+    ],
+    "tramo": [
+      2,
+      3
+    ],
+    "alto": "La mayoría o todos",
+    "escala": "según cuántos de los medios que usó para informarse de la campaña apoyaban a su mismo partido o candidato",
+    "dist": [
+      8.5,
+      38.8,
+      41.9,
+      10.8
+    ],
+    "pct_alto": 52.7,
+    "fuente": "Pregunta D_MediaAgree (variable D_MediaAgree_1_5)",
+    "ronda": {
+      "label": "2.ª ronda",
+      "fechas": "4 al 16 de junio",
+      "contexto": "Entre la primera y la segunda vuelta"
+    }
+  },
+  "consumo_odio": {
+    "pasos": [
+      {
+        "var": "Z25_Contenodio1_1_5",
+        "corto": "Ve mensajes de odio por exponer ideas",
+        "texto": "¿Con qué frecuencia diría usted que ha visto mensajes de odio contra personas por exponer sus ideas en plataformas digitales?",
+        "n": 1429,
+        "dist": [
+          5.7,
+          22.3,
+          38.8,
+          33.2
+        ],
+        "pct": 94.3
+      },
+      {
+        "var": "Z25_Contenodio2_1_5",
+        "corto": "Ve ataques contra grupos políticos",
+        "texto": "¿Con qué frecuencia ve ataques contra grupos políticos en plataformas digitales?",
+        "n": 1422,
+        "dist": [
+          4.5,
+          21,
+          40.2,
+          34.4
+        ],
+        "pct": 95.5
+      },
+      {
+        "var": "Z25_Contenodio6_1_5",
+        "corto": "Recibe insultos por su postura política",
+        "texto": "¿Con qué frecuencia ha recibido insultos o descalificaciones por compartir su postura política en plataformas digitales?",
+        "n": 1433,
+        "dist": [
+          58.8,
+          26.8,
+          9.8,
+          4.6
+        ],
+        "pct": 41.2
+      },
+      {
+        "var": "Z25_Contenodio5_1_5",
+        "corto": "Participa en discusiones agresivas",
+        "texto": "¿Ha participado en discusiones políticas con lenguaje agresivo en plataformas digitales?",
+        "n": 1447,
+        "dist": [
+          82.5,
+          13.1,
+          2.9,
+          1.5
+        ],
+        "pct": 17.5
+      },
+      {
+        "var": "Z25_Contenodio8_1_5",
+        "corto": "Dejó de seguir a alguien por odio político",
+        "si_no": true,
+        "texto": "¿Ha dejado de seguir a alguien por compartir contenido de odio político en plataformas digitales?",
+        "n": 1352,
+        "dist": [
+          45.7,
+          54.3
+        ],
+        "pct": 54.3
+      }
+    ],
+    "cats": [
+      "Nunca o casi nunca",
+      "A veces",
+      "La mayoría de las veces",
+      "Siempre"
+    ],
+    "ronda": {
+      "label": "2.ª ronda",
+      "fechas": "4 al 16 de junio",
+      "contexto": "Entre la primera y la segunda vuelta"
+    }
+  },
+  "populismo_indice": {
+    "umbral": 4,
+    "items": [
+      "Los políticos deben seguir únicamente la voluntad del pueblo",
+      "Las decisiones más importantes de política pública deberían ser tomadas por el pueblo y no por los políticos",
+      "Las diferencias políticas entre la élite y el pueblo son más grandes que las diferencias que existen entre el pueblo",
+      "Es preferible ser representado por un ciudadano común que por un político profesional",
+      "Los políticos hablan mucho y hacen poco",
+      "Lo que las personas llaman un acuerdo en política en realidad es vender los principios de uno",
+      "El establecimiento con frecuencia traiciona al pueblo y se cuida sólo a sí mismo",
+      "La opinión de las personas comunes y corrientes vale más que la de los expertos"
+    ],
+    "rondas": [
+      {
+        "label": "1.ª ronda",
+        "fechas": "4 al 19 de mayo",
+        "contexto": "Antes de la primera vuelta",
+        "inicio": "2026-05-04",
+        "fin": "2026-05-19",
+        "n": 841,
+        "n_alto": 329,
+        "pct": 39.1,
+        "media": 3.59,
+        "items_acuerdo": [
+          64.8,
+          57.9,
+          66.3,
+          49,
+          78.2,
+          50.4,
+          62.5,
+          30
+        ]
+      },
+      {
+        "label": "3.ª ronda",
+        "fechas": "24 de junio al 5 de julio",
+        "contexto": "Después de la segunda vuelta",
+        "inicio": "2026-06-24",
+        "fin": "2026-07-05",
+        "n": 841,
+        "n_alto": 268,
+        "pct": 31.9,
+        "media": 3.48,
+        "items_acuerdo": [
+          62.2,
+          51.7,
+          61.8,
+          43.6,
+          76.7,
+          44.2,
+          59.3,
+          25.9
+        ]
+      }
+    ],
+    "cambios": [
+      {
+        "dif_pp": -7.2,
+        "pasan_a_alto": 85,
+        "salen_de_alto": 146,
+        "p": 0.00007217374993186699
+      }
+    ],
+    "panel": {
+      "n": 841
+    }
+  },
+  "ia_embudo": {
+    "umbral": 4,
+    "n": 1324,
+    "ronda": {
+      "label": "2.ª ronda",
+      "fechas": "4 al 16 de junio",
+      "contexto": "Entre la primera y la segunda vuelta"
+    },
+    "pasos": [
+      {
+        "corto": "Usa IA generativa con frecuencia",
+        "pregunta": "¿Con qué frecuencia interactúa con herramientas de inteligencia artificial (IA) generativa (Chat GPT, Gemini, Claude, DeepSeek, etc.)?",
+        "escala": "0 = Nunca, 5 = Frecuentemente",
+        "n": 594,
+        "pct": 44.9,
+        "pct_solo": 44.9
+      },
+      {
+        "corto": "…y la usa para informarse de política",
+        "pregunta": "¿Con qué frecuencia usa la inteligencia artificial para informarse sobre asuntos de interés general o sobre política?",
+        "escala": "0 = Nunca, 5 = Frecuentemente",
+        "n": 330,
+        "pct": 24.9,
+        "pct_solo": 28.7
+      },
+      {
+        "corto": "…y para conocer a los candidatos",
+        "pregunta": "En época electoral uso las inteligencias artificiales para conocer mejor a los candidatos y sus programas de gobierno.",
+        "escala": "0 = Nunca, 5 = Frecuentemente",
+        "n": 237,
+        "pct": 17.9,
+        "pct_solo": 25
+      },
+      {
+        "corto": "…y confía plenamente en ella para conocer propuestas de candidatos",
+        "pregunta": "Confío plenamente en las inteligencias artificiales (tipo chat GPT u otras) para que me den los insumos base de los programas de gobierno de un candidato o candidata presidencial.",
+        "escala": "0 = Total desacuerdo, 5 = Total acuerdo",
+        "n": 167,
+        "pct": 12.6,
+        "pct_solo": 21.7
+      }
+    ]
+  },
+  "consumo_campana": {
+    "umbral": 5,
+    "n": 869,
+    "medios": [
+      {
+        "corto": "Internet",
+        "texto": "Sitios de noticias en internet, incluyendo uso de redes sociales",
+        "pct": [
+          37.6,
+          45.6,
+          43.5
+        ],
+        "media": [
+          3.54,
+          3.97,
+          3.88
+        ],
+        "cambios": [
+          {
+            "dif_pp": 8,
+            "pasan_a_alto": 174,
+            "salen_de_alto": 105,
+            "p": 0.00004306132632022058
+          },
+          {
+            "dif_pp": -2.1,
+            "pasan_a_alto": 102,
+            "salen_de_alto": 120,
+            "p": 0.25383148249373744
+          }
+        ]
+      },
+      {
+        "corto": "Televisión",
+        "texto": "La televisión, incluyendo emisiones por Internet",
+        "pct": [
+          33.1,
+          35.9,
+          36.2
+        ],
+        "media": [
+          3.07,
+          3.28,
+          3.36
+        ],
+        "cambios": [
+          {
+            "dif_pp": 2.8,
+            "pasan_a_alto": 122,
+            "salen_de_alto": 98,
+            "p": 0.12078552644297025
+          },
+          {
+            "dif_pp": 0.3,
+            "pasan_a_alto": 107,
+            "salen_de_alto": 104,
+            "p": 0.8905312928839952
+          }
+        ]
+      },
+      {
+        "corto": "Radio",
+        "texto": "La radio, incluyendo emisiones por Internet o Satélite",
+        "pct": [
+          20.1,
+          26.2,
+          26
+        ],
+        "media": [
+          2.08,
+          2.54,
+          2.4
+        ],
+        "cambios": [
+          {
+            "dif_pp": 6.1,
+            "pasan_a_alto": 116,
+            "salen_de_alto": 63,
+            "p": 0.00009115725557169229
+          },
+          {
+            "dif_pp": -0.2,
+            "pasan_a_alto": 82,
+            "salen_de_alto": 84,
+            "p": 0.9381653419480132
+          }
+        ]
+      },
+      {
+        "corto": "Periódicos",
+        "texto": "Los periódicos, incluyendo sus ediciones por Internet",
+        "pct": [
+          17.1,
+          22.9,
+          23.7
+        ],
+        "media": [
+          2.01,
+          2.37,
+          2.34
+        ],
+        "cambios": [
+          {
+            "dif_pp": 5.8,
+            "pasan_a_alto": 107,
+            "salen_de_alto": 57,
+            "p": 0.00011636001219744381
+          },
+          {
+            "dif_pp": 0.8,
+            "pasan_a_alto": 92,
+            "salen_de_alto": 85,
+            "p": 0.6521216446590042
+          }
+        ]
+      }
+    ],
+    "rondas": [
+      {
+        "label": "1.ª ronda",
+        "fechas": "4 al 19 de mayo",
+        "contexto": "Antes de la primera vuelta",
+        "inicio": "2026-05-04",
+        "fin": "2026-05-19"
+      },
+      {
+        "label": "2.ª ronda",
+        "fechas": "4 al 16 de junio",
+        "contexto": "Entre la primera y la segunda vuelta",
+        "inicio": "2026-06-04",
+        "fin": "2026-06-16"
+      },
+      {
+        "label": "3.ª ronda",
+        "fechas": "24 de junio al 5 de julio",
+        "contexto": "Después de la segunda vuelta",
+        "inicio": "2026-06-24",
+        "fin": "2026-07-05"
+      }
+    ]
+  },
+  "jovenes": {
+    "indicadores": [
+      {
+        "corto": "Usan IA generativa con frecuencia",
+        "titulo": "Usan IA generativa con frecuencia",
+        "ronda": "2.ª ronda",
+        "definicion": "4 o 5 en la escala de 0 a 5",
+        "p": 1.2803172524402304e-7,
+        "dif_aj": 17.6,
+        "p_aj": 6.47177212192591e-8,
+        "significativo": true,
+        "jovenes": {
+          "n": 318,
+          "pct": 57.9
+        },
+        "mayores": {
+          "n": 1006,
+          "pct": 40.8
+        }
+      },
+      {
+        "corto": "Se ubican en la izquierda",
+        "titulo": "Se ubican en la izquierda",
+        "ronda": "1.ª ronda",
+        "definicion": "0 a 3 en la escala izquierda-derecha de 0 a 10",
+        "p": 5.7150749388377566e-8,
+        "dif_aj": 13.2,
+        "p_aj": 7.344919471409576e-8,
+        "significativo": true,
+        "jovenes": {
+          "n": 473,
+          "pct": 37.6
+        },
+        "mayores": {
+          "n": 1219,
+          "pct": 24.3
+        }
+      },
+      {
+        "corto": "Siguieron la campaña por televisión 5 o más días por semana",
+        "titulo": "Siguieron menos la campaña por televisión (personas que la vieron 5 o más días por semana)",
+        "ronda": "3.ª ronda",
+        "definicion": "5 o más días por semana",
+        "p": 0.03094465307702851,
+        "dif_aj": -9,
+        "p_aj": 0.029641562934733617,
+        "significativo": true,
+        "jovenes": {
+          "n": 173,
+          "pct": 28.9
+        },
+        "mayores": {
+          "n": 696,
+          "pct": 38.1
+        }
+      },
+      {
+        "corto": "Creen más que la media de la escala en los titulares falsos",
+        "titulo": "Les dan más crédito a las noticias falsas (promedio superior a 3 en cuatro titulares falsos)",
+        "ronda": "2.ª ronda",
+        "definicion": "promedio de sus respuestas a cuatro titulares falsos superior a 3, en la escala de 1 (definitivamente falsa) a 5 (definitivamente verdadera)",
+        "p": 0.0007021870653672712,
+        "dif_aj": 7.3,
+        "p_aj": 0.0020412808746434305,
+        "significativo": true,
+        "jovenes": {
+          "n": 251,
+          "pct": 17.9
+        },
+        "mayores": {
+          "n": 807,
+          "pct": 9.8
+        }
+      },
+      {
+        "corto": "Sienten que las noticias inventadas los rodean",
+        "titulo": "Sienten que las noticias inventadas los rodean",
+        "ronda": "3.ª ronda",
+        "definicion": "responden «con frecuencia»",
+        "p": 0.04971400164341355,
+        "dif_aj": -7.9,
+        "p_aj": 0.05223457213967752,
+        "significativo": false,
+        "jovenes": {
+          "n": 188,
+          "pct": 34
+        },
+        "mayores": {
+          "n": 724,
+          "pct": 42.3
+        }
+      },
+      {
+        "corto": "Están muy de acuerdo con las ideas populistas",
+        "titulo": "Son menos partidarios de las ideas populistas",
+        "ronda": "3.ª ronda",
+        "definicion": "índice de 4 o más",
+        "p": 0.04801228638817926,
+        "dif_aj": -9,
+        "p_aj": 0.025474734156048628,
+        "significativo": true,
+        "jovenes": {
+          "n": 160,
+          "pct": 25
+        },
+        "mayores": {
+          "n": 681,
+          "pct": 33.5
+        }
+      },
+      {
+        "corto": "Ven con buenos ojos solo a los votantes de su candidato",
+        "titulo": "Ven con buenos ojos solo a los votantes de su candidato",
+        "ronda": "3.ª ronda",
+        "definicion": "índice WAPS hacia los votantes de 4 o más",
+        "p": 0.31315248760907405,
+        "dif_aj": -4.6,
+        "p_aj": 0.2642384275943609,
+        "significativo": false,
+        "jovenes": {
+          "n": 187,
+          "pct": 45.5
+        },
+        "mayores": {
+          "n": 719,
+          "pct": 49.9
+        }
+      },
+      {
+        "corto": "Siguieron la campaña por internet 5 o más días por semana",
+        "titulo": "Siguieron la campaña por internet 5 o más días por semana",
+        "ronda": "3.ª ronda",
+        "definicion": "5 o más días por semana",
+        "p": 0.5778127356369285,
+        "dif_aj": 3,
+        "p_aj": 0.4777767599162106,
+        "significativo": false,
+        "jovenes": {
+          "n": 173,
+          "pct": 45.7
+        },
+        "mayores": {
+          "n": 696,
+          "pct": 43
+        }
+      },
+      {
+        "corto": "Recorren todo el embudo de la IA",
+        "titulo": "Recorren todo el embudo de la IA",
+        "ronda": "2.ª ronda",
+        "definicion": "4 o 5 en las cuatro preguntas del embudo",
+        "p": 0.6129958843862477,
+        "dif_aj": -1.1,
+        "p_aj": 0.6137649050476699,
+        "significativo": false,
+        "jovenes": {
+          "n": 318,
+          "pct": 11.6
+        },
+        "mayores": {
+          "n": 1006,
+          "pct": 12.9
+        }
+      }
+    ],
+    "evolucion_pol": {
+      "umbral": 4,
+      "grupos": {
+        "jovenes": {
+          "n": 187,
+          "pct": [
+            28.9,
+            44.4,
+            45.5
+          ],
+          "media": [
+            2.77,
+            3.38,
+            3.37
+          ]
+        },
+        "mayores": {
+          "n": 719,
+          "pct": [
+            41.3,
+            52.2,
+            49.9
+          ],
+          "media": [
+            3.08,
+            3.53,
+            3.39
+          ]
+        }
+      },
+      "dif_aj": [
+        {
+          "dif": -12.6,
+          "p": 0.0017818903764894654
+        },
+        {
+          "dif": -8.7,
+          "p": 0.03398979130875775
+        },
+        {
+          "dif": -4.6,
+          "p": 0.2642384275943609
+        }
+      ],
+      "p_cambio": [
+        0.14567152971501268,
+        0.03735158230526534
+      ],
+      "significativo": true,
+      "rondas": [
+        {
+          "label": "1.ª ronda",
+          "fechas": "4 al 19 de mayo",
+          "contexto": "Antes de la primera vuelta",
+          "inicio": "2026-05-04",
+          "fin": "2026-05-19"
+        },
+        {
+          "label": "2.ª ronda",
+          "fechas": "4 al 16 de junio",
+          "contexto": "Entre la primera y la segunda vuelta",
+          "inicio": "2026-06-04",
+          "fin": "2026-06-16"
+        },
+        {
+          "label": "3.ª ronda",
+          "fechas": "24 de junio al 5 de julio",
+          "contexto": "Después de la segunda vuelta",
+          "inicio": "2026-06-24",
+          "fin": "2026-07-05"
+        }
+      ]
+    }
+  },
+  "jovenes_cepeda": {
+    "n": 911,
+    "grupos": {
+      "jovenes": {
+        "n": 187,
+        "pct": [
+          2.59,
+          2.61,
+          2.66
+        ],
+        "cepeda": [
+          5.66,
+          5.56,
+          5.91
+        ],
+        "espriella": [
+          3.07,
+          2.95,
+          3.25
+        ],
+        "reparto": [
+          [
+            62.6,
+            8,
+            29.4
+          ],
+          [
+            63.1,
+            7.5,
+            29.4
+          ],
+          [
+            62.6,
+            5.3,
+            32.1
+          ]
+        ],
+        "cambios": [
+          {
+            "n": 187,
+            "dif": 0.02,
+            "p": 0.9165519376233637
+          },
+          {
+            "n": 187,
+            "dif": 0.05,
+            "p": 0.8432424689650244
+          },
+          {
+            "n": 187,
+            "dif": 0.07,
+            "p": 0.7989012943245375
+          }
+        ]
+      },
+      "mayores": {
+        "n": 724,
+        "pct": [
+          -0.13,
+          -0.31,
+          -0.81
+        ],
+        "cepeda": [
+          4.14,
+          4.15,
+          4.25
+        ],
+        "espriella": [
+          4.27,
+          4.46,
+          5.06
+        ],
+        "reparto": [
+          [
+            43.4,
+            9.3,
+            47.4
+          ],
+          [
+            43.6,
+            7.5,
+            48.9
+          ],
+          [
+            42.1,
+            6.6,
+            51.2
+          ]
+        ],
+        "cambios": [
+          {
+            "n": 724,
+            "dif": -0.18,
+            "p": 0.1744156534686592
+          },
+          {
+            "n": 724,
+            "dif": -0.5,
+            "p": 0.00010663242573927438
+          },
+          {
+            "n": 724,
+            "dif": -0.68,
+            "p": 0.000003886036209155739
+          }
+        ]
+      }
+    },
+    "dif_aj": [
+      {
+        "dif": 2.78,
+        "p": 0.000007000240076658001
+      },
+      {
+        "dif": 2.98,
+        "p": 0.00000448705535515686
+      },
+      {
+        "dif": 3.49,
+        "p": 1.6478664786546406e-7
+      }
+    ],
+    "rondas": [
+      {
+        "label": "1.ª ronda",
+        "fechas": "4 al 19 de mayo",
+        "contexto": "Antes de la primera vuelta",
+        "inicio": "2026-05-04",
+        "fin": "2026-05-19"
+      },
+      {
+        "label": "2.ª ronda",
+        "fechas": "4 al 16 de junio",
+        "contexto": "Entre la primera y la segunda vuelta",
+        "inicio": "2026-06-04",
+        "fin": "2026-06-16"
+      },
+      {
+        "label": "3.ª ronda",
+        "fechas": "24 de junio al 5 de julio",
+        "contexto": "Después de la segunda vuelta",
+        "inicio": "2026-06-24",
+        "fin": "2026-07-05"
+      }
+    ]
+  },
+  "jovenes_credibilidad": {
+    "n": 964,
+    "tramos": [
+      {
+        "nombre": "18 a 30 años",
+        "n": 216,
+        "falsos": 2.45,
+        "verdaderos": 3.33,
+        "distingue": 0.88
+      },
+      {
+        "nombre": "31 a 45 años",
+        "n": 319,
+        "falsos": 2.35,
+        "verdaderos": 3.26,
+        "distingue": 0.91
+      },
+      {
+        "nombre": "46 a 60 años",
+        "n": 236,
+        "falsos": 2.27,
+        "verdaderos": 3.22,
+        "distingue": 0.95
+      },
+      {
+        "nombre": "61 años o más",
+        "n": 193,
+        "falsos": 2.18,
+        "verdaderos": 3.27,
+        "distingue": 1.09
+      }
+    ],
+    "pruebas": {
+      "falsos": {
+        "p_edad": 0.004988948720331792,
+        "dif_jovenes": 0.17,
+        "p_jovenes": 0.008319988791366388
+      },
+      "verdaderos": {
+        "p_edad": 0.4128770318116479,
+        "dif_jovenes": 0.08,
+        "p_jovenes": 0.12176105970693994
+      },
+      "distingue": {
+        "p_edad": 0.09728695435110184,
+        "dif_jovenes": -0.08,
+        "p_jovenes": 0.2684703523973989
+      }
+    },
+    "titulares": {
+      "falsos": [
+        "Apareció una portada de la revista Cosas del 30 de junio de 2025 con una foto del presidente Gustavo Petro junto al narcotraficante ecuatoriano alias 'Fito'",
+        "El gobierno Petro avaló en 2024 que el ELN reclutara a menores de 15, 16 y 17 años en sus filas como parte del proceso de paz",
+        "La BBC reveló que el asesinato del senador Miguel Uribe Turbay habría sido un ajuste de cuentas por deuda del papá con mafias y esmeralderos",
+        "Una encuesta de abril de 2026 reveló que el 70% considera que la seguridad mejoró gracias al presidente Petro"
+      ],
+      "verdaderos": [
+        "El gobierno de Donald Trump descertificó a Colombia en la lucha contra el narcotráfico en septiembre de 2025, atribuyendo la decisión a la falta de liderazgo del presidente Petro y al aumento histórico de cultivos de coca",
+        "El gobierno Petro logró en 2024 la incautación récord de 884 toneladas de cocaína, la cifra anual más alta en la historia del país",
+        "Pese a haber prometido lo contrario, el gobierno Petro aumentó los peajes tres veces en el 2025, con incrementos del 2,7%, 1,86% y 5,20%",
+        "La tasa de mortalidad infantil en menores de 1 año descendió durante el gobierno Petro, pasando de 6.689 muertes en 2022 a 4.615 muertes en 2024"
+      ]
+    },
+    "ronda": {
+      "label": "2.ª ronda",
+      "fechas": "4 al 16 de junio",
+      "contexto": "Entre la primera y la segunda vuelta"
+    }
+  },
+  "jovenes_populismo": {
+    "umbral": 4,
+    "n": 841,
+    "grupos": {
+      "jovenes": {
+        "n": 160,
+        "pct": [
+          23.1,
+          25
+        ],
+        "media": [
+          3.35,
+          3.34
+        ],
+        "cambio": {
+          "dif_pp": 1.9,
+          "pasan_a_alto": 21,
+          "salen_de_alto": 18,
+          "p": 0.7492586247608418
+        }
+      },
+      "mayores": {
+        "n": 681,
+        "pct": [
+          42.9,
+          33.5
+        ],
+        "media": [
+          3.65,
+          3.51
+        ],
+        "cambio": {
+          "dif_pp": -9.4,
+          "pasan_a_alto": 64,
+          "salen_de_alto": 128,
+          "p": 0.000004495497043935628
+        }
+      }
+    },
+    "dif_aj": [
+      {
+        "dif": -20.6,
+        "p": 0.000002367429882710899
+      },
+      {
+        "dif": -9,
+        "p": 0.025474734156048628
+      }
+    ],
+    "p_cambio": 0.02840824993992927,
+    "rondas": [
+      {
+        "label": "1.ª ronda",
+        "fechas": "4 al 19 de mayo",
+        "contexto": "Antes de la primera vuelta"
+      },
+      {
+        "label": "3.ª ronda",
+        "fechas": "24 de junio al 5 de julio",
+        "contexto": "Después de la segunda vuelta"
+      }
+    ]
+  },
+  "jovenes_ia": {
+    "n": 1324,
+    "pasos": [
+      "Usa IA generativa con frecuencia",
+      "…y la usa para informarse de política",
+      "…y para conocer a los candidatos",
+      "…y confía plenamente en ella para conocer propuestas de candidatos"
+    ],
+    "grupos": {
+      "jovenes": {
+        "n": 318,
+        "pasos": [
+          {
+            "n": 184,
+            "pct": 57.9
+          },
+          {
+            "n": 81,
+            "pct": 25.5
+          },
+          {
+            "n": 60,
+            "pct": 18.9
+          },
+          {
+            "n": 37,
+            "pct": 11.6
+          }
+        ]
+      },
+      "mayores": {
+        "n": 1006,
+        "pasos": [
+          {
+            "n": 410,
+            "pct": 40.8
+          },
+          {
+            "n": 249,
+            "pct": 24.8
+          },
+          {
+            "n": 177,
+            "pct": 17.6
+          },
+          {
+            "n": 130,
+            "pct": 12.9
+          }
+        ]
+      }
+    },
+    "dif_aj": [
+      {
+        "dif": 17.6,
+        "p": 6.47177212192591e-8
+      },
+      {
+        "dif": 0.9,
+        "p": 0.7548558737794565
+      },
+      {
+        "dif": 1.6,
+        "p": 0.528748055157884
+      },
+      {
+        "dif": -1.1,
+        "p": 0.6137649050476699
+      }
+    ],
+    "ronda": {
+      "label": "2.ª ronda",
+      "fechas": "4 al 16 de junio",
+      "contexto": "Entre la primera y la segunda vuelta"
+    }
+  },
+  "jovenes_medios": {
+    "n": 869,
+    "tramos": [
+      {
+        "nombre": "18 a 30 años",
+        "n": 173
+      },
+      {
+        "nombre": "31 a 45 años",
+        "n": 263
+      },
+      {
+        "nombre": "46 a 60 años",
+        "n": 220
+      },
+      {
+        "nombre": "61 años o más",
+        "n": 213
+      }
+    ],
+    "medios": [
+      {
+        "corto": "Internet",
+        "texto": "Sitios de noticias en internet, incluyendo uso de redes sociales",
+        "grupos": [
+          {
+            "media": [
+              3.46,
+              4.05,
+              4.06
+            ]
+          },
+          {
+            "media": [
+              3.41,
+              3.65,
+              3.63
+            ]
+          },
+          {
+            "media": [
+              3.43,
+              4.06,
+              3.75
+            ]
+          },
+          {
+            "media": [
+              3.88,
+              4.18,
+              4.19
+            ]
+          }
+        ],
+        "p_edad": [
+          0.210892466712737,
+          0.07074228885377545,
+          0.04113411501656538
+        ]
+      },
+      {
+        "corto": "Televisión",
+        "texto": "La televisión, incluyendo emisiones por Internet",
+        "grupos": [
+          {
+            "media": [
+              2.54,
+              2.43,
+              2.99
+            ]
+          },
+          {
+            "media": [
+              2.42,
+              2.77,
+              2.84
+            ]
+          },
+          {
+            "media": [
+              3.15,
+              3.75,
+              3.49
+            ]
+          },
+          {
+            "media": [
+              4.24,
+              4.13,
+              4.18
+            ]
+          }
+        ],
+        "p_edad": [
+          3.8059314168869556e-14,
+          2.0501274054413318e-12,
+          4.358737541476959e-8
+        ]
+      },
+      {
+        "corto": "Radio",
+        "texto": "La radio, incluyendo emisiones por Internet o Satélite",
+        "grupos": [
+          {
+            "media": [
+              1.72,
+              1.68,
+              1.78
+            ]
+          },
+          {
+            "media": [
+              1.8,
+              2.36,
+              2.14
+            ]
+          },
+          {
+            "media": [
+              2.19,
+              2.85,
+              2.47
+            ]
+          },
+          {
+            "media": [
+              2.62,
+              3.16,
+              3.15
+            ]
+          }
+        ],
+        "p_edad": [
+          0.0008430768249962551,
+          3.8699096795492256e-7,
+          0.000003333162623482377
+        ]
+      },
+      {
+        "corto": "Periódicos",
+        "texto": "Los periódicos, incluyendo sus ediciones por Internet",
+        "grupos": [
+          {
+            "media": [
+              1.81,
+              2.05,
+              2.03
+            ]
+          },
+          {
+            "media": [
+              1.88,
+              2.02,
+              2.18
+            ]
+          },
+          {
+            "media": [
+              1.84,
+              2.42,
+              2.19
+            ]
+          },
+          {
+            "media": [
+              2.5,
+              3,
+              2.93
+            ]
+          }
+        ],
+        "p_edad": [
+          0.011254956693249716,
+          0.00009236814578451926,
+          0.0019694099798609334
+        ]
+      }
+    ],
+    "rondas": [
+      {
+        "label": "1.ª ronda",
+        "fechas": "4 al 19 de mayo",
+        "contexto": "Antes de la primera vuelta"
+      },
+      {
+        "label": "2.ª ronda",
+        "fechas": "4 al 16 de junio",
+        "contexto": "Entre la primera y la segunda vuelta"
+      },
+      {
+        "label": "3.ª ronda",
+        "fechas": "24 de junio al 5 de julio",
+        "contexto": "Después de la segunda vuelta"
+      }
+    ]
+  },
+  "jovenes_comparte": {
+    "n": 1449,
+    "categorias": [
+      "Nunca o casi nunca",
+      "A veces",
+      "La mayoría de las veces",
+      "Siempre"
+    ],
+    "grupos": {
+      "jovenes": {
+        "n": 345,
+        "dist": [
+          56.5,
+          27.2,
+          12.8,
+          3.5
+        ],
+        "pct_algo": 43.5,
+        "pct_frecuente": 16.2,
+        "media": 1.63
+      },
+      "mayores": {
+        "n": 1104,
+        "dist": [
+          57.2,
+          31.1,
+          8.4,
+          3.4
+        ],
+        "pct_algo": 42.8,
+        "pct_frecuente": 11.8,
+        "media": 1.58
+      }
+    },
+    "dif_algo": {
+      "dif": 1.7,
+      "p": 0.5817193166379269
+    },
+    "dif_frecuente": {
+      "dif": 5,
+      "p": 0.01817135379436281
+    },
+    "dif_media": {
+      "dif": 0.07,
+      "p": 0.17038586170627992
+    },
+    "ronda": {
+      "label": "2.ª ronda",
+      "fechas": "4 al 16 de junio",
+      "contexto": "Entre la primera y la segunda vuelta"
+    }
+  }
+}

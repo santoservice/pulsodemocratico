@@ -1,0 +1,82 @@
+---
+/**
+ * Mancuernas 18–30 años frente a 31 o más (0 a 100 %), una por indicador, y la evolución entre
+ * rondas de cada grupo. Réplica del hallazgo de jóvenes del visor: el texto de cada fila va en
+ * HTML (se acomoda solo) y cada pista es un SVG pequeño que escala con el ancho.
+ */
+import type { FilaMancuerna } from '../../lib/visor/principales';
+
+export interface Props {
+  filas: FilaMancuerna[];
+  evolucion?: { titulo: string; grupos: { valores: number[]; tip: string }[] };
+  aria: string;
+}
+
+const { filas, evolucion, aria } = Astro.props;
+const W = 320;
+const P = 26; // alto de cada pista
+const x = (v: number) => 30 + (v / 100) * (W - 60);
+const COLOR = ['text-serie-1', 'text-serie-2'];
+const RELLENO = ['fill-serie-1', 'fill-serie-2'];
+const rot = 'text-[12px] font-extrabold';
+---
+
+<div role="img" aria-label={aria} class="flex flex-col gap-2.5">
+  {filas.map((f) => {
+    const vals = [f.jovenes, f.mayores];
+    const a = Math.min(...vals);
+    const b = Math.max(...vals);
+    return (
+      <div class="cursor-pointer" data-tip={f.tip}>
+        <p class="text-[12.5px] leading-tight font-bold text-ink-muted">{f.titulo}</p>
+        <svg viewBox={`0 0 ${W} ${P}`} class="block h-auto w-full overflow-visible" aria-hidden="true">
+          <line x1={x(0)} x2={x(100)} y1={P / 2} y2={P / 2} class="stroke-border" />
+          <line x1={x(a)} x2={x(b)} y1={P / 2} y2={P / 2} stroke-width="3" stroke-linecap="round" class="stroke-ink-muted/50" />
+          {vals.map((v, g) => {
+            const izq = v === a;
+            return (
+              <g class={COLOR[g]}>
+                <circle cx={x(v)} cy={P / 2} r="7" fill="currentColor" style="stroke:var(--color-surface);stroke-width:2" />
+                <text x={x(v) + (izq ? -11 : 11)} y={P / 2 + 4} text-anchor={izq ? 'end' : 'start'} class:list={[RELLENO[g], rot]}>
+                  {Math.round(v)} %
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+    );
+  })}
+  {evolucion && (
+    <div class="border-t border-border pt-2.5">
+      <p class="text-[12.5px] leading-tight font-bold text-ink-muted">{evolucion.titulo}</p>
+      {evolucion.grupos.map((g, gi) => {
+        const p = g.valores;
+        const cambio = Math.round(p[2]!) - Math.round(p[0]!);
+        const hi = Math.max(...p);
+        return (
+          <svg viewBox={`0 0 ${W} ${P}`} class="block h-auto w-full cursor-pointer overflow-visible" data-tip={g.tip} aria-hidden="true">
+            <g class={COLOR[gi]}>
+              <line x1={x(0)} x2={x(100)} y1={P / 2} y2={P / 2} class="stroke-border" />
+              <line x1={x(Math.min(...p))} x2={x(hi)} y1={P / 2} y2={P / 2} stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity=".55" />
+              <circle cx={x(p[0]!)} cy={P / 2} r="5" fill="var(--color-surface)" stroke="currentColor" stroke-width="2.5" />
+              <circle cx={x(p[1]!)} cy={P / 2} r="3" fill="currentColor" />
+              <circle cx={x(p[2]!)} cy={P / 2} r="6.5" fill="currentColor" style="stroke:var(--color-surface);stroke-width:2" />
+              <text x={x(p[0]!) - 10} y={P / 2 + 4} text-anchor="end" class:list={[RELLENO[gi], rot]}>
+                {Math.round(p[0]!)} %
+              </text>
+              <text x={x(hi) + 11} y={P / 2 + 4} class:list={[RELLENO[gi], rot]}>
+                {Math.round(p[2]!)} % · {cambio > 0 ? '▲ +' : '▼ −'}{Math.abs(cambio)} pts
+              </text>
+            </g>
+          </svg>
+        );
+      })}
+    </div>
+  )}
+  <svg viewBox={`0 0 ${W} 14`} class="block h-auto w-full overflow-visible" aria-hidden="true">
+    {[0, 50, 100].map((v) => (
+      <text x={x(v)} y="12" text-anchor="middle" class="fill-ink-muted text-[12px]">{v} %</text>
+    ))}
+  </svg>
+</div>

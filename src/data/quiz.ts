@@ -43,6 +43,11 @@ export const quiz = {
         etiquetaFuera: 'Nunca o casi nunca',
       },
       grafica: { tipo: 'columnas' },
+      curioso: {
+        valores: [3, 4],
+        prefijo: 'En total,',
+        texto: 'dicen toparse con noticias falsas algunas veces o con frecuencia',
+      },
       distribucion: [
         { valor: 1, n: 112 },
         { valor: 2, n: 103 },
@@ -65,6 +70,10 @@ export const quiz = {
       etiquetasExtremos: ['Total desacuerdo', 'Total acuerdo'],
       comparacion: { modo: 'promedio', valor: 4.21196130167107 },
       grafica: { tipo: 'barra' },
+      curioso: {
+        valores: [4, 5],
+        texto: 'están de acuerdo o totalmente de acuerdo con la frase (4 o 5)',
+      },
       distribucion: [
         { valor: 0, n: 29 },
         { valor: 1, n: 19 },
@@ -96,6 +105,11 @@ export const quiz = {
         si: 'le pusieron 0 a los líderes del bando contrario',
         no: 'le pusieron más de 0',
       },
+      curioso: {
+        valores: [5, 6, 7, 8, 9, 10],
+        prefijo: 'Solo',
+        texto: 'les da 5 o más a los líderes del bando contrario',
+      },
       distribucion: [
         { valor: 0, n: 766 },
         { valor: 1, n: 56 },
@@ -115,12 +129,13 @@ export const quiz = {
     },
     {
       // Z20_IA9_1_5 · Ola 1.5 (solo se preguntó ahí). Promedio 0–5 = 2,61.
-      // TODO (cliente): el documento dice «¿Usa IA para resumir propuestas de candidatos?»;
-      // se tutea como las otras tres preguntas.
+      // El documento dice «¿Usa IA para resumir propuestas de candidatos?», pero la escala es de
+      // acuerdo (0–5): se plantea como frase, igual que la pregunta de populismo.
       id: 'inteligencia-artificial',
       tema: 'inteligencia-artificial',
       temaTitulo: 'Inteligencia artificial',
-      texto: '¿Usas la inteligencia artificial (IA) para resumir las propuestas de los candidatos?',
+      texto:
+        '¿Qué tan de acuerdo estás con la frase «Uso la inteligencia artificial (IA) para resumir las propuestas de los candidatos»?',
       tipo: 'escala',
       min: 0,
       max: 5,
@@ -136,6 +151,10 @@ export const quiz = {
         etiquetaFuera: 'No la usa para eso (0 a 3)',
       },
       grafica: { tipo: 'pastel', si: 'usa la IA para resumir propuestas', no: 'no la usa para eso' },
+      curioso: {
+        valores: [0],
+        texto: 'responde 0: está en total desacuerdo, nunca la usa para eso',
+      },
       distribucion: [
         { valor: 0, n: 312 },
         { valor: 1, n: 105 },

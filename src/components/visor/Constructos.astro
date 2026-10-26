@@ -1,0 +1,67 @@
+---
+/**
+ * Populismo de derecha frente a de izquierda: barra del promedio de cada tipo y barras finas de
+ * cada afirmación (escala 0 a 5). Réplica del visor.
+ */
+import { CLS, HALO, SERIE_FILL, ZONA, fmt, fmtN } from '../../lib/visor/comun';
+import type { GraficaVisor } from '../../lib/visor/tipos';
+
+type Props = Omit<Extract<GraficaVisor, { tipo: 'constructos' }>, 'tipo'>;
+
+const { C, aria } = Astro.props;
+const K = C.constructos;
+// Derecha: serie 1 (azul claro); izquierda: serie 2 (dorado).
+const COL: Record<string, string> = { derecha: SERIE_FILL[0]!, izquierda: SERIE_FILL[1]! };
+const W = 320;
+const m = { r: 44 };
+const cab = 50;
+const fila = 38;
+const sep = 14;
+const H = K.length * (cab + 2 * fila) + sep + 34;
+const x = (v: number) => (v / 5) * (W - m.r);
+let y = 0;
+const bloques = K.map((k, g) => {
+  if (g) y += sep;
+  const y0 = y;
+  y += cab;
+  const items = k.items.map((it) => {
+    const yi = y;
+    y += fila;
+    return { it, y: yi };
+  });
+  return { k, y: y0, items };
+});
+const ya = y + 14;
+---
+
+<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} class="block h-auto w-full overflow-visible">
+  {[0, 1, 2, 3, 4, 5].map((v) => (
+    <line x1={x(v)} x2={x(v)} y1="0" y2={H - 30} class="stroke-border" />
+  ))}
+  {bloques.map(({ k, y: y0, items }) => (
+    <>
+      <rect x="0" y={y0} width={W} height={cab - 6} rx="8" class="fill-chart-accent/10" />
+      <text x="8" y={y0 + 16} class:list={[COL[k.clave], 'text-[12.5px] font-bold']}>{k.nombre} · promedio</text>
+      <rect x="0" y={y0 + 24} width={x(k.media)} height="14" rx="4" class={COL[k.clave]} />
+      <text x={x(k.media) + 6} y={y0 + 31} dominant-baseline="central" class:list={[COL[k.clave], 'text-[14px] font-extrabold']}>
+        {fmt(k.media, 2)}
+      </text>
+      <rect x="0" y={y0} width={W} height={cab - 6} fill="transparent" tabindex="0" data-tip={`${k.nombre} · ${fmtN(C.n)} personas\nPromedio: ${fmt(k.media, 2)}`} aria-label={k.nombre} class={ZONA} />
+      {items.map(({ it, y: yi }) => (
+        <>
+          <text x="0" y={yi + 12} class="fill-ink-muted text-[12px]" style={HALO}>{it.corto}</text>
+          <rect x="0" y={yi + 18} width={x(it.media)} height="9" rx="3" opacity=".55" class={COL[k.clave]} />
+          <text x={x(it.media) + 6} y={yi + 22.5} dominant-baseline="central" class:list={[COL[k.clave], 'text-[12px]']}>
+            {fmt(it.media, 2)}
+          </text>
+          <rect x="0" y={yi} width={W} height={fila - 2} fill="transparent" tabindex="0" data-tip={`«${it.texto}»\nPromedio: ${fmt(it.media, 2)}`} aria-label={it.corto} class={ZONA} />
+        </>
+      ))}
+    </>
+  ))}
+  {[0, 1, 2, 3, 4, 5].map((v) => (
+    <text x={x(v)} y={ya} text-anchor={v === 0 ? 'start' : 'middle'} class={CLS.tic}>{v}</text>
+  ))}
+  <text x="0" y={ya + 18} class={CLS.tic}>← Total desacuerdo</text>
+  <text x={W} y={ya + 18} text-anchor="end" class={CLS.tic}>Total acuerdo →</text>
+</svg>

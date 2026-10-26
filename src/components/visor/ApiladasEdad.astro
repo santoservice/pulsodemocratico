@@ -1,0 +1,58 @@
+---
+/**
+ * Barras apiladas al 100 % por grupo de edad (de "nunca" a "siempre"), con la llave de "con
+ * frecuencia". Réplica del hallazgo "¿Los jóvenes comparten más…?" del visor.
+ */
+import { CLS, SEQ_FILL, SEQ_TEXTO, ZONA, fmt, fmtN } from '../../lib/visor/comun';
+import { GRUPOS_EDAD } from '../../lib/visor/principales';
+import type { GraficaVisor } from '../../lib/visor/tipos';
+
+type Props = Omit<Extract<GraficaVisor, { tipo: 'apiladas-edad' }>, 'tipo'>;
+
+const { C, aria } = Astro.props;
+const K = C.categorias;
+// Pasos de la rampa para las 4 respuestas (como el visor: 1, 3, 4, 5 de su escala).
+const PASOS = [0, 2, 3, 5];
+const W = 320;
+const alto = 40;
+const fila = 108;
+const H = GRUPOS_EDAD.length * fila + 4;
+---
+
+<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} class="block h-auto w-full overflow-visible">
+  {GRUPOS_EDAD.map((g, i) => {
+    const G = C.grupos[g.k];
+    const y = i * fila;
+    const yb = y + 22;
+    let x = 0;
+    const tramos = G.dist.map((v) => {
+      const t = { x, w: (v / 100) * W, v };
+      x += t.w;
+      return t;
+    });
+    const x0 = ((G.dist[0]! + G.dist[1]!) / 100) * W;
+    const tip = `${g.et} · ${fmtN(G.n)} personas\n${K.map((k, j) => `${k}: ${fmt(G.dist[j]!)} %`).join('\n')}`;
+    return (
+      <>
+        <text x="0" y={y + 14} class={CLS.et}>
+          {g.et}<tspan dx="6" class={CLS.fecha}>{fmtN(G.n)} personas</tspan>
+        </text>
+        {tramos.map((t, j) => (
+          <>
+            <rect x={t.x + 1} y={yb} width={Math.max(t.w - 2, 0)} height={alto} rx="3" class={SEQ_FILL[PASOS[j]!]} />
+            {t.w >= 26 && (
+              <text x={t.x + t.w / 2} y={yb + alto / 2 + 5} text-anchor="middle" class:list={[SEQ_TEXTO[PASOS[j]!], 'text-[13px] font-extrabold']}>
+                {Math.round(t.v)}
+              </text>
+            )}
+          </>
+        ))}
+        <path d={`M${x0 + 1},${yb + alto + 6}V${yb + alto + 11}H${W - 1}V${yb + alto + 6}`} fill="none" stroke-width="1.5" class="stroke-seq-6" />
+        <text x={W} y={yb + alto + 27} text-anchor="end" class={CLS.dato}>
+          Con frecuencia: {Math.round(G.pct_frecuente)} %
+        </text>
+        <rect x="0" y={yb} width={W} height={alto} fill="transparent" tabindex="0" data-tip={tip} aria-label={g.et} class={ZONA} />
+      </>
+    );
+  })}
+</svg>

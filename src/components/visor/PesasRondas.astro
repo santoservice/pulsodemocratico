@@ -1,0 +1,63 @@
+---
+/**
+ * Promedio de acuerdo con cada afirmación populista en la 1.ª y la 3.ª ronda (eje de 2,5 a 4,5),
+ * con el cambio (resaltado si es significativo). Réplica del visor.
+ */
+import { CLS, ZONA, fmt, fmtSigno, pTexto } from '../../lib/visor/comun';
+import type { GraficaVisor } from '../../lib/visor/tipos';
+
+type Props = Omit<Extract<GraficaVisor, { tipo: 'pesas-rondas' }>, 'tipo'>;
+
+const { C, aria } = Astro.props;
+const I = C.items;
+const R = C.rondas;
+// 1.ª ronda: azul medio; 3.ª ronda: azul claro (el dato más reciente, más visible).
+const COL = ['fill-serie-4', 'fill-serie-1'];
+const MIN = 2.5;
+const MAX = 4.5;
+const TICS = [2.5, 3, 3.5, 4, 4.5];
+const W = 320;
+const fila = 48;
+const top = 4;
+const m = { l: 40, r: 70 };
+const H = top + I.length * fila + 22;
+const x = (v: number) => m.l + ((v - MIN) / (MAX - MIN)) * (W - m.l - m.r);
+const dif = (it: (typeof I)[number]) => Math.round((it.media[1]! - it.media[0]!) * 100) / 100;
+const ya = top + I.length * fila + 16;
+---
+
+<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} class="block h-auto w-full overflow-visible">
+  {TICS.map((v) => (
+    <line x1={x(v)} x2={x(v)} y1={top + 18} y2={top + I.length * fila} class="stroke-border" />
+  ))}
+  {I.map((it, i) => {
+    const y = top + i * fila;
+    const yc = y + 30;
+    const sig = it.p < 0.05;
+    const d = dif(it);
+    const [lo, hi] = it.media[0]! <= it.media[1]! ? [0, 1] : [1, 0];
+    const tip = `«${it.texto}»\n${R.map((r, j) => `${r.label}: ${fmt(it.media[j]!, 2)}`).join('\n')}\nCambio: ${fmtSigno(d, 2)} (${pTexto(it.p)})`;
+    return (
+      <>
+        <text x="0" y={y + 12} class={CLS.et}>{it.corto}</text>
+        <line x1={x(it.media[0]!)} x2={x(it.media[1]!)} y1={yc} y2={yc} stroke-width="3" stroke-linecap="round" opacity=".45" class="stroke-ink-muted" />
+        {[0, 1].map((j) => (
+          <circle cx={x(it.media[j]!)} cy={yc} r="6" class={COL[j]} style="stroke:var(--color-surface);stroke-width:2" />
+        ))}
+        <text x={x(it.media[lo]!) - 10} y={yc + 4} text-anchor="end" class:list={[lo ? 'fill-ink font-extrabold' : 'fill-ink-muted', 'text-[12px]']}>
+          {fmt(it.media[lo]!, 2)}
+        </text>
+        <text x={x(it.media[hi]!) + 10} y={yc + 4} class:list={[hi ? 'fill-ink font-extrabold' : 'fill-ink-muted', 'text-[12px]']}>
+          {fmt(it.media[hi]!, 2)}
+        </text>
+        <text x={W} y={yc + 4} text-anchor="end" class:list={['text-[12px]', sig ? 'fill-chart-accent font-extrabold' : 'fill-ink-muted font-medium']}>
+          {d > 0 ? '▲ +' : d < 0 ? '▼ −' : '= '}{fmt(Math.abs(d), 2)}
+        </text>
+        <rect x="0" y={y} width={W} height={fila - 4} fill="transparent" tabindex="0" data-tip={tip} aria-label={it.corto} class={ZONA} />
+      </>
+    );
+  })}
+  {TICS.map((v) => (
+    <text x={x(v)} y={ya} text-anchor="middle" class={CLS.tic}>{fmt(v, v % 1 ? 1 : 0)}</text>
+  ))}
+</svg>

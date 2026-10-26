@@ -65,32 +65,54 @@
 
   /*
    * Gráficas. Las gráficas SOLO usan estos tokens (fill-chart-*, bg-chart-*…).
-   * chart-accent, chart-strong y chart-ink se usan también como texto (≥ 4,5:1 sobre blanco).
-   * chart-muted / chart-track / chart-highlight son solo rellenos.
+   * chart-accent se usa también como texto (≥ 4,5:1 sobre blanco).
+   * chart-muted / chart-track son solo rellenos.
    */
   --color-chart-accent: #00387d;
-  --color-chart-strong: #00205b;
-  --color-chart-accent-soft: #93aac9;
-  --color-chart-ink: #2d2926;
   --color-chart-muted: #93aac9;
   --color-chart-track: #d9e1ef;
-  --color-chart-highlight: #f7efd9;
-  --color-chart-grid: #f7efd9; /* = surface: separa segmentos */
-  /* Categorías de la barra apilada (izquierda · centro · derecha): neutras, sin colores partidistas. */
-  --color-chart-cat-1: #00387d;
-  --color-chart-cat-2: #c0bfbe;
-  --color-chart-cat-3: #2d2926;
+  /*
+   * Series del visor de hallazgos (medios, grupos de edad…): color + forma de punto.
+   * 1 = 286, 2 = Gold 871C (grupo 31+ / titulares falsos), 3 = negro 70 %, 4 = 292.
+   */
+  --color-serie-1: #00387d;
+  --color-serie-2: #89764b;
+  --color-serie-3: #575451;
+  --color-serie-4: #6f8fbf;
+  /* Marcas de las vueltas electorales en las gráficas del visor. */
+  --color-chart-eleccion: #89764b;
+  /* Rampa de un solo tono del visor (1 = poco, 6 = mucho): frecuencias, niveles, distancias. */
+  --color-seq-1: #e0edff;
+  --color-seq-2: #b3cbf4;
+  --color-seq-3: #7f9fe0;
+  --color-seq-4: #4a6fc7;
+  --color-seq-5: #193f9e;
+  --color-seq-6: #001c64;
+  /* Franjas de edad (1 = 18 a 30 años, resaltada; 4 = 61 o más). */
+  --color-edad-1: #00387d;
+  --color-edad-2: #4a6fc7;
+  --color-edad-3: #8fa9e6;
+  --color-edad-4: #a3b6e3;
 
   /* Fijos: no cambian con el tema (piezas que siempre van en azul 281 o crema 7499). */
   --color-navy: #00205b;
   --color-cream: #f7efd9;
   --color-negro: #2d2926; /* Pantone Black C */
   --color-on-grana: #ffffff;
-  --color-rojo: #a6192e; /* Grana 187C fijo: el personaje «Tú» del quiz */
+  /* Personaje «Tú» del quiz: Grana 187C en claro; en oscuro, blanco (pedido del cliente). */
+  --color-tu: #a6192e;
+  --color-on-tu: #ffffff;
+  --color-orcid: #a6ce39; /* verde de la marca ORCID (enlaces ORCID) */
 
   /* Layout */
   --container-page: 72rem;
 }
+
+/*
+ * `hover:` siempre con :hover. Tailwind v4 lo limita a `@media (hover: hover)`, y en equipos
+ * con pantalla táctil y mouse (p. ej. Surface) esa consulta da falso: no se veía ningún hover.
+ */
+@custom-variant hover (&:hover);
 
 /* `dark:` = tema oscuro activado con <html data-theme="dark"> (no depende del sistema). */
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
@@ -101,8 +123,8 @@
     color: var(--color-ink);
     background-color: var(--color-page);
     scroll-behavior: smooth;
-    /* Anclas (#) por debajo del header fijo (h-16 / md:h-20 + borde). */
-    scroll-padding-top: 5.5rem;
+    /* Anclas (#) por debajo del header fijo (h-14 / md:h-16 + bordes). */
+    scroll-padding-top: 4.75rem;
   }
 
   /* Sin fondo propio: el fondo lo pinta <html> y la malla de puntos (DotField) queda encima. */
@@ -136,6 +158,8 @@
     --color-brand-light: #93aac9;
     --color-grana: #d7b36b;
     --color-on-grana: #00205b;
+    --color-tu: #ffffff;
+    --color-on-tu: #00205b;
 
     --color-page: #071735;
     --color-surface: #0e2550;
@@ -157,16 +181,25 @@
     --color-focus: #d7b36b;
 
     --color-chart-accent: #93aac9;
-    --color-chart-strong: #d9e1ef;
-    --color-chart-accent-soft: #4a6796;
-    --color-chart-ink: #e9eef6;
     --color-chart-muted: #4a6796;
     --color-chart-track: #1c3563;
-    --color-chart-highlight: #1f3a6b;
-    --color-chart-grid: #0e2550;
-    --color-chart-cat-1: #93aac9;
-    --color-chart-cat-2: #5d6f8f;
-    --color-chart-cat-3: #f7efd9;
+    /* Series del visor: 292 · dorado · crema · azul medio (todas ≥ 3:1 sobre surface). */
+    --color-serie-1: #93aac9;
+    --color-serie-2: #d7b36b;
+    --color-serie-3: #f7efd9;
+    --color-serie-4: #6a8cc2;
+    --color-chart-eleccion: #f7efd9;
+    /* En oscuro la rampa va de apagado a brillante (más = más claro). */
+    --color-seq-1: #34548a;
+    --color-seq-2: #4669a3;
+    --color-seq-3: #5c80b8;
+    --color-seq-4: #7c9bc8;
+    --color-seq-5: #a8bcd9;
+    --color-seq-6: #d9e1ef;
+    --color-edad-1: #93aac9;
+    --color-edad-2: #6a8cc2;
+    --color-edad-3: #52709f;
+    --color-edad-4: #43608d;
 
     --dots-base: #93aac9;
     --dots-base-alpha: 0.3;
@@ -196,6 +229,16 @@
     --color-accent: #00387d;
     --color-accent-hover: #00205b;
     --color-focus: #00387d;
+  }
+
+  /* Tailwind v4 deja los botones con cursor normal: todo lo clicable muestra la mano. */
+  button:not(:disabled),
+  [role='button'],
+  [role='radio'],
+  summary,
+  label[for],
+  select {
+    cursor: pointer;
   }
 
   :focus-visible {

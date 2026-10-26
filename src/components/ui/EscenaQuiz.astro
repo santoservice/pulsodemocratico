@@ -46,16 +46,12 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
 
         <figure class="mt-8 hidden w-fit lg:block" aria-hidden="true">
           <div class="quiz-tu flex w-24 flex-col items-center" data-quiz-tu>
-            <span class="rounded-full bg-rojo px-3 py-1 text-sm font-bold text-white shadow-md">Tú</span>
-            <!-- Persona: cabeza, torso de hombros a cadera, brazos abiertos hacia abajo y piernas. -->
+            <span class="rounded-full bg-tu px-3 py-1 text-sm font-bold text-on-tu shadow-md">Tú</span>
+            <!-- Persona tipo pictograma: cabeza y cuerpo con brazos y piernas separados por ranuras. -->
             <svg viewBox="0 0 100 140" class="mt-2 h-auto w-full">
               <ellipse cx="50" cy="133" rx="30" ry="4" class="fill-brand/15"></ellipse>
-              <g class="fill-none stroke-rojo" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M37 46Q27 61 23 79M63 46q10 15 14 33" stroke-width="7.5"></path>
-                <path d="M45 84 43 126M55 84l2 42" stroke-width="10.5"></path>
-              </g>
-              <circle cx="50" cy="20" r="13" class="fill-rojo"></circle>
-              <path d="M39 40q11-3.5 22 0 7 2 6 10l-5 36q-.6 3-3.5 3h-17q-2.9 0-3.5-3l-5-36q-1-8 6-10Z" class="fill-rojo"></path>
+              <circle cx="50" cy="15" r="11" class="fill-tu"></circle>
+              <path d="M38 30H62A14 14 0 0 1 76 44V75A4 4 0 0 1 68 75V48H65.5V127A7 7 0 0 1 51.5 127V88H48.5V127A7 7 0 0 1 34.5 127V48H32V75A4 4 0 0 1 24 75V44A14 14 0 0 1 38 30Z" class="fill-tu"></path>
             </svg>
           </div>
           <figcaption class="quiz-desvanece mt-3 max-w-60 text-sm leading-snug text-ink-muted">
@@ -93,15 +89,15 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
     }
     .quiz-escena[data-pin] .quiz-escenario {
       position: sticky;
-      top: 5.25rem;
+      top: 4.3rem;
       display: flex;
-      height: calc(100vh - 5.25rem);
+      height: calc(100vh - 4.3rem);
       align-items: center;
     }
     .quiz-escena[data-pin] .quiz-escenario > div {
       width: 100%;
       /* Menos aire arriba/abajo: la tarjeta (con su resultado) debe caber en la pantalla. */
-      padding-block: 1.5rem;
+      padding-block: 1rem;
     }
     .quiz-intro {
       translate: calc(var(--dx, 0px) * (1 - var(--p))) calc(var(--dy, 0px) * (1 - var(--p)));
@@ -110,9 +106,11 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
       transform-origin: left center;
       scale: calc(1 + 0.35 * (1 - var(--p)));
     }
+    /* «Tú» va de la derecha a la izquierda en curva: baja un poco más (--tuc) y sube a su sitio. */
     .quiz-tu {
       scale: calc(1 + 0.4 * (1 - var(--p)));
-      translate: calc(var(--ax, 0px) * (1 - var(--p))) calc(var(--ay, 0px) * (1 - var(--p)));
+      translate: calc(var(--ax, 0px) * (1 - var(--tux, 1)))
+        calc(var(--ay, 0px) * (1 - var(--tuy, 1)) + var(--tuc, 0px));
     }
     .quiz-desvanece {
       opacity: var(--q);
@@ -132,7 +130,9 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
   const ESCALA_TEXTO = 1.35;
   const ESCALA_TU = 1.4;
   const SEPARACION = 72;
-  const TOPE = 84; // alto del header fijo
+  const TOPE = 69; // alto del header fijo (4 + 64 + 1 px)
+  const CURVA = 48; // px que «Tú» baja de más a mitad de camino
+  const SUAVIZADO = 0.14; // fracción del camino que se recorre por cuadro
 
   const escena = document.querySelector<HTMLElement>('[data-quiz-escena]');
   const grilla = escena?.querySelector<HTMLElement>('[data-quiz-grilla]');
@@ -161,32 +161,52 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
       fijar('--dy', grilla.clientHeight / 2 - (intro.offsetTop + centroTexto));
     };
 
-    const actualizar = () => {
+    const objetivo = () => {
       const recorrido = escena.offsetHeight - (window.innerHeight - TOPE);
-      const t = clamp((TOPE - escena.getBoundingClientRect().top) / recorrido);
-      // 0–0.3: pausa en la escena inicial; 0.3–0.85: transición; luego, quieta y lista.
-      const p = suave(clamp((t - 0.3) / 0.55));
+      return clamp((TOPE - escena.getBoundingClientRect().top) / recorrido);
+    };
+
+    const pintar = (t: number) => {
+      // 0–0.25: pausa en la escena inicial; 0.25–0.85: transición; luego, quieta y lista.
+      const avance = clamp((t - 0.25) / 0.6);
+      const p = suave(avance);
       const q = suave(clamp((t - 0.55) / 0.35));
       escena.style.setProperty('--p', String(p));
+      // «Tú»: el alto se adelanta un poco al lado, y en la mitad del camino baja CURVA px de más.
+      escena.style.setProperty('--tuy', String(suave(clamp(avance / 0.85))));
+      escena.style.setProperty('--tux', String(p));
+      fijar('--tuc', CURVA * Math.sin(Math.PI * avance));
       escena.style.setProperty('--q', String(q));
       escena.toggleAttribute('data-oculta', q < 0.02);
     };
 
-    let pendiente = false;
+    // El dibujo sigue al scroll con suavizado (no salta con cada golpe de la rueda del mouse).
+    let actual = 0;
+    let animando = false;
+    const paso = () => {
+      const meta = objetivo();
+      actual += (meta - actual) * SUAVIZADO;
+      if (Math.abs(meta - actual) < 0.0005) actual = meta;
+      pintar(actual);
+      animando = actual !== meta;
+      if (animando) requestAnimationFrame(paso);
+    };
     const programar = () => {
-      if (pendiente) return;
-      pendiente = true;
-      requestAnimationFrame(() => {
-        pendiente = false;
-        actualizar();
-      });
+      if (animando) return;
+      animando = true;
+      requestAnimationFrame(paso);
+    };
+    const actualizar = () => {
+      actual = objetivo();
+      pintar(actual);
     };
 
     const configurar = () => {
       const activa = escritorio.matches && !reducido.matches;
       escena.toggleAttribute('data-pin', activa);
       if (!activa) {
-        for (const k of ['--p', '--q', '--dx', '--dy', '--ax', '--ay']) escena.style.removeProperty(k);
+        for (const k of ['--p', '--q', '--dx', '--dy', '--ax', '--ay', '--tux', '--tuy', '--tuc'])
+          escena.style.removeProperty(k);
         escena.removeAttribute('data-oculta');
         window.removeEventListener('scroll', programar);
         return;

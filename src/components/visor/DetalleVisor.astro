@@ -1,0 +1,80 @@
+---
+/**
+ * Detalle de un hallazgo del visor (se abre a pantalla completa desde "Ver detalle"; lo mueve
+ * al diálogo QuestionModal). Gráfica grande, "Los datos del gráfico" a la vista, "¿Cómo se
+ * midió?" desplegable y tres descargas: gráfica (PNG), datos (CSV) y todo (PNG).
+ */
+import { Icon } from 'astro-icon/components';
+import type { HallazgoVisor } from '../../lib/visor/principales';
+import GraficaVisor from './GraficaVisor.astro';
+import TablaVisor from './TablaVisor.astro';
+
+export interface Props {
+  hallazgo: HallazgoVisor;
+}
+
+const { hallazgo: h } = Astro.props;
+const id = `detalle-visor-${h.id}`;
+const boton =
+  'inline-flex min-h-10 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-60';
+---
+
+<article
+  id={id}
+  data-pregunta={h.id}
+  data-tarjeta={`visor-${h.id}`}
+  data-eyebrow={h.etiqueta}
+  aria-labelledby={`${id}-titulo`}
+  class="flex flex-col gap-4"
+>
+  <h2 id={`${id}-titulo`} class="sr-only">{h.titulo}</h2>
+
+  <!-- Descargas: la principal es "todo" (gráfica, datos y método con los logos). -->
+  <div class="flex flex-wrap items-center justify-end gap-2">
+    <button type="button" data-descargar data-objetivo={`${id}-grafica`} class:list={[boton, 'border-border-strong text-ink hover:border-cream hover:bg-cream hover:text-navy']}>
+      <Icon name="lucide:image" class="h-4 w-4" aria-hidden="true" />
+      Descargar gráfica
+    </button>
+    <button type="button" data-descargar-csv data-objetivo={id} class:list={[boton, 'border-border-strong text-ink hover:border-cream hover:bg-cream hover:text-navy']}>
+      <Icon name="lucide:file-spreadsheet" class="h-4 w-4" aria-hidden="true" />
+      Descargar datos (CSV)
+    </button>
+    <button type="button" data-descargar data-objetivo={`${id}-todo`} class:list={[boton, 'border-white bg-white text-negro hover:border-cream hover:bg-cream']}>
+      <Icon name="lucide:download" class="h-4 w-4" aria-hidden="true" />
+      Descargar todo
+    </button>
+  </div>
+
+  <div id={`${id}-todo`} data-descarga={`${h.id}-completo`} data-titulo={h.titulo} data-tema={h.etiqueta} class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+    <section
+      id={`${id}-grafica`}
+      data-descarga={`${h.id}-grafica`}
+      data-titulo={h.titulo}
+      data-tema={h.etiqueta}
+      aria-label="Gráfica"
+      class="rounded-2xl border border-border bg-surface p-5 md:p-6"
+    >
+      <GraficaVisor hallazgo={h} uid={`d-${h.id}`} />
+    </section>
+
+    <section aria-labelledby={`${id}-datos`} class="min-w-0 rounded-2xl border border-border bg-surface p-5 md:p-6" data-tablas>
+      <h3 id={`${id}-datos`} class="text-xs font-bold tracking-[0.18em] text-ink-muted uppercase">
+        Los datos del gráfico
+      </h3>
+      <div class="mt-3 flex flex-col gap-5">
+        {h.tablas.map((t) => <TablaVisor tabla={t} />)}
+      </div>
+    </section>
+
+    <details class="group rounded-2xl border border-border bg-surface p-5 md:p-6 lg:col-span-2">
+      <summary class="flex items-center justify-between gap-3 font-semibold text-ink">
+        ¿Cómo se midió?
+        <Icon name="lucide:chevron-down" class="h-5 w-5 shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" />
+      </summary>
+      <ol class="mt-4 grid list-decimal gap-2.5 pl-5 text-[15px] leading-relaxed text-ink-muted [&_li_ul]:mt-2 [&_li_ul]:list-disc [&_li_ul]:space-y-1 [&_li_ul]:pl-5 [&_strong]:text-ink">
+        {h.metodo.map((m) => <li set:html={m} />)}
+      </ol>
+      <p class="mt-4 text-[12.5px] text-ink-muted">{h.fuente}</p>
+    </details>
+  </div>
+</article>

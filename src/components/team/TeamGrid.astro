@@ -23,7 +23,8 @@ const { labelledby } = Astro.props;
       <div class="shrink-0 transition-transform duration-200 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100">
         <TeamAvatar persona={p} />
       </div>
-      <div class="min-w-0 flex-1">
+      <!-- Columna flexible: «Ver perfil» va siempre al fondo, alineado entre tarjetas de la fila. -->
+      <div class="flex min-w-0 flex-1 flex-col">
         <h3 class="text-lg leading-snug font-bold text-brand">
           <button
             type="button"
@@ -36,9 +37,10 @@ const { labelledby } = Astro.props;
           </button>
         </h3>
         <p class="mt-1 text-sm leading-snug text-ink-muted">{p.institucion}</p>
-        <TeamContacts persona={p} class="mt-3" />
+        <TeamContacts persona={p} class="mt-3 mb-4" />
+        <!-- Aspecto de botón primario (crema); el clic lo recibe el botón del nombre, que cubre la tarjeta. -->
         <p
-          class="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-accent"
+          class="mt-auto inline-flex items-center gap-1.5 self-start rounded-full bg-cream px-4 py-1.5 text-sm font-bold text-navy shadow-sm transition-colors group-hover:bg-white"
           aria-hidden="true"
         >
           Ver perfil
@@ -78,7 +80,7 @@ const { labelledby } = Astro.props;
             {p.nombre}
           </h2>
           <p class="mt-1 text-ink-muted">{p.institucion}</p>
-          <TeamContacts persona={p} class="mt-3" />
+          <TeamContacts persona={p} completo class="mt-3" />
         </div>
       </div>
       <p class="mt-6 leading-relaxed text-ink">{p.perfil}</p>
@@ -95,6 +97,20 @@ const { labelledby } = Astro.props;
     a.textContent = correo;
     a.className = 'text-accent underline-offset-4 hover:underline';
     el.replaceWith(a);
+  });
+
+  // Copiar correo (perfil): avisa «Copiado» un momento en el mismo botón.
+  document.querySelectorAll<HTMLButtonElement>('[data-copiar]').forEach((btn) => {
+    const texto = btn.querySelector<HTMLElement>('[data-copiar-texto]');
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(`${btn.dataset.u}@${btn.dataset.d}`);
+        if (texto) texto.textContent = 'Copiado';
+      } catch {
+        if (texto) texto.textContent = 'No se pudo copiar';
+      }
+      window.setTimeout(() => texto && (texto.textContent = 'Copiar'), 1800);
+    });
   });
 
   // Perfil en <dialog> nativo: showModal() atrapa el foco y Esc lo cierra; al cerrar, el foco

@@ -1,0 +1,77 @@
+---
+/**
+ * Distribución de una pregunta (de 0 a 5, o con categorías propias): una columna por respuesta
+ * en una rampa de un solo tono, la llave del tramo destacado ("Con frecuencia: 27,7 %") y la
+ * línea del promedio. Réplica de `tarjetaDistribucion` del visor.
+ */
+import { CLS, HALO, SEQ_FILL, ZONA, fmt, pasoSeq } from '../../lib/visor/comun';
+import type { GraficaVisor } from '../../lib/visor/tipos';
+
+type Props = Omit<Extract<GraficaVisor, { tipo: 'distribucion' }>, 'tipo'>;
+
+const { it, aria } = Astro.props;
+const cats = it.cats ?? ['0', '1', '2', '3', '4', '5'];
+const N = cats.length;
+const [ta, tb] = (it.tramo ?? [4, 5]) as [number, number];
+const nombre = (k: number) => cats[k]!.replace('|', ' ');
+const extremo = (k: number) =>
+  !it.polos ? '' : k === 0 ? ` (${it.polos[0]!.toLowerCase()})` : k === N - 1 ? ` (${it.polos[1]!.toLowerCase()})` : '';
+const W = 320;
+const H = 306;
+const m = { t: 58, b: 62, l: 4, r: 4 };
+const slot = (W - m.l - m.r) / N;
+const ancho = Math.min(slot * 0.74, 64);
+const alto = H - m.t - m.b;
+const MAX = Math.max(...it.dist);
+const y = (v: number) => m.t + (1 - v / MAX) * alto;
+const cx = (k: number) => m.l + slot * (k + 0.5);
+const xm = it.media != null ? cx(0) + ((cx(N - 1) - cx(0)) * it.media) / (N - 1) : 0;
+const ye = y(0);
+// Llave sobre el tramo destacado, por encima de los rótulos de sus columnas y de la anterior.
+const yl = Math.min(...it.dist.slice(Math.max(ta - 1, 0), tb + 1).map(y)) - 24;
+const x0 = cx(ta) - ancho / 2;
+const x1 = cx(tb) + ancho / 2;
+---
+
+<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} class="block h-auto w-full overflow-visible">
+  {it.media != null && (
+    <line x1={xm} x2={xm} y1={m.t - 4} y2={ye + 40} stroke-width="1.5" stroke-dasharray="4 3" class="stroke-chart-eleccion" />
+  )}
+  <path d={`M${x0},${yl + 6}V${yl}H${x1}V${yl + 6}`} fill="none" stroke-width="1.5" class="stroke-seq-6" />
+  <text x={x1} y={yl - 6} text-anchor="end" class="fill-ink text-[12px] font-extrabold">
+    {it.alto}: {fmt(it.pct_alto)} %
+  </text>
+  {it.dist.map((v, k) => (
+    <>
+      <rect x={cx(k) - ancho / 2} y={y(v)} width={ancho} height={y(0) - y(v)} rx="4" class={SEQ_FILL[pasoSeq(k, N)]} />
+      <text x={cx(k)} y={y(v) - 6} text-anchor="middle" class:list={['fill-ink font-extrabold', N > 6 ? 'text-[10.5px]' : 'text-[12px]']} style={HALO}>
+        {fmt(v)} %
+      </text>
+      {cats[k]!.split('|').map((l, j) => (
+        <text x={cx(k)} y={y(0) + 16 + j * 14} text-anchor="middle" class={CLS.et}>{l}</text>
+      ))}
+      <rect
+        x={cx(k) - slot / 2}
+        y={m.t}
+        width={slot}
+        height={alto}
+        fill="transparent"
+        tabindex="0"
+        data-tip={`${it.polos ? 'Respuesta ' : ''}${nombre(k)}${extremo(k)}\n${fmt(v)} % de las personas`}
+        aria-label={`${nombre(k)}: ${fmt(v)} %`}
+        class={ZONA}
+      />
+    </>
+  ))}
+  {it.media != null && (
+    <text x={xm} y={H - 4} text-anchor="middle" class="fill-chart-eleccion text-[11.5px] font-extrabold">
+      promedio {fmt(it.media, 2)}
+    </text>
+  )}
+  {it.polos && (
+    <>
+      <text x={cx(0) - ancho / 2} y={ye + 33} class="fill-ink-muted text-[11px]">← {it.polos[0]}</text>
+      <text x={cx(N - 1) + ancho / 2} y={ye + 33} text-anchor="end" class="fill-ink-muted text-[11px]">{it.polos[1]} →</text>
+    </>
+  )}
+</svg>

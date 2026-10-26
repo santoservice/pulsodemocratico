@@ -1,0 +1,87 @@
+---
+/**
+ * Recibir o compartir política por chats y redes: barras apiladas por ronda, el cambio en "sí"
+ * y, entre quienes sí, por qué vía (barras finas por ronda). Réplica del visor.
+ */
+import { CLS, SEQ_FILL, SEQ_TEXTO, ZONA, fmt, fmtN, rangoCorto } from '../../lib/visor/comun';
+import type { GraficaVisor } from '../../lib/visor/tipos';
+
+type Props = Omit<Extract<GraficaVisor, { tipo: 'chats' }>, 'tipo'>;
+
+const { C, aria } = Astro.props;
+const R = C.rondas;
+const K = C.cats;
+// "No" en la pista; las demás respuestas en la rampa (como el visor).
+const COL = ['fill-chart-track', SEQ_FILL[1]!, SEQ_FILL[3]!, SEQ_FILL[5]!];
+const TXT = ['fill-ink', SEQ_TEXTO[1]!, SEQ_TEXTO[3]!, SEQ_TEXTO[5]!];
+// Vías: 1.ª ronda en azul medio, 3.ª en azul claro.
+const CR = ['fill-serie-4', 'fill-serie-1'];
+const dif = Math.round(R[1]!.pct_si) - Math.round(R[0]!.pct_si);
+const W = 320;
+const alto = 30;
+const fila = 62;
+const cab = 26;
+const fv = 40;
+const b = 9;
+const yv = R.length * fila + 26;
+const H = yv + cab + C.vias.length * fv + 4;
+const xv = (v: number) => (v / 100) * (W - 44);
+---
+
+<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} class="block h-auto w-full overflow-visible">
+  {R.map((r, i) => {
+    const y = i * fila;
+    const yb = y + 20;
+    let x = 0;
+    const tramos = r.dist.map((v) => {
+      const t = { x, w: (v / 100) * W, v };
+      x += t.w;
+      return t;
+    });
+    const tip = `${r.label} · ${fmtN(C.n)} personas\n${K.map((k, j) => `${k}: ${fmt(r.dist[j]!)} %`).join('\n')}`;
+    return (
+      <>
+        <text x="0" y={y + 14} class={CLS.et}>
+          {r.label}<tspan dx="6" class={CLS.fecha}>{rangoCorto(r.fechas)}</tspan>
+        </text>
+        <text x={W} y={y + 14} text-anchor="end" class="fill-ink text-[12px] font-extrabold">Sí: {fmt(r.pct_si, 0)} %</text>
+        {tramos.map((t, j) => (
+          <>
+            <rect x={t.x + 1} y={yb} width={Math.max(t.w - 2, 0)} height={alto} rx="3" class={COL[j]} />
+            {t.w >= 26 && (
+              <text x={t.x + t.w / 2} y={yb + alto / 2 + 4.5} text-anchor="middle" class:list={[TXT[j], 'text-[12.5px] font-extrabold']}>
+                {Math.round(t.v)}
+              </text>
+            )}
+          </>
+        ))}
+        <rect x="0" y={y} width={W} height={fila - 8} fill="transparent" tabindex="0" data-tip={tip} aria-label={r.label} class={ZONA} />
+      </>
+    );
+  })}
+  <text x={W} y={R.length * fila + 4} text-anchor="end" class:list={['text-[12px] font-extrabold', C.p < 0.05 ? 'fill-chart-accent' : 'fill-ink-muted']}>
+    {dif > 0 ? '▲ +' : dif < 0 ? '▼ −' : '= '}{Math.abs(dif)} pts
+  </text>
+  <text x="0" y={yv + 14} class={CLS.fila}>¿Por dónde? Entre quienes sí</text>
+  {C.vias.map((v, k) => {
+    const y = yv + cab + k * fv;
+    const tip = `${v}\n${R.map((r) => `${r.label}: ${fmt(r.vias[k]!)} % de ${fmtN(r.n_si)}`).join('\n')}`;
+    return (
+      <>
+        <text x="0" y={y + 10} class="fill-ink-muted text-[12px]">{v}</text>
+        {R.map((r, j) => {
+          const ybar = y + 15 + j * (b + 3);
+          return (
+            <>
+              <rect x="0" y={ybar} width={xv(r.vias[k]!)} height={b} rx="3" class={CR[j]} />
+              <text x={xv(r.vias[k]!) + 5} y={ybar + b - 1} class:list={['text-[11px]', j ? 'fill-ink font-extrabold' : 'fill-ink-muted']}>
+                {Math.round(r.vias[k]!)} %
+              </text>
+            </>
+          );
+        })}
+        <rect x="0" y={y} width={W} height={fv - 4} fill="transparent" tabindex="0" data-tip={tip} aria-label={v} class={ZONA} />
+      </>
+    );
+  })}
+</svg>

@@ -1,0 +1,77 @@
+---
+/**
+ * Días por semana que siguieron la campaña en cada medio, por franja de edad: un mini gráfico
+ * por medio (misma escala de 0 a 5). Réplica del visor; los cuatro mini gráficos van en una
+ * cuadrícula CSS (2 columnas; 1 si la tarjeta es muy angosta).
+ */
+import { EDAD_FILL, EDAD_TEXT, ZONA, fmt } from '../../lib/visor/comun';
+import type { GraficaVisor } from '../../lib/visor/tipos';
+import MarcaSerie from './MarcaSerie.astro';
+
+type Props = Omit<Extract<GraficaVisor, { tipo: 'mini-lineas' }>, 'tipo'>;
+
+const { C, aria } = Astro.props;
+const T = C.tramos;
+const PW = 150;
+const PH = 150;
+const MAX = 5;
+const m = { t: 22, b: 22, l: 18, r: 30 };
+const x = (j: number) => m.l + (j / 2) * (PW - m.l - m.r);
+const y = (v: number) => m.t + (1 - v / MAX) * (PH - m.t - m.b);
+const paneles = C.medios.map((md) => {
+  // Rótulos al final: la franja más joven y la mayor, separados si quedan muy cerca.
+  const fin = [0, T.length - 1]
+    .map((i) => ({ i, v: md.grupos[i]!.media[2]!, y: y(md.grupos[i]!.media[2]!) }))
+    .sort((a, b) => a.y - b.y);
+  if (fin[1]!.y - fin[0]!.y < 12) {
+    const c = (fin[0]!.y + fin[1]!.y) / 2;
+    fin[0]!.y = c - 6;
+    fin[1]!.y = c + 6;
+  }
+  const tip = `${md.corto} · días por semana\n${T.map((t, i) => `${t.nombre}: ${md.grupos[i]!.media.map((v) => fmt(v)).join(' → ')}`).join('\n')}`;
+  return { md, fin, tip };
+});
+---
+
+<!-- Container query: 2 columnas si la gráfica mide 19rem o más (tarjeta de escritorio, detalle); si no (celular), 1 columna más grande. -->
+<div role="img" aria-label={aria} class="@container">
+  <div class="mx-auto grid max-w-64 grid-cols-1 gap-x-4 gap-y-2 @[19rem]:max-w-none @[19rem]:grid-cols-2">
+  {paneles.map(({ md, fin, tip }) => (
+    <svg viewBox={`0 0 ${PW} ${PH}`} class="block h-auto w-full overflow-visible" aria-hidden="true">
+      <text x="0" y="12" class="fill-ink text-[12.5px] font-extrabold">{md.corto}</text>
+      {[0, 1, 2, 3, 4, 5].map((v) => (
+        <>
+          <line x1={m.l} x2={PW - m.r} y1={y(v)} y2={y(v)} class="stroke-border" />
+          <text x={m.l - 4} y={y(v) + 4} text-anchor="end" class="fill-ink-muted text-[10px]">{v}</text>
+        </>
+      ))}
+      {['1.ª', '2.ª', '3.ª'].map((t, j) => (
+        <text x={x(j)} y={PH - 6} text-anchor="middle" class="fill-ink-muted text-[10px]">{t}</text>
+      ))}
+      {/* De mayor a menor edad: la línea de los jóvenes queda encima. */}
+      {[...md.grupos.keys()].reverse().map((i) => {
+        const g = md.grupos[i]!;
+        return (
+          <g class={EDAD_TEXT[i]}>
+            <path
+              d={`M${g.media.map((v, j) => `${x(j)},${y(v)}`).join('L')}`}
+              fill="none"
+              stroke="currentColor"
+              stroke-width={i === 0 ? 3 : 2}
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            {g.media.map((v, j) => (
+              <MarcaSerie i={i} x={x(j)} y={y(v)} r={i === 0 ? 4 : 3.2} />
+            ))}
+          </g>
+        );
+      })}
+      {fin.map((f) => (
+        <text x={x(2) + 6} y={f.y + 4} class:list={[EDAD_FILL[f.i], 'text-[11px] font-extrabold']}>{fmt(f.v)}</text>
+      ))}
+      <rect x="0" y="0" width={PW} height={PH} fill="transparent" tabindex="0" data-tip={tip} aria-label={md.corto} class={ZONA} />
+    </svg>
+  ))}
+  </div>
+</div>

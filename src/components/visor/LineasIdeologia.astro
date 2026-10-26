@@ -1,0 +1,65 @@
+---
+/**
+ * Populismo de derecha e izquierda por tramo de autoubicación ideológica: dos líneas sobre la
+ * escala izquierda-derecha. Réplica del visor.
+ */
+import { CLS, SERIE_FILL, SERIE_TEXT, ZONA, fmt, fmtN } from '../../lib/visor/comun';
+import type { GraficaVisor } from '../../lib/visor/tipos';
+
+type Props = Omit<Extract<GraficaVisor, { tipo: 'lineas-ideologia' }>, 'tipo'>;
+
+const { C, aria } = Astro.props;
+const T = C.tramos;
+const K = C.constructos;
+const IDX: Record<string, number> = { derecha: 0, izquierda: 1 };
+const W = 320;
+const H = 300;
+const m = { t: 14, b: 62, l: 24, r: 8 };
+const slot = (W - m.l - m.r) / T.length;
+const alto = H - m.t - m.b;
+const cx = (i: number) => m.l + slot * (i + 0.5);
+const y = (v: number) => m.t + (1 - v / 5) * alto;
+type Clave = 'derecha' | 'izquierda';
+---
+
+<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} class="block h-auto w-full overflow-visible">
+  {[0, 1, 2, 3, 4, 5].map((v) => (
+    <>
+      <line x1={m.l} x2={W - m.r} y1={y(v)} y2={y(v)} class="stroke-border" />
+      <text x={m.l - 6} y={y(v) + 4} text-anchor="end" class={CLS.tic}>{v}</text>
+    </>
+  ))}
+  {K.map((k) => (
+    <polyline
+      points={T.map((t, i) => `${cx(i)},${y(t[k.clave as Clave])}`).join(' ')}
+      fill="none"
+      stroke="currentColor"
+      stroke-width="3"
+      stroke-linejoin="round"
+      class={SERIE_TEXT[IDX[k.clave]!]}
+    />
+  ))}
+  {T.map((t, i) => {
+    const [alto_, bajo_]: Clave[] = t.derecha >= t.izquierda ? ['derecha', 'izquierda'] : ['izquierda', 'derecha'];
+    const yb = H - m.b + 18;
+    const tip = `${t.num} · ${t.nombre} · ${fmtN(t.n)} personas\n${K.map((k) => `${k.nombre}: ${fmt(t[k.clave as Clave], 2)}`).join('\n')}`;
+    return (
+      <>
+        {K.map((k) => (
+          <circle cx={cx(i)} cy={y(t[k.clave as Clave])} r="5.5" class={SERIE_FILL[IDX[k.clave]!]} style="stroke:var(--color-surface);stroke-width:2" />
+        ))}
+        <text x={cx(i)} y={y(t[alto_]) - 11} text-anchor="middle" class:list={[SERIE_FILL[IDX[alto_]!], 'text-[12px] font-extrabold']}>
+          {fmt(t[alto_], 2)}
+        </text>
+        <text x={cx(i)} y={y(t[bajo_]) + 20} text-anchor="middle" class:list={[SERIE_FILL[IDX[bajo_]!], 'text-[12px] font-extrabold']}>
+          {fmt(t[bajo_], 2)}
+        </text>
+        <text x={cx(i)} y={yb} text-anchor="middle" class={CLS.et}>{t.num}</text>
+        {t.nombre.split(' ').map((w, j) => (
+          <text x={cx(i)} y={yb + 15 + j * 13} text-anchor="middle" class={CLS.fecha}>{w}</text>
+        ))}
+        <rect x={cx(i) - slot / 2} y={m.t} width={slot} height={alto} fill="transparent" tabindex="0" data-tip={tip} aria-label={`${t.num} ${t.nombre}`} class={ZONA} />
+      </>
+    );
+  })}
+</svg>

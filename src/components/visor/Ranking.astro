@@ -1,0 +1,44 @@
+---
+/**
+ * Barras horizontales ordenadas, la primera resaltada (fuentes para verificar, redes sociales).
+ * Réplica del visor: sobre cada barra el nombre y, opcionalmente, un dato pequeño.
+ */
+import { CLS, HALO, ZONA, fmt } from '../../lib/visor/comun';
+import type { GraficaVisor } from '../../lib/visor/tipos';
+
+type Props = Omit<Extract<GraficaVisor, { tipo: 'ranking' }>, 'tipo'>;
+
+const { filas, max, aria } = Astro.props;
+const W = 320;
+const fila = 46;
+const alto = 20;
+const et = 18;
+const m = { r: 64 };
+const H = filas.length * fila + 4;
+const MAX = max ?? Math.max(...filas.map((f) => f.pct));
+const x = (v: number) => (v / MAX) * (W - m.r);
+---
+
+<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} class="block h-auto w-full overflow-visible">
+  {filas.map((f, i) => {
+    const y = i * fila;
+    return (
+      <>
+        <text x="0" y={y + 13} class={CLS.et}>
+          {f.nombre}{f.sub && <tspan dx="6" class={CLS.fecha}>{f.sub}</tspan>}
+        </text>
+        <rect x="0" y={y + et} width={W - m.r} height={alto} rx="4" class="fill-chart-track" />
+        <rect x="0" y={y + et} width={x(f.pct)} height={alto} rx="4" class={i === 0 ? 'fill-chart-accent' : 'fill-serie-4'} />
+        <text
+          x={x(f.pct) + 8}
+          y={y + et + alto / 2 + 4.5}
+          class:list={['font-extrabold', i === 0 ? 'fill-ink text-[15px]' : 'fill-ink-muted text-[13px]']}
+          style={HALO}
+        >
+          {fmt(f.pct)} %
+        </text>
+        <rect x="0" y={y} width={W} height={fila - 4} fill="transparent" tabindex="0" data-tip={f.tip} aria-label={f.nombre} class={ZONA} />
+      </>
+    );
+  })}
+</svg>

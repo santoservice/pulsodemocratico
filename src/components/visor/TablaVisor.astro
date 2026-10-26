@@ -1,0 +1,58 @@
+---
+/** Tabla de "Los datos del gráfico" de un hallazgo del visor (también se exporta a CSV). */
+import { type TablaVisor } from '../../lib/visor/comun';
+
+export interface Props {
+  tabla: TablaVisor;
+}
+
+const { tabla } = Astro.props;
+const num = (k: number) => tabla.numericas.includes(k);
+---
+
+<div data-tabla-visor>
+  {tabla.titulo && <h4 class="mb-2 text-sm font-extrabold text-ink" data-tabla-titulo>{tabla.titulo}</h4>}
+  <div class="overflow-x-auto">
+    <table class="w-full border-collapse text-sm tabular-nums">
+      <thead>
+        <tr>
+          {tabla.cabecera.map((c, k) => (
+            <th
+              scope="col"
+              class:list={[
+                'border-b border-border px-2.5 py-2 text-[12.5px] font-bold text-ink-muted',
+                num(k) ? 'text-right' : 'text-left',
+              ]}
+            >
+              {c}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {tabla.filas.map((fila) => (
+          <tr>
+            {fila.map((c, k) => (
+              <td
+                class:list={[
+                  'border-b border-border px-2.5 py-2 align-top text-ink',
+                  num(k) ? 'text-right whitespace-nowrap' : 'text-left',
+                ]}
+              >
+                {typeof c === 'string' ? (
+                  c
+                ) : (
+                  <>
+                    <span data-v>{c.v}</span>
+                    {c.sub && <small class="block text-xs text-ink-muted" data-sub>{c.sub}</small>}
+                  </>
+                )}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  {tabla.nota && <p class="mt-2 text-[12.5px] text-ink-muted" data-tabla-nota>{tabla.nota}</p>}
+</div>

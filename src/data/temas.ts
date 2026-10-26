@@ -1,24 +1,20 @@
 /**
  * Las 6 secciones de resultados del sitio, en el orden de la maqueta.
  *
- * `dataKey` es la clave del tema en `tablero.json` (ver PLAN.md §5.1).
- * "Jóvenes" no existe en los datos: se construirá con los cruces por edad (PLAN.md §9).
- *
  * Regla del cliente: títulos con mayúscula inicial en cada palabra, escrita en el
  * contenido (no con CSS `capitalize`).
  */
 import { ruta } from '../lib/rutas';
 
-export type TemaDataKey = 'polarizacion' | 'populismo' | 'desinformacion' | 'ia' | 'consumo';
-
 export interface Tema {
   slug: string;
-  dataKey: TemaDataKey | null;
   titulo: string;
   pregunta: string;
   /** Párrafo de introducción de la página del tema (texto del cliente). */
   intro: string;
   descripcion: string;
+  /** Nota bajo «Hallazgos sobre…» de la página del tema (p. ej. a quién se compara). */
+  nota?: string;
   /** Nombre de icono de Iconify (colección lucide). */
   icono: string;
 }
@@ -26,7 +22,6 @@ export interface Tema {
 export const temas = [
   {
     slug: 'polarizacion',
-    dataKey: 'polarizacion',
     titulo: 'Polarización',
     pregunta: '¿Qué tan divididos estamos como sociedad?',
     intro:
@@ -37,7 +32,6 @@ export const temas = [
   },
   {
     slug: 'populismo',
-    dataKey: 'populismo',
     titulo: 'Populismo',
     pregunta: '¿Qué tanto apoyo tienen las ideas y discursos populistas?',
     intro:
@@ -48,7 +42,6 @@ export const temas = [
   },
   {
     slug: 'desinformacion',
-    dataKey: 'desinformacion',
     titulo: 'Desinformación',
     pregunta: '¿Qué tan creíbles nos parecen las noticias falsas sobre las elecciones?',
     intro:
@@ -59,7 +52,6 @@ export const temas = [
   },
   {
     slug: 'inteligencia-artificial',
-    dataKey: 'ia',
     titulo: 'Inteligencia Artificial',
     pregunta: '¿Oportunidad o amenaza para la democracia?',
     intro:
@@ -70,7 +62,6 @@ export const temas = [
   },
   {
     slug: 'consumo-mediatico',
-    dataKey: 'consumo',
     titulo: 'Consumo Mediático',
     pregunta: '¿Dónde nos informamos sobre política y en qué medios confiamos?',
     intro:
@@ -80,28 +71,19 @@ export const temas = [
     icono: 'lucide:newspaper',
   },
   {
-    slug: 'jovenes',
-    dataKey: null,
-    titulo: 'Jóvenes',
-    pregunta: '¿Cómo ven los jóvenes la política y la democracia?',
+    slug: 'comportamiento-juvenil',
+    titulo: 'Comportamiento Juvenil',
+    pregunta: '¿En qué se diferencian los jóvenes del resto?',
     intro:
-      '¿Cómo viven y perciben los jóvenes el contexto electoral? Conoce los principales resultados sobre sus actitudes, percepciones y formas de participación política.',
+      '¿Cómo viven y perciben los jóvenes el contexto electoral? Conoce en qué se parecen y en qué se diferencian de los demás participantes en sus actitudes, percepciones y formas de participación política.',
     descripcion:
       'Resultados de la encuesta CNEP Colombia 2026 sobre cómo ven los jóvenes la política y la democracia, comparados con el resto de las personas encuestadas.',
+    nota: 'No es una encuesta solo a jóvenes: cada gráfica compara a los participantes de 18 a 30 años con los de 31 años o más (o, en algunas, con las demás franjas de edad), en las mismas preguntas.',
     icono: 'lucide:graduation-cap',
   },
 ] as const satisfies readonly Tema[];
 
 export type TemaSlug = (typeof temas)[number]['slug'];
-
-export function getTemaBySlug(slug: string): Tema | undefined {
-  return temas.find((t) => t.slug === slug);
-}
-
-/** Sección del sitio que corresponde a un tema de tablero.json. */
-export function getTemaByDataKey(key: TemaDataKey): Tema | undefined {
-  return temas.find((t) => t.dataKey === key);
-}
 
 export function temaHref(slug: string): string {
   return ruta(`/resultados/${slug}`);

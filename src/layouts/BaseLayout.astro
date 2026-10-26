@@ -39,7 +39,8 @@ const props = Astro.props;
       Saltar al contenido
     </a>
     <Header />
-    <main id="contenido" tabindex="-1" class="flex-1 focus:outline-none">
+    <!-- overflow-x-clip: lo que entra animado desde los bordes no crea scroll lateral (no rompe sticky). -->
+    <main id="contenido" tabindex="-1" class="flex-1 overflow-x-clip focus:outline-none">
       <slot />
     </main>
     <Footer />

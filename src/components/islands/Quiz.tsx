@@ -2,19 +2,17 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode 
 import { decimal, entero, pct } from '../../lib/format';
 import { ruta } from '../../lib/rutas';
 import {
-  DE_LOS_ENCUESTADOS,
   PROMEDIO_ENCUESTADOS,
   destacadoResultado,
   evaluarRespuesta,
   etiquetaRespuesta,
-  posicionEnEscala,
   rangoPregunta,
   resumenFinal,
   valoresPregunta,
-  type ComparacionPorcentaje,
   type Destacado,
   type Evaluacion,
   type PreguntaQuiz,
+  type Trozo,
 } from '../../lib/quiz';
 import { GraficaResultado } from './GraficasQuiz';
 
@@ -89,23 +87,27 @@ export default function Quiz({ preguntas }: Props) {
     'text-xl leading-snug font-semibold text-ink focus:outline-none focus-visible:outline-2 sm:text-2xl';
 
   return (
-    <div className="flex min-h-[30rem] min-w-0 flex-col rounded-2xl border border-border bg-surface p-4 sm:p-6 md:p-8">
+    <div className="flex min-h-[30rem] min-w-0 flex-col rounded-2xl border border-border bg-surface p-4 sm:p-6 xl:p-7 dark:border-white/10 dark:bg-[#06132e] dark:shadow-2xl dark:shadow-black/40">
       <div className="mb-3 flex items-center justify-between gap-3 text-sm text-ink-muted">
         <p>
-          Pregunta {vista === 'final' ? total : paso + 1} de {total}
+          {vista === 'final' ? 'Tu resultado final' : `Pregunta ${paso + 1} de ${total}`}
         </p>
         <button type="button" className={btnTexto} onClick={reiniciar}>
           Empezar de nuevo <span aria-hidden="true">↺</span>
         </button>
       </div>
-      <ol className="mb-6 flex gap-1.5" aria-hidden="true">
+      <ol className="mb-5 flex gap-1.5" aria-hidden="true">
         {preguntas.map((q, k) => {
           const hecha = vista === 'final' || k < paso || (k === paso && vista === 'resultado');
           return (
             <li
               key={q.id}
               className={`h-1.5 flex-1 transition-colors duration-300 ${
-                hecha ? 'bg-accent dark:bg-cream' : k === paso ? 'bg-accent/40 dark:bg-cream/40' : 'bg-surface-sunken'
+                hecha
+                  ? 'bg-accent dark:bg-cream'
+                  : k === paso
+                    ? 'bg-accent/40 dark:bg-cream/40'
+                    : 'bg-surface-sunken'
               }`}
             />
           );
@@ -127,14 +129,18 @@ export default function Quiz({ preguntas }: Props) {
           </h3>
           <Opciones pregunta={p} valor={valor} labelledBy={qId} onChange={responder} />
           <div className="mt-auto flex items-center justify-between gap-3 pt-8">
-            <button
-              type="button"
-              className={btnTexto}
-              onClick={() => cambiar('pregunta', paso - 1)}
-              disabled={paso === 0}
-            >
-              <span aria-hidden="true">←</span> Anterior
-            </button>
+            {/* En la primera pregunta no hay "Anterior"; el span mantiene "Siguiente" a la derecha. */}
+            {paso > 0 ? (
+              <button
+                type="button"
+                className={btnTexto}
+                onClick={() => cambiar('pregunta', paso - 1)}
+              >
+                <span aria-hidden="true">←</span> Anterior
+              </button>
+            ) : (
+              <span />
+            )}
             <button
               type="button"
               className={btnPrimario}
@@ -159,23 +165,32 @@ export default function Quiz({ preguntas }: Props) {
             className="mt-2 focus:outline-none focus-visible:outline-2"
             aria-live="polite"
           >
+            {destacado!.sello && (
+              <span className="mb-2 inline-block rounded-full bg-accent px-3 py-0.5 text-xs font-bold tracking-wide text-on-accent uppercase dark:bg-cream dark:text-navy">
+                {destacado!.sello}
+              </span>
+            )}
             <CifraDestacada d={destacado!} />
-            <span className="mt-1 block text-lg leading-snug font-semibold text-ink sm:text-xl">
-              {destacado!.frase[0]!.toUpperCase() === destacado!.frase[0]
-                ? destacado!.frase
-                : destacado!.frase}
+            <span className="mt-2 block text-lg leading-snug text-ink sm:text-xl">
+              <Trozos trozos={destacado!.frase} />
             </span>
           </h3>
-          <div className="mt-6">
+          <div className="mt-4">
             <GraficaResultado pregunta={p} valor={valor!} />
           </div>
+          {destacado!.curioso && (
+            // Solo texto (sin caja, para no alargar la tarjeta), más visible que la nota de abajo.
+            <p className="mt-4 text-sm leading-snug text-ink sm:text-base dark:text-cream">
+              <Trozos trozos={destacado!.curioso} />
+            </p>
+          )}
           {destacado!.contexto && (
-            <p className="mt-5 text-sm text-ink-muted">{destacado!.contexto}</p>
+            <p className="mt-2 text-sm text-ink-muted">{destacado!.contexto}</p>
           )}
           <p className="mt-1 text-xs text-ink-muted">
             {p.ronda} · {entero(p.n)} personas encuestadas.
           </p>
-          <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-8">
+          <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-5">
             <a href={temaHref(p.tema)} className={enlaceTexto}>
               Ver resultados del tema <span aria-hidden="true">→</span>
             </a>
@@ -189,40 +204,21 @@ export default function Quiz({ preguntas }: Props) {
       {vista === 'final' && resumen && (
         <Aparece key="final" retraso={0} className="flex flex-1 flex-col">
           <h3 ref={tituloRef} tabIndex={-1} className={titulo}>
-            ¡Listo! Este es tu resultado final.
+            ¡Listo! Respondiste las {resumen.respondidas} preguntas.
           </h3>
-          <p className="mt-2 leading-relaxed text-ink-muted">
-            Así te comparas con el {PROMEDIO_ENCUESTADOS} en cada tema.
-          </p>
-          <ul className="mt-5 divide-y divide-border">
+          <p className="mt-1 text-ink-muted">Así te comparas con los encuestados en cada tema.</p>
+          {/* Resumen en texto (sin gráficas): la tarjeta no crece más que las anteriores. */}
+          <ul className="mt-4 flex flex-col gap-3">
             {resumen.evaluaciones.map((e) => {
               const q = preguntas.find((x) => x.id === e.preguntaId)!;
               return <FilaFinal key={q.id} pregunta={q} e={e} />;
             })}
           </ul>
-          <p
-            className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-muted"
-            aria-hidden="true"
-          >
-            <span className="inline-flex items-center gap-1.5">
-              <i className="inline-block h-2.5 w-2.5 rounded-full bg-chart-accent" />
-              Tú
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <i className="inline-block h-3 w-0.5 bg-chart-ink" />
-              Promedio de los encuestados
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <i className="inline-block h-2.5 w-4 bg-chart-accent" />% de los encuestados en el
-              grupo
-            </span>
-          </p>
-          {resumen.texto && <p className="mt-4 leading-relaxed text-ink">{resumen.texto}</p>}
-          <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-8">
+          <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-6">
             <button type="button" className={btnTexto} onClick={() => cambiar('pregunta', 0)}>
               <span aria-hidden="true">←</span> Revisar mis respuestas
             </button>
-            <a href={ruta('/resultados')} className={enlaceTexto}>
+            <a href={ruta('/resultados')} className={btnPrimario}>
               Ver todos los resultados <span aria-hidden="true">→</span>
             </a>
           </div>
@@ -305,7 +301,7 @@ function Opciones({
               } ${
                 sel
                   ? 'border-accent bg-accent text-on-accent dark:border-cream dark:bg-cream dark:text-navy'
-                  : 'border-border-strong bg-surface text-ink hover:border-ink hover:bg-surface-muted'
+                  : 'border-border-strong bg-surface text-ink hover:border-ink hover:bg-surface-muted dark:border-[#7088b2] dark:bg-surface-muted dark:hover:border-white dark:hover:bg-[#1d3c72]'
               }`}
             >
               {etiqueta}
@@ -329,11 +325,9 @@ function Opciones({
 
 /* ------------------------------------------------------------ animación */
 
-/** Tiempos (ms) de la revelación: escala → promedio (se desliza y cuenta) → «Tú» → texto. */
-const DURACION_ESCALA = 450;
+/** Tiempos (ms) de la cifra del resultado: espera y conteo. */
 const RETRASO_DATO = 300;
 const DURACION_DATO = 900;
-const RETRASO_TU = RETRASO_DATO + DURACION_DATO;
 
 const sinMovimiento = () =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -402,11 +396,28 @@ function Aparece({
   );
 }
 
+/** Texto con partes en negrilla. */
+function Trozos({ trozos }: { trozos: readonly Trozo[] }) {
+  return (
+    <>
+      {trozos.map((x, k) =>
+        x.b ? (
+          <strong key={k} className="font-bold">
+            {x.t}
+          </strong>
+        ) : (
+          <span key={k}>{x.t}</span>
+        ),
+      )}
+    </>
+  );
+}
+
 /** Cifra principal del resultado ("39 %" o "77/100"), que cuenta desde 0. */
 function CifraDestacada({ d }: { d: Destacado }) {
   const n = useContador(d.valor, true);
   return (
-    <span className="block text-5xl leading-none font-bold tracking-tight text-grana tabular-nums sm:text-6xl">
+    <span className="block text-5xl leading-none font-bold tracking-tight text-grana tabular-nums sm:text-[3.25rem]">
       {d.formato === 'pct' ? (
         pct(n)
       ) : (
@@ -419,206 +430,48 @@ function CifraDestacada({ d }: { d: Destacado }) {
   );
 }
 
-/** Estilo del marcador «Tú»: brota en su sitio cuando el dato ya llegó. */
-const estiloTu = (left: number, listo: boolean, animar: boolean) => ({
-  left: `${left}%`,
-  ...(animar && {
-    opacity: listo ? 1 : 0,
-    scale: listo ? '1' : '0.3',
-    ...transicion('opacity, scale', 350, RETRASO_TU),
-  }),
-});
-
-/* ------------------------------------------------------- visualizaciones */
-
-/** Alinea una etiqueta posicionada para que no se salga por los bordes. */
-const anclaje = (x: number) =>
-  x < 18 ? 'translate-x-0' : x > 82 ? '-translate-x-full' : '-translate-x-1/2';
-
-/** Escala horizontal con marcador «Tú» (arriba) y «Promedio de los encuestados» (abajo). */
-function EscalaComparada({
-  pregunta: p,
-  valor,
-  promedio,
-  compacta = false,
-  animar = false,
-}: {
-  pregunta: PreguntaQuiz;
-  valor: number | null;
-  promedio: number;
-  compacta?: boolean;
-  animar?: boolean;
-}) {
-  const [lo, hi] = rangoPregunta(p);
-  const listo = useArranque(animar);
-  const cuenta = useContador(promedio, animar);
-  const xP0 = posicionEnEscala(p, promedio);
-  const xP = listo ? xP0 : 0;
-  const xT = valor == null ? null : posicionEnEscala(p, valor);
-  const desc = `Escala de ${lo} a ${hi}. ${PROMEDIO_ENCUESTADOS}: ${decimal(promedio)}${
-    valor == null ? '' : `. Tu respuesta: ${valor}`
-  }.`;
-  return (
-    <div role="img" aria-label={desc} className={compacta ? 'pt-1 pb-1' : 'pt-8 pb-9'}>
-      <div className="relative h-2">
-        <div
-          className="absolute inset-0 origin-left rounded-full bg-chart-track"
-          style={
-            animar
-              ? { scale: listo ? '1 1' : '0 1', ...transicion('scale', DURACION_ESCALA) }
-              : undefined
-          }
-        />
-        {/* Promedio */}
-        <span
-          className="absolute top-1/2 h-4 w-0.5 -translate-x-1/2 -translate-y-1/2 bg-chart-ink"
-          style={{
-            left: `${xP}%`,
-            ...(animar && transicion('left', DURACION_DATO, RETRASO_DATO)),
-          }}
-        />
-        {!compacta && (
-          <span
-            className={`absolute top-4 text-xs whitespace-nowrap text-ink-muted ${anclaje(xP0)}`}
-            style={{
-              left: `${xP}%`,
-              ...(animar && transicion('left', DURACION_DATO, RETRASO_DATO)),
-            }}
-          >
-            Promedio de los encuestados: <b className="text-ink tabular-nums">{decimal(cuenta)}</b>
-          </span>
-        )}
-        {/* Tú */}
-        {xT != null && (
-          <>
-            <span
-              className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface bg-chart-accent shadow-[0_0_0_1px_var(--color-chart-accent)]"
-              style={estiloTu(xT, listo, animar)}
-            />
-            {!compacta && (
-              <span
-                className={`absolute -top-7 text-sm font-bold whitespace-nowrap text-chart-accent ${anclaje(xT)}`}
-                style={estiloTu(xT, listo, animar)}
-              >
-                Tú: {valor}
-              </span>
-            )}
-          </>
-        )}
-      </div>
-      {!compacta && (
-        <div className="mt-8 flex justify-between text-xs text-ink-muted" aria-hidden="true">
-          <span>
-            {lo} · {p.etiquetasExtremos?.[0]}
-          </span>
-          <span className="text-right">
-            {p.etiquetasExtremos?.[1]} · {hi}
-          </span>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/** Barra 0–100 % partida en «grupo» / «resto», con marcador «Tú» en tu parte. */
-function BarraGrupo({
-  c,
-  dentro,
-  etiqueta,
-  compacta = false,
-  animar = false,
-}: {
-  c: ComparacionPorcentaje;
-  dentro: boolean | null;
-  etiqueta?: string;
-  compacta?: boolean;
-  animar?: boolean;
-}) {
-  const g = Math.round(c.valor);
-  const listo = useArranque(animar);
-  const cuenta = useContador(c.valor, animar);
-  const xT = dentro == null ? null : dentro ? g / 2 : (100 + g) / 2;
-  const desc = `${pct(c.valor)} ${DE_LOS_ENCUESTADOS}: ${c.etiquetaGrupo.toLowerCase()}; ${pct(
-    100 - c.valor,
-  )}: ${c.etiquetaFuera.toLowerCase()}.${
-    dentro == null ? '' : ` Tú estás en el grupo «${dentro ? c.etiquetaGrupo : c.etiquetaFuera}».`
-  }`;
-  return (
-    <div role="img" aria-label={desc} className={compacta ? 'pt-1 pb-1' : 'pt-8'}>
-      <div className="relative flex h-3 overflow-visible">
-        <span
-          className="h-full bg-chart-accent"
-          style={{
-            width: `${listo ? g : 0}%`,
-            ...(animar && transicion('width', DURACION_DATO, RETRASO_DATO)),
-          }}
-        />
-        <span className="h-full flex-1 bg-chart-track" />
-        {xT != null && (
-          <>
-            <span
-              className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface bg-chart-strong shadow-[0_0_0_1px_var(--color-chart-strong)]"
-              style={estiloTu(xT, listo, animar)}
-            />
-            {!compacta && (
-              <span
-                className={`absolute -top-7 text-sm font-bold whitespace-nowrap text-chart-strong ${anclaje(xT)}`}
-                style={estiloTu(xT, listo, animar)}
-              >
-                Tú{etiqueta ? `: ${etiqueta}` : ''}
-              </span>
-            )}
-          </>
-        )}
-      </div>
-      {!compacta && (
-        <div className="mt-3 grid grid-cols-2 gap-4 text-xs leading-snug" aria-hidden="true">
-          <p className={dentro === true ? 'font-semibold text-ink' : 'text-ink-muted'}>
-            <span className="block text-lg font-bold text-chart-accent tabular-nums">
-              {pct(cuenta)}
-            </span>
-            {c.etiquetaGrupo}
-          </p>
-          <p
-            className={`text-right ${dentro === false ? 'font-semibold text-ink' : 'text-ink-muted'}`}
-          >
-            <span className="block text-lg font-bold text-ink tabular-nums">
-              {pct(100 - cuenta)}
-            </span>
-            {c.etiquetaFuera}
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
-
 /* ------------------------------------------------------------- resumen */
 
+/** "39 %", o "menos del 1 %" si es casi nadie. */
+const pctIgual = (v: number) => (v < 0.5 ? 'menos del 1 %' : `el ${pct(v)}`);
+
+/** Una línea por tema: tu respuesta, cuántos respondieron igual y dónde quedas. */
 function FilaFinal({ pregunta: p, e }: { pregunta: PreguntaQuiz; e: Evaluacion }) {
   const c = p.comparacion;
+  const [lo, hi] = rangoPregunta(p);
   return (
-    <li className="py-3 first:pt-0">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-sm">
-        <a
-          href={temaHref(p.tema)}
-          className="font-semibold text-ink underline-offset-4 hover:underline"
-        >
-          {p.temaTitulo}
-        </a>
-        <span className="text-ink-muted tabular-nums">
-          Tú: <b className="text-ink">{e.etiqueta}</b> ·{' '}
-          {c.modo === 'promedio' ? `Promedio: ${decimal(c.valor)}` : `${pct(c.valor)} en el grupo`}
+    <li>
+      <a
+        href={temaHref(p.tema)}
+        className="font-bold text-accent underline-offset-4 hover:underline"
+      >
+        {p.temaTitulo}
+      </a>
+      <p className="mt-0.5 text-sm leading-snug text-ink">
+        Respondiste{' '}
+        <strong>
+          {p.tipo === 'opciones' ? `«${e.etiqueta}»` : `${e.etiqueta} (de ${lo} a ${hi})`}
+        </strong>
+        , igual que <strong>{pctIgual(e.pctMismaRespuesta)}</strong>.{' '}
+        <span className="text-ink-muted">
+          {c.modo === 'promedio' ? (
+            e.posicion === 'igual' ? (
+              <>
+                Estás prácticamente en el {PROMEDIO_ENCUESTADOS} ({decimal(c.valor)}).
+              </>
+            ) : (
+              <>
+                Estás {e.posicion} del {PROMEDIO_ENCUESTADOS} ({decimal(c.valor)}).
+              </>
+            )
+          ) : (
+            <>
+              Estás entre el {pct(e.dentroDelGrupo ? c.valor : 100 - c.valor)} que{' '}
+              {e.dentroDelGrupo ? c.descripcionGrupo : c.descripcionFuera}.
+            </>
+          )}
         </span>
-      </div>
-      <div className="mt-2">
-        {c.modo === 'promedio' ? (
-          <EscalaComparada pregunta={p} valor={e.valor} promedio={c.valor} compacta />
-        ) : (
-          <BarraGrupo c={c} dentro={e.dentroDelGrupo ?? null} compacta />
-        )}
-      </div>
-      <p className="mt-2 text-sm leading-snug text-ink">{e.texto}</p>
+      </p>
     </li>
   );
 }

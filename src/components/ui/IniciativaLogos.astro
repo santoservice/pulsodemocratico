@@ -1,0 +1,182 @@
+---
+/**
+ * "Una iniciativa de" (Sobre el proyecto): título grande y una fila de tarjetas blancas con los
+ * logos de las instituciones (enlazan a su web).
+ *
+ * En escritorio es una escena que se queda fija mientras se hace scroll: las tarjetas llegan
+ * desde distintas direcciones (giradas, borrosas y tenues) y se acomodan en la fila; luego la
+ * página sigue hacia "Equipo de trabajo". En celular o con movimiento reducido: la fila quieta.
+ */
+import { Image } from 'astro:assets';
+import { instituciones } from '../../data/sitio';
+import { titulo } from '../../lib/format';
+
+// Desde dónde llega cada tarjeta (vw, vh, grados, escala inicial y retraso d, 0–1), en el orden de sitio.ts:
+// lejos, desde los bordes de la pantalla y en desorden.
+const origenes = [
+  { x: -42, y: -28, r: -22, s: 1.15, d: 0.08 },
+  { x: -30, y: 48, r: 17, s: 0.85, d: 0.3 },
+  { x: 6, y: -58, r: -14, s: 1.2, d: 0 },
+  { x: 34, y: 46, r: 24, s: 0.9, d: 0.4 },
+  { x: 46, y: -34, r: -18, s: 1.1, d: 0.18 },
+];
+---
+
+<section aria-labelledby="iniciativa" class="iniciativa mt-16" data-iniciativa>
+  <div class="iniciativa-escenario">
+    <div class="w-full border-b border-border pb-12">
+      <h2
+        id="iniciativa"
+        class="iniciativa-titulo text-3xl font-bold text-brand md:text-4xl lg:text-5xl"
+      >
+        {titulo('Una iniciativa de')}
+      </h2>
+      <ul
+        aria-labelledby="iniciativa"
+        class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 lg:gap-5"
+      >
+        {instituciones.map((i, k) => {
+          const o = origenes[k % origenes.length]!;
+          const alt = i.sigla ? `${i.nombre} (${i.sigla})` : i.nombre;
+          return (
+            <li
+              class="iniciativa-logo"
+              style={`--ox:${o.x}vw;--oy:${o.y}vh;--or:${o.r}deg;--os:${o.s};--d:${o.d}`}
+            >
+              <a
+                href={i.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex h-20 items-center justify-center rounded-2xl bg-white px-5 shadow-lg shadow-black/20 transition-transform hover:-translate-y-1 md:h-24"
+              >
+                {i.logo ? (
+                  <Image
+                    src={i.logo}
+                    alt={`${alt} (abre en una pestaña nueva)`}
+                    height={52}
+                    densities={i.logo.height >= 104 ? [1, 2] : [1]}
+                    class="h-10 w-auto max-w-full object-contain md:h-12"
+                  />
+                ) : (
+                  <span class="text-center text-sm font-semibold text-navy">{alt}</span>
+                )}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  /*
+   * --t: avance de la escena (0 = tarjetas lejos, 1 = en su sitio). Cada tarjeta empieza en su
+   * propio momento (--d). Por defecto 1: todo quieto en su sitio.
+   */
+  .iniciativa {
+    --t: 1;
+  }
+
+  @media (min-width: 64rem) {
+    .iniciativa[data-pin] {
+      /* Alto de la pantalla + recorrido en el que la escena queda fija. */
+      height: calc(100vh + 95vh);
+      /* El hueco bajo la fila centrada no se ve vacío: "Equipo de trabajo" sube a ocuparlo. */
+      margin-bottom: calc(-1 * var(--hueco, 0px));
+    }
+    .iniciativa[data-pin] .iniciativa-escenario {
+      position: sticky;
+      top: 4.3rem;
+      display: flex;
+      height: calc(100vh - 4.3rem);
+      align-items: center;
+    }
+    .iniciativa[data-pin] .iniciativa-titulo {
+      opacity: clamp(0, calc(var(--t) * 3), 1);
+      translate: 0 calc((1 - clamp(0, calc(var(--t) * 3), 1)) * 1.5rem);
+    }
+    .iniciativa[data-pin] .iniciativa-logo {
+      /* Avance propio: arranca en --d (orden salteado) y tarda 0,55 del total. */
+      --a: clamp(0, calc((var(--t) - var(--d)) / 0.55), 1);
+      /* Llega frenando (ease-out cuadrático). */
+      --e: calc(1 - (1 - var(--a)) * (1 - var(--a)));
+      translate: calc(var(--ox) * (1 - var(--e))) calc(var(--oy) * (1 - var(--e)));
+      rotate: calc(var(--or) * (1 - var(--e)));
+      scale: calc(1 + (var(--os) - 1) * (1 - var(--e)));
+      /* Invisible antes de arrancar (si no, flota tenue sobre las secciones de arriba). */
+      opacity: min(1, calc(var(--e) * 1.6));
+      filter: blur(calc((1 - var(--e)) * 5px));
+      will-change: translate, rotate, opacity, filter;
+    }
+    .iniciativa[data-pin] .border-b {
+      border-color: color-mix(in srgb, var(--color-border) calc(var(--t) * 100%), transparent);
+    }
+  }
+</style>
+
+<script>
+  const TOPE = 69; // alto del header fijo
+  const SUAVIZADO = 0.14;
+  const seccion = document.querySelector<HTMLElement>('[data-iniciativa]');
+  const escritorio = window.matchMedia('(min-width: 64rem)');
+  const reducido = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (seccion) {
+    const clamp = (v: number) => Math.min(1, Math.max(0, v));
+    let actual = window.scrollY;
+    let animando = false;
+    let activa = false;
+
+    const escenario = seccion.querySelector<HTMLElement>('.iniciativa-escenario')!;
+    const contenido = escenario.firstElementChild as HTMLElement;
+
+    // Empieza cuando la sección entra por abajo y termina a los 4/5 del tramo fijo.
+    const pintar = (y: number) => {
+      const vh = window.innerHeight;
+      const top = seccion.getBoundingClientRect().top + (window.scrollY - y);
+      const recorrido = seccion.offsetHeight - (vh - TOPE);
+      const inicio = vh * 0.75;
+      const t = clamp((inicio - top) / (inicio - TOPE + recorrido * 0.8));
+      seccion.style.setProperty('--t', String(t));
+    };
+
+    const paso = () => {
+      const meta = window.scrollY;
+      actual += (meta - actual) * SUAVIZADO;
+      if (Math.abs(meta - actual) < 0.5) actual = meta;
+      pintar(actual);
+      animando = actual !== meta;
+      if (animando) requestAnimationFrame(paso);
+    };
+    const programar = () => {
+      if (animando) return;
+      animando = true;
+      requestAnimationFrame(paso);
+    };
+
+    const configurar = () => {
+      const debe = escritorio.matches && !reducido.matches;
+      if (debe !== activa) {
+        activa = debe;
+        seccion.toggleAttribute('data-pin', activa);
+        if (activa) window.addEventListener('scroll', programar, { passive: true });
+        else window.removeEventListener('scroll', programar);
+      }
+      if (!activa) {
+        seccion.style.removeProperty('--t');
+        seccion.style.removeProperty('--hueco');
+        return;
+      }
+      // Espacio libre bajo la fila (centrada en la pantalla), menos un margen de respiro.
+      const hueco = (escenario.clientHeight - contenido.offsetHeight) / 2 - 16;
+      seccion.style.setProperty('--hueco', `${Math.max(0, hueco)}px`);
+      actual = window.scrollY;
+      pintar(actual);
+    };
+
+    configurar();
+    window.addEventListener('resize', configurar);
+    reducido.addEventListener('change', configurar);
+  }
+</script>

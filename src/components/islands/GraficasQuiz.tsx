@@ -45,28 +45,18 @@ export function Figura({ pose = 'pie', className = '' }: { pose?: 'pie' | 'corre
   return (
     <svg viewBox="0 0 100 140" aria-hidden="true" className={`block h-auto ${className}`}>
       {pose === 'pie' ? (
-        <>
-          <g className="fill-none stroke-current" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M37 46Q27 61 23 79M63 46q10 15 14 33" strokeWidth="7.5" />
-            <path d="M45 84 43 126M55 84l2 42" strokeWidth="10.5" />
-          </g>
-          <circle cx="50" cy="20" r="13" className="fill-current" />
-          <path
-            d="M39 40q11-3.5 22 0 7 2 6 10l-5 36q-.6 3-3.5 3h-17q-2.9 0-3.5-3l-5-36q-1-8 6-10Z"
-            className="fill-current"
-          />
-        </>
+        <g className="fill-current">
+          <circle cx="50" cy="15" r="11" />
+          <path d="M38 30H62A14 14 0 0 1 76 44V75A4 4 0 0 1 68 75V48H65.5V127A7 7 0 0 1 51.5 127V88H48.5V127A7 7 0 0 1 34.5 127V48H32V75A4 4 0 0 1 24 75V44A14 14 0 0 1 38 30Z" />
+        </g>
       ) : (
         <>
+          <circle cx="64" cy="17" r="11" className="fill-current" />
           <g className="fill-none stroke-current" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M44 48 31 62l-10-6M62 47l11 15 11-4" strokeWidth="7.5" />
-            <path d="M46 84 34 104l-12 14M56 84l12 16-4 26" strokeWidth="10.5" />
+            <path d="M57 37 48 74" strokeWidth="17" />
+            <path d="M56 40 67 54 79 46M51 40 38 48 31 61" strokeWidth="8" />
+            <path d="M49 76 65 94 63 121M47 76 35 99 15 96" strokeWidth="10" />
           </g>
-          <circle cx="60" cy="20" r="13" className="fill-current" />
-          <path
-            d="M44 40q11-3 21 1 6 2 4 10l-9 34q-1 3-4 3H44q-3 0-3-3l-3-35q0-8 6-10Z"
-            className="fill-current"
-          />
         </>
       )}
     </svg>
@@ -75,7 +65,7 @@ export function Figura({ pose = 'pie', className = '' }: { pose?: 'pie' | 'corre
 
 function ChipTu() {
   return (
-    <span className="rounded-full bg-rojo px-2 py-0.5 text-xs leading-none font-bold text-white shadow-sm">
+    <span className="rounded-full bg-tu px-2 py-0.5 text-xs leading-none font-bold text-on-tu shadow-sm">
       Tú
     </span>
   );
@@ -89,16 +79,16 @@ export function Columnas({ pregunta: p, valor }: { pregunta: PreguntaQuiz; valor
   const max = Math.max(...datos.map((d) => d.pct), 1);
   const crece = useListo();
   const cae = useListo(650);
-  const ALTO = 150;
+  const ALTO = 95;
   return (
-    <div className="flex items-end gap-3 sm:gap-5" style={{ height: ALTO + 70 }}>
+    <div className="flex items-end gap-3 sm:gap-5" style={{ height: ALTO + 105 }}>
       {datos.map((d) => {
         const tuya = d.v === valor;
         return (
           <div key={d.v} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end">
             {tuya && (
               <div
-                className="mb-1 flex flex-col items-center gap-1 text-rojo"
+                className="mb-1 flex flex-col items-center gap-1 text-tu"
                 style={{
                   opacity: cae ? 1 : 0,
                   filter: cae ? 'none' : 'blur(4px)',
@@ -107,7 +97,7 @@ export function Columnas({ pregunta: p, valor }: { pregunta: PreguntaQuiz; valor
                 }}
               >
                 <ChipTu />
-                <Figura className="w-9" />
+                <Figura className="w-7" />
               </div>
             )}
             <div
@@ -151,11 +141,11 @@ export function BarraTramos({ pregunta: p, valor }: { pregunta: PreguntaQuiz; va
   }, [corre]);
   const [lo, hi] = rangoPregunta(p);
   return (
-    <div className="pt-16 pb-1">
+    <div className="pt-14 pb-1">
       <div className="relative">
         {/* Tú: corre desde el inicio hasta el centro de su tramo. */}
         <div
-          className="absolute bottom-full mb-1 flex -translate-x-1/2 flex-col items-center gap-1 text-rojo"
+          className="absolute bottom-full mb-1 flex -translate-x-1/2 flex-col items-center gap-1 text-tu"
           style={{
             left: `${corre ? tuyo.centro : 0}%`,
             transition: `left 1300ms ${curva}`,
@@ -242,14 +232,14 @@ export function Personas({
   const marca = useListo(1100);
   return (
     <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-8">
-      <div className="grid w-full max-w-44 shrink-0 grid-cols-10 gap-x-1 gap-y-1">
+      <div className="grid w-full max-w-32 shrink-0 grid-cols-10 gap-x-1 gap-y-1">
         {Array.from({ length: 100 }, (_, k) => {
           const enSi = k < nSi;
           const tu = k === tuIndice;
           return (
             <div
               key={k}
-              className={`relative ${tu && marca ? 'text-rojo' : enSi ? 'text-chart-accent' : 'text-chart-muted/45'}`}
+              className={`relative ${tu && marca ? 'text-tu' : enSi ? 'text-chart-accent' : 'text-chart-muted/45'}`}
               style={{
                 opacity: aparece ? 1 : 0,
                 transform: tu && marca ? 'scale(1.5)' : 'none',
@@ -324,7 +314,7 @@ export function Pastel({
   const separa = aparece ? 4 : 0;
   return (
     <div className="flex flex-col items-center gap-6 sm:flex-row sm:gap-10">
-      <div className="relative w-48 shrink-0">
+      <div className="relative w-36 shrink-0">
         <svg viewBox="-6 -6 132 132" aria-hidden="true" className="block h-auto w-full">
           {partes.map((x) => (
             <g

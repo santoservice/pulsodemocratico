@@ -1,0 +1,81 @@
+---
+/**
+ * Sankey de niveles de polarización percibida (WPIP), de la 1.ª a la 3.ª ronda: cuántas de las
+ * mismas personas pasan de un nivel a otro. Réplica del visor.
+ */
+import { SEQ_FILL, ZONA, fmt, fmtN } from '../../lib/visor/comun';
+import type { GraficaVisor } from '../../lib/visor/tipos';
+
+type Props = Omit<Extract<GraficaVisor, { tipo: 'sankey' }>, 'tipo'>;
+
+const { G, aria } = Astro.props;
+const R = G.rondas;
+const N = G.niveles;
+const F = G.flujos;
+const COL = [SEQ_FILL[1]!, SEQ_FILL[3]!, SEQ_FILL[5]!];
+const CORTO = ['Cerca', 'Intermedia', 'Muy lejos'];
+const W = 320;
+const H = 290;
+const top = 30;
+const alto = H - top - 6;
+const gap = 10;
+const nodo = 12;
+const xa = 82;
+const xb = W - 94;
+const esc = (alto - gap * 2) / G.n;
+const tot1 = F.map((f) => f.reduce((a, b) => a + b, 0));
+const tot3 = [0, 1, 2].map((j) => F.reduce((a, f) => a + f[j]!, 0));
+const pos = (tot: number[]) => {
+  let y = top;
+  return tot.map((t) => {
+    const p = y;
+    y += t * esc + gap;
+    return p;
+  });
+};
+const y1 = pos(tot1);
+const y3 = pos(tot3);
+// Flujos: dentro de cada nodo, ordenados por el nivel del otro extremo.
+const off1 = [...y1];
+const off3 = [...y3];
+const mx = (xa + nodo + xb) / 2;
+const flujos = F.flatMap((fila, i) =>
+  fila.flatMap((v, j) => {
+    if (!v) return [];
+    const h = v * esc;
+    const a = off1[i]!;
+    const b = off3[j]!;
+    off1[i]! += h;
+    off3[j]! += h;
+    return [
+      {
+        i,
+        d: `M${xa + nodo},${a}C${mx},${a} ${mx},${b} ${xb},${b}L${xb},${b + h}C${mx},${b + h} ${mx},${a + h} ${xa + nodo},${a + h}Z`,
+        tip: `De «${N[i]!.nombre}» a «${N[j]!.nombre}»\n${fmtN(v)} personas (${fmt((v / G.n) * 100)} %)`,
+      },
+    ];
+  }),
+);
+---
+
+<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} class="block h-auto w-full overflow-visible">
+  <text x={xa + nodo / 2} y="16" text-anchor="middle" class="fill-ink text-[12.5px] font-extrabold">{R[0]!.label}</text>
+  <text x={xb + nodo / 2} y="16" text-anchor="middle" class="fill-ink text-[12.5px] font-extrabold">{R[1]!.label}</text>
+  {flujos.map((f) => (
+    <path d={f.d} tabindex="0" data-tip={f.tip} aria-label={f.tip.replace('\n', ': ')} class:list={[COL[f.i], ZONA, 'opacity-45 transition-opacity hover:opacity-80 focus-visible:opacity-80']} />
+  ))}
+  {N.map((_, i) => (
+    <>
+      <rect x={xa} y={y1[i]} width={nodo} height={tot1[i]! * esc} rx="2" class={COL[i]} />
+      <rect x={xb} y={y3[i]} width={nodo} height={tot3[i]! * esc} rx="2" class={COL[i]} />
+      <text x={xa - 6} y={y1[i]! + (tot1[i]! * esc) / 2} text-anchor="end" class="fill-ink-muted text-[12.5px] font-bold">{CORTO[i]}</text>
+      <text x={xa - 6} y={y1[i]! + (tot1[i]! * esc) / 2 + 15} text-anchor="end" class="fill-ink-muted text-[12px] font-extrabold">
+        {Math.round(R[0]!.niveles[i]!)} %
+      </text>
+      <text x={xb + nodo + 6} y={y3[i]! + (tot3[i]! * esc) / 2} class="fill-ink-muted text-[12.5px] font-bold">{CORTO[i]}</text>
+      <text x={xb + nodo + 6} y={y3[i]! + (tot3[i]! * esc) / 2 + 15} class="fill-ink-muted text-[12px] font-extrabold">
+        {Math.round(R[1]!.niveles[i]!)} %
+      </text>
+    </>
+  ))}
+</svg>

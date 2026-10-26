@@ -1,0 +1,58 @@
+---
+/**
+ * Embudo de la IA en espejo: 18 a 30 años a la izquierda, 31 o más a la derecha, "de cada 100
+ * personas de cada grupo". Réplica del visor en HTML (los textos se acomodan solos).
+ */
+import { SERIE_BG, fmt, fmtN } from '../../lib/visor/comun';
+import { GRUPOS_EDAD } from '../../lib/visor/principales';
+import type { GraficaVisor } from '../../lib/visor/tipos';
+
+type Props = Omit<Extract<GraficaVisor, { tipo: 'embudo-doble' }>, 'tipo'>;
+
+const { C, aria } = Astro.props;
+const filas = ['Todas las personas', ...C.pasos];
+const valor = (g: 'jovenes' | 'mayores', i: number) => (i === 0 ? 100 : C.grupos[g].pasos[i - 1]!.pct);
+const tip = (i: number) =>
+  `${C.pasos[i - 1]}\n${GRUPOS_EDAD.map((g) => {
+    const p = C.grupos[g.k].pasos[i - 1]!;
+    return `${g.et}: ${fmtN(p.n)} de ${fmtN(C.grupos[g.k].n)} (${fmt(p.pct)} %)`;
+  }).join('\n')}`;
+---
+
+<div role="img" aria-label={aria} class="flex flex-col gap-2">
+  <div class="grid grid-cols-2 gap-4 text-[12.5px] font-extrabold">
+    <span class="text-right text-serie-1">{GRUPOS_EDAD[0].et}</span>
+    <span class="text-serie-2">{GRUPOS_EDAD[1].et}</span>
+  </div>
+  {filas.map((f, i) => (
+    <div class:list={['flex flex-col gap-1', i > 0 && 'cursor-pointer']} data-tip={i > 0 ? tip(i) : undefined}>
+      <p class="text-center text-[12.5px] leading-tight font-bold text-ink-muted">{f}</p>
+      <div class="grid grid-cols-2 gap-4">
+        {GRUPOS_EDAD.map((g, gi) => {
+          const v = valor(g.k, i);
+          const dentro = v > 16;
+          const num = (
+            <span class:list={['shrink-0 px-2 text-[15px] font-extrabold tabular-nums', i === 0 ? 'text-ink' : dentro ? 'text-navy' : gi === 0 ? 'text-serie-1' : 'text-serie-2']}>
+              {Math.round(v)}
+            </span>
+          );
+          return (
+            <div class:list={['flex h-6 items-center', gi === 0 ? 'flex-row-reverse' : 'flex-row']}>
+              <div
+                class:list={[
+                  'flex h-full min-w-[2px] items-center rounded',
+                  gi === 0 ? 'justify-start' : 'justify-end',
+                  i === 0 ? 'bg-chart-track' : SERIE_BG[gi],
+                ]}
+                style={`width:${v}%`}
+              >
+                {dentro && num}
+              </div>
+              {!dentro && num}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  ))}
+</div>

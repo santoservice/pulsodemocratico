@@ -1,37 +1,25 @@
 ---
 import { Image } from 'astro:assets';
 import { instituciones } from '../../data/sitio';
-import QuestionDetail from './QuestionDetail.astro';
-import type { DatoJovenes, Tarjeta } from '../../lib/tablero';
 
 /**
- * Modal de detalle de pregunta (PLAN.md §4.2, §6). Un solo <dialog> nativo por página:
- * el contenido de cada tarjeta ya está en el HTML (oculto, para SEO) y un script mínimo lo
- * mueve al diálogo al abrirlo desde un botón `[data-tarjeta]` de FindingCard.
+ * Modal de detalle (PLAN.md §4.2, §6). Un solo <dialog> nativo por página: los detalles
+ * (DetalleVisor, en el slot) ya están en el HTML (ocultos, para SEO) y un script mínimo los
+ * mueve al diálogo al abrirlos desde un botón `[data-tarjeta]` de TarjetaVisor.
  *
  * - `?pregunta=<clave>` en la URL al abrir (replaceState); se abre al cargar si viene en la URL.
  * - Esc cierra (nativo); el foco queda atrapado (showModal) y vuelve al botón al cerrar.
  * - Bloquea el scroll del fondo; ocupa toda la pantalla (barra fija con título y cerrar).
  * - Pie con los logos de las instituciones y los créditos (pedido del cliente).
  */
-export interface Props {
-  tarjetas?: readonly Tarjeta[];
-  jovenes?: readonly DatoJovenes[];
-}
-
-const { tarjetas = [], jovenes = [] } = Astro.props;
 
 // Orden de sitio.ts: CNEP, Wisconsin, La Sabana, Externado, Complutense.
 const logos = instituciones.flatMap((i) => (i.logo ? [{ nombre: i.nombre, src: i.logo }] : []));
 ---
 
 <div hidden data-detalles>
-  {tarjetas.map((t) => (
-    <QuestionDetail tarjeta={t} />
-  ))}
-  {jovenes.map((d) => (
-    <QuestionDetail jovenes={d} />
-  ))}
+  <!-- Artículos con id="detalle-<tarjeta>" (DetalleVisor). -->
+  <slot />
 </div>
 
 <!--
@@ -110,6 +98,39 @@ const logos = instituciones.flatMap((i) => (i.logo ? [{ nombre: i.nombre, src: i
   </div>
 </dialog>
 
+<!--
+  Plantilla de la imagen descargable de una gráfica (botones [data-descargar] del detalle):
+  tema y título arriba, la gráfica en medio y una franja crema con los logos abajo.
+-->
+<template data-descarga-plantilla>
+  <div class="bg-page text-ink">
+    <div class="px-8 pt-7 pb-5">
+      <p data-d-eyebrow class="text-xs font-bold tracking-[0.18em] text-ink-muted uppercase"></p>
+      <p data-d-titulo class="mt-1 text-2xl leading-tight font-bold text-brand"></p>
+    </div>
+    <div data-d-cuerpo class="px-8 pb-8"></div>
+    <div data-theme="light" class="border-t-2 border-brand bg-cream px-8 py-5">
+      <ul class="flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
+        {logos.map((l) => (
+          <li class="shrink-0">
+            <Image
+              src={l.src}
+              alt={l.nombre}
+              height={40}
+              loading="eager"
+              class="h-8 w-auto object-contain"
+            />
+          </li>
+        ))}
+      </ul>
+      <p class="mt-4 text-center text-xs leading-relaxed text-ink-muted">
+        Pulso Democrático · pulsodemocratico.co · Encuesta Colombia 2026, Comparative National
+        Elections Project (CNEP)
+      </p>
+    </div>
+  </div>
+</template>
+
 <style>
   .modal-pregunta[open] {
     animation: modal-entra 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
@@ -123,8 +144,7 @@ const logos = instituciones.flatMap((i) => (i.logo ? [{ nombre: i.nombre, src: i
 </style>
 
 <script>
-  // Parámetro de URL del modal. No se importa de lib/detalle.ts para no meter tablero.json
-  // en el JS del cliente.
+  // Parámetro de URL del modal.
   const PARAM_PREGUNTA = 'pregunta';
 
   const dialog = document.getElementById('modal-pregunta') as HTMLDialogElement | null;
@@ -200,6 +220,94 @@ const logos = instituciones.flatMap((i) => (i.logo ? [{ nombre: i.nombre, src: i
       if (!b?.dataset.tarjeta) return;
       const art = detallePorTarjeta(b.dataset.tarjeta);
       if (art) abrir(art, b);
+    });
+
+    // Descargar una gráfica (o un conjunto) como PNG, con título arriba y logos abajo.
+    const plantilla = document.querySelector<HTMLTemplateElement>('[data-descarga-plantilla]');
+    const descargar = async (bloque: HTMLElement, boton: HTMLButtonElement) => {
+      if (!plantilla) return;
+      boton.disabled = true;
+      // Fuera de pantalla: el contenedor exterior se mueve, el lienzo se captura tal cual.
+      const fuera = document.createElement('div');
+      fuera.style.cssText = 'position:fixed;left:-20000px;top:0;pointer-events:none';
+      try {
+        const { domToPng } = await import('modern-screenshot');
+        const lienzo = (plantilla.content.firstElementChild as HTMLElement).cloneNode(true) as HTMLElement;
+        const ancho = Math.max(bloque.offsetWidth, 560);
+        lienzo.style.width = `${ancho + 64}px`;
+        // Tema y título: los del bloque (tarjetas fuera del modal) o los de la barra del modal.
+        lienzo.querySelector('[data-d-eyebrow]')!.textContent =
+          bloque.dataset.tema ?? eyebrow.textContent;
+        lienzo.querySelector('[data-d-titulo]')!.textContent =
+          bloque.dataset.titulo ?? tituloBarra.textContent;
+        const copia = bloque.cloneNode(true) as HTMLElement;
+        copia.querySelectorAll('[data-descargar], [data-descargar-csv]').forEach((b) => b.remove());
+        // En la imagen "todo", el «¿Cómo se midió?» va abierto.
+        copia.querySelectorAll('details').forEach((d) => (d.open = true));
+        // Íconos de astro-icon repetidos (<use href="#ai:…">): modern-screenshot no acepta ese id.
+        copia.querySelectorAll('use[href^="#ai:"]').forEach((u) => u.closest('svg')?.remove());
+        copia.style.margin = '0';
+        lienzo.querySelector('[data-d-cuerpo]')!.append(copia);
+        fuera.append(lienzo);
+        document.body.append(fuera);
+        await Promise.all(
+          Array.from(lienzo.querySelectorAll('img'), (img) => img.decode().catch(() => {})),
+        );
+        const png = await domToPng(lienzo, { scale: 2 });
+        const a = document.createElement('a');
+        a.href = png;
+        a.download = `pulso-democratico-${bloque.dataset.descarga}.png`;
+        a.click();
+      } catch (err) {
+        console.error('No se pudo descargar la gráfica', err);
+      } finally {
+        fuera.remove();
+        boton.disabled = false;
+      }
+    };
+    // En el documento (no solo en el modal): las tarjetas del visor también descargan.
+    // `data-objetivo` = id del bloque a capturar; si no, el [data-descarga] que contiene al botón.
+    document.addEventListener('click', (e) => {
+      const b = (e.target as Element | null)?.closest<HTMLButtonElement>('button[data-descargar]');
+      if (!b) return;
+      const bloque = b.dataset.objetivo
+        ? document.getElementById(b.dataset.objetivo)
+        : b.parentElement?.closest<HTMLElement>('[data-descarga]');
+      if (bloque) void descargar(bloque, b);
+    });
+
+    // Datos como CSV (se abre en Excel): las tablas de "Los datos del gráfico" del detalle.
+    const csv = (art: HTMLElement) => {
+      const celda = (t: string) => `"${t.replace(/\s+/g, ' ').trim().replace(/"/g, '""')}"`;
+      const lineas: string[] = [celda(art.querySelector('h2')?.textContent ?? '')];
+      art.querySelectorAll<HTMLElement>('[data-tabla-visor]').forEach((t) => {
+        lineas.push('');
+        const titulo = t.querySelector('[data-tabla-titulo]')?.textContent;
+        if (titulo) lineas.push(celda(titulo));
+        t.querySelectorAll('tr').forEach((tr) => {
+          const fila = Array.from(tr.children, (c) => {
+            const v = c.querySelector('[data-v]')?.textContent ?? c.textContent ?? '';
+            const sub = c.querySelector('[data-sub]')?.textContent;
+            return celda(sub ? `${v} (${sub})` : v);
+          });
+          lineas.push(fila.join(';'));
+        });
+        const nota = t.querySelector('[data-tabla-nota]')?.textContent;
+        if (nota) lineas.push(celda(nota));
+      });
+      // BOM: Excel reconoce las tildes; ";" es el separador de Excel en español.
+      return '﻿' + lineas.join('\r\n');
+    };
+    document.addEventListener('click', (e) => {
+      const b = (e.target as Element | null)?.closest<HTMLButtonElement>('button[data-descargar-csv]');
+      const art = b?.dataset.objetivo ? document.getElementById(b.dataset.objetivo) : null;
+      if (!b || !art) return;
+      const url = URL.createObjectURL(new Blob([csv(art)], { type: 'text/csv;charset=utf-8' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `pulso-democratico-${art.dataset.pregunta ?? 'datos'}-datos.csv`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     });
 
     // Enlace directo: ?pregunta=<clave>

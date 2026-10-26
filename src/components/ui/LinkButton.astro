@@ -5,7 +5,7 @@ import type { HTMLAttributes } from 'astro/types';
 /** Enlace con aspecto de botón. `variant="outline"` = recuadro como en la maqueta. */
 export interface Props extends HTMLAttributes<'a'> {
   href: string;
-  variant?: 'primary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'outline' | 'ghost' | 'navy';
   size?: 'sm' | 'md';
   /** Abre en otra pestaña con rel="noopener noreferrer" e icono ↗. */
   external?: boolean;
@@ -31,6 +31,8 @@ const variants = {
     'bg-accent text-on-accent border-accent hover:bg-accent-hover dark:border-white dark:bg-white dark:text-negro dark:hover:border-cream dark:hover:bg-cream',
   outline: 'bg-surface text-accent border-accent hover:bg-surface-muted',
   ghost: 'border-transparent text-ink hover:underline underline-offset-4',
+  // Azul 281 fijo (no cambia con el tema): sobre fondos claros o de color.
+  navy: 'border-navy bg-navy text-white hover:border-negro hover:bg-negro',
 };
 const sizes = { sm: 'px-3 py-1.5 text-sm', md: 'px-5 py-2.5 text-base' };
 ---

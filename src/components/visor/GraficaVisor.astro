@@ -1,0 +1,139 @@
+---
+/**
+ * Leyenda + gráfica de un hallazgo del visor (elige el componente según `grafica.tipo`).
+ * La gráfica tiene un ancho máximo: en tarjetas anchas (una columna en tablet) no se agranda
+ * de más y las letras conservan su tamaño.
+ */
+import { EDAD_TEXT, SERIE_TEXT } from '../../lib/visor/comun';
+import type { HallazgoVisor } from '../../lib/visor/tipos';
+import ApiladasEdad from './ApiladasEdad.astro';
+import Chats from './Chats.astro';
+import ColumnasGrupos from './ColumnasGrupos.astro';
+import ColumnasRondas from './ColumnasRondas.astro';
+import Constructos from './Constructos.astro';
+import Credibilidad from './Credibilidad.astro';
+import Distribucion from './Distribucion.astro';
+import Embudo from './Embudo.astro';
+import EmbudoDoble from './EmbudoDoble.astro';
+import LineasIdeologia from './LineasIdeologia.astro';
+import LineasRondas from './LineasRondas.astro';
+import Mancuernas from './Mancuernas.astro';
+import MarcaSerie from './MarcaSerie.astro';
+import MediaRondas from './MediaRondas.astro';
+import MiniLineas from './MiniLineas.astro';
+import Odio from './Odio.astro';
+import Pendiente from './Pendiente.astro';
+import PesasRondas from './PesasRondas.astro';
+import PictogramaRondas from './PictogramaRondas.astro';
+import PuntosIE from './PuntosIE.astro';
+import Ranking from './Ranking.astro';
+import Sankey from './Sankey.astro';
+import Titulares from './Titulares.astro';
+
+export interface Props {
+  hallazgo: HallazgoVisor;
+  /** Prefijo de ids SVG (la gráfica sale en la tarjeta y en su detalle). */
+  uid: string;
+}
+
+const { hallazgo: h, uid } = Astro.props;
+const g = h.grafica;
+---
+
+<div class="mx-auto w-full max-w-[26rem]">
+  {(h.leyenda.items.length > 0 || h.leyenda.nota) && (
+    <div class="mb-3 flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[12.5px] text-ink-muted">
+      {h.leyenda.items.map((it) => (
+        <span class="inline-flex items-center gap-1.5">
+          {it.tipo === 'si' && <i class="inline-block h-[11px] w-[11px] rounded-[2px] bg-chart-accent"></i>}
+          {it.tipo === 'no' && <i class="inline-block h-[11px] w-[11px] rounded-[2px] bg-chart-track"></i>}
+          {it.tipo === 'color' && <i class:list={['inline-block h-[11px] w-[11px] rounded-[2px]', it.bg]}></i>}
+          {(it.tipo === 'serie' || it.tipo === 'grupo' || it.tipo === 'edad') && (
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              class={it.tipo === 'edad' ? EDAD_TEXT[it.i ?? 0] : SERIE_TEXT[it.i ?? 0]}
+              aria-hidden="true"
+            >
+              <MarcaSerie i={it.tipo === 'grupo' ? 0 : (it.i ?? 0)} x={7} y={7} r={5} plano />
+            </svg>
+          )}
+          {it.texto}
+        </span>
+      ))}
+      {h.leyenda.nota && <small class="text-xs">{h.leyenda.nota}</small>}
+    </div>
+  )}
+  {g.tipo === 'columnas' && <ColumnasRondas rondas={g.rondas} aria={g.aria} />}
+  {g.tipo === 'pictograma' && (
+    <PictogramaRondas rondas={g.rondas} aria={g.aria} entre={g.entre} cambio={g.cambio} uid={uid} />
+  )}
+  {g.tipo === 'embudo' && <Embudo filas={g.filas} aria={g.aria} />}
+  {g.tipo === 'lineas' && <LineasRondas {...g} />}
+  {g.tipo === 'mancuernas' && <Mancuernas filas={g.filas} evolucion={g.evolucion} aria={g.aria} />}
+  {g.tipo === 'media-rondas' && <MediaRondas {...g} />}
+  {g.tipo === 'pendiente' && <Pendiente {...g} />}
+  {g.tipo === 'credibilidad' && <Credibilidad {...g} />}
+  {g.tipo === 'embudo-doble' && <EmbudoDoble {...g} />}
+  {g.tipo === 'mini-lineas' && <MiniLineas {...g} />}
+  {g.tipo === 'apiladas-edad' && <ApiladasEdad {...g} />}
+  {g.tipo === 'columnas-grupos' && <ColumnasGrupos {...g} />}
+  {g.tipo === 'ranking' && <Ranking {...g} />}
+  {g.tipo === 'pesas-rondas' && <PesasRondas {...g} />}
+  {g.tipo === 'constructos' && <Constructos {...g} />}
+  {g.tipo === 'lineas-ideologia' && <LineasIdeologia {...g} />}
+  {g.tipo === 'distribucion' && <Distribucion {...g} />}
+  {g.tipo === 'chats' && <Chats {...g} />}
+  {g.tipo === 'odio' && <Odio {...g} />}
+  {g.tipo === 'titulares' && <Titulares {...g} />}
+  {g.tipo === 'puntos-ie' && <PuntosIE {...g} />}
+  {g.tipo === 'sankey' && <Sankey {...g} />}
+</div>
+
+<script>
+  // Recuadro con el dato al pasar el mouse o enfocar con el teclado: cualquier elemento con
+  // `data-tip` (primera línea en negrilla). Sin JS las gráficas ya muestran sus valores.
+  const tip = document.createElement('div');
+  tip.setAttribute('role', 'tooltip');
+  tip.className =
+    'pointer-events-none fixed z-50 max-w-64 rounded-lg border border-border bg-surface px-3 py-2 text-[13px] leading-snug text-ink opacity-0 shadow-xl transition-opacity duration-100';
+  let actual: Element | null = null;
+
+  const mostrar = (el: HTMLElement) => {
+    const [primera, ...resto] = (el.dataset.tip ?? '').split('\n');
+    tip.replaceChildren();
+    const b = document.createElement('b');
+    b.className = 'block text-sm';
+    b.textContent = primera ?? '';
+    tip.append(b, ...resto.flatMap((l, k) => (k ? [document.createElement('br'), l] : [l])));
+    // Dentro del modal (capa superior) el recuadro va en el propio <dialog>.
+    (el.closest('dialog') ?? document.body).append(tip);
+    const r = el.getBoundingClientRect();
+    const t = tip.getBoundingClientRect();
+    let y = r.top - t.height - 10;
+    if (y < 8) y = r.bottom + 10;
+    const x = Math.max(8, Math.min(r.left + r.width / 2 - t.width / 2, innerWidth - t.width - 8));
+    tip.style.left = `${x}px`;
+    tip.style.top = `${y}px`;
+    tip.style.opacity = '1';
+    actual = el;
+  };
+  const ocultar = () => {
+    tip.style.opacity = '0';
+    actual = null;
+  };
+
+  const objetivo = (e: Event) => (e.target as Element | null)?.closest<HTMLElement>('[data-tip]');
+  document.addEventListener('pointerover', (e) => {
+    const el = objetivo(e);
+    if (el && el !== actual) mostrar(el);
+    else if (!el && actual) ocultar();
+  });
+  document.addEventListener('focusin', (e) => {
+    const el = objetivo(e);
+    if (el) mostrar(el);
+  });
+  document.addEventListener('focusout', ocultar);
+  addEventListener('scroll', ocultar, { passive: true, capture: true });
+</script>

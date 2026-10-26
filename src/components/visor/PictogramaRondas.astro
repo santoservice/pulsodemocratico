@@ -1,0 +1,101 @@
+---
+/**
+ * Pictograma de 10 figuras por ronda ("cada figura = 1 de cada 10 personas"), con la franja
+ * de las vueltas electorales y el cambio entre las dos rondas. Réplica del hallazgo de
+ * populismo del visor, dibujada al compilar.
+ */
+import { rangoCorto } from '../../lib/visor/comun';
+import type { RondaColumna } from '../../lib/visor/principales';
+
+export interface Props {
+  rondas: RondaColumna[];
+  aria: string;
+  entre: string;
+  cambio: string;
+  /** Prefijo de ids (la gráfica puede salir dos veces en la página: tarjeta y detalle). */
+  uid: string;
+}
+
+const { rondas, aria, entre, cambio, uid } = Astro.props;
+const W = 320;
+const der = 64;
+const paso = (W - der) / 10;
+const alto = Math.min(paso * 2.1, 54);
+const ancho = (alto * 20) / 44;
+const filas = [30, alto + 112];
+const H = filas[1]! + alto + 10;
+const ym = filas[0]! + alto + 30;
+const contorno = 'paint-order:stroke;stroke:var(--color-surface);stroke-width:6px;stroke-linejoin:round';
+const parciales = rondas.map((r, i) => {
+  const llenas = r.pct / 10;
+  const k = Math.floor(llenas);
+  return llenas > k
+    ? { id: `${uid}-parcial-${i}`, x: k * paso + (paso - ancho) / 2, y: filas[i]!, w: ancho * (llenas - k) }
+    : null;
+});
+---
+
+<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} class="block h-auto w-full overflow-visible">
+  <defs>
+    <symbol id={`${uid}-persona`} viewBox="0 0 20 44">
+      <circle cx="10" cy="7" r="6"></circle>
+      <path d="M2,44V25Q2,16 10,16Q18,16 18,25V44Z"></path>
+    </symbol>
+    {parciales.map(
+      (p) =>
+        p && (
+          <clipPath id={p.id}>
+            <rect x={p.x} y={p.y} width={p.w} height={alto} />
+          </clipPath>
+        ),
+    )}
+  </defs>
+  {rondas.map((r, i) => {
+    const y0 = filas[i]!;
+    const llenas = r.pct / 10;
+    return (
+      <>
+        <text x="0" y={y0 - 10} class="fill-ink text-[12.5px] font-extrabold">
+          {r.label}
+          <tspan dx="6" class="fill-ink-muted text-[11.5px] font-normal">{rangoCorto(r.fechas)}</tspan>
+        </text>
+        {Array.from({ length: 10 }, (_, k) => {
+          const x = k * paso + (paso - ancho) / 2;
+          return (
+            <>
+              <use href={`#${uid}-persona`} x={x} y={y0} width={ancho} height={alto} class="fill-chart-track" />
+              {k + 1 <= llenas ? (
+                <use href={`#${uid}-persona`} x={x} y={y0} width={ancho} height={alto} class="fill-chart-accent" />
+              ) : (
+                k < llenas && (
+                  <g clip-path={`url(#${parciales[i]!.id})`}>
+                    <use href={`#${uid}-persona`} x={x} y={y0} width={ancho} height={alto} class="fill-chart-accent" />
+                  </g>
+                )
+              )}
+            </>
+          );
+        })}
+        <text x={W} y={y0 + alto / 2 + 9} text-anchor="end" class="fill-ink text-[26px] font-extrabold">
+          {Math.round(r.pct)} %
+        </text>
+        <rect
+          x="0"
+          y={y0}
+          width={W}
+          height={alto}
+          fill="transparent"
+          tabindex="0"
+          data-tip={r.tip}
+          aria-label={r.tip.replace('\n', ': ')}
+          class="cursor-pointer outline-none focus-visible:stroke-focus focus-visible:stroke-[3]"
+        />
+      </>
+    );
+  })}
+  <line x1="0" x2={W - der - 6} y1={ym} y2={ym} stroke-dasharray="4 4" class="stroke-chart-eleccion stroke-[1.5]" />
+  <text x={(W - der) / 2} y={ym + 4} text-anchor="middle" class="fill-chart-eleccion text-[11px] font-extrabold" style={contorno}>
+    {entre}
+  </text>
+  <text x={W} y={ym + 4} text-anchor="end" class="fill-ink-muted text-[12px] font-extrabold">{cambio}</text>
+</svg>

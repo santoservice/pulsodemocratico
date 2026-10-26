@@ -1,0 +1,92 @@
+---
+/**
+ * Columnas de porcentaje por ronda (0 a 100 %), con las vueltas electorales entre rondas y el
+ * cambio frente a la ronda anterior. Réplica de `columnasPorRonda` del visor, dibujada al
+ * compilar (SVG estático; escala con el ancho de la tarjeta).
+ */
+import { meta, rangoCorto } from '../../lib/visor/comun';
+import type { RondaColumna } from '../../lib/visor/principales';
+
+export interface Props {
+  rondas: RondaColumna[];
+  aria: string;
+}
+
+const { rondas, aria } = Astro.props;
+const W = 320;
+const H = 300;
+// l: 40 (el visor usa 30): el rótulo «100 %» cabe sin salirse del SVG (se corta en las descargas).
+const m = { t: 56, b: 42, l: 40 };
+const slot = (W - m.l) / rondas.length;
+const ancho = Math.min(slot * 0.58, 90);
+const alto = H - m.t - m.b;
+const y = (v: number) => m.t + (1 - v / 100) * alto;
+const contorno = 'paint-order:stroke;stroke:var(--color-surface);stroke-width:5px;stroke-linejoin:round';
+const MESES = ['may', 'jun'];
+---
+
+<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} class="block h-auto w-full overflow-visible">
+  {[0, 25, 50, 75, 100].map((v) => (
+    <>
+      <line x1={m.l} x2={W} y1={y(v)} y2={y(v)} class="stroke-border" />
+      <text x={m.l - 6} y={y(v) + 4} text-anchor="end" class="fill-ink-muted text-[12px]">
+        {v}{v === 100 ? ' %' : ''}
+      </text>
+    </>
+  ))}
+  {rondas.map((r, i) => {
+    const cx = m.l + slot * (i + 0.5);
+    const x0 = cx - ancho / 2;
+    const yv = y(r.pct);
+    return (
+      <>
+        <rect x={x0} y={m.t} width={ancho} height={alto} rx="4" class="fill-chart-track" />
+        <path
+          d={`M${x0},${y(0)}V${yv + 4}Q${x0},${yv} ${x0 + 4},${yv}H${x0 + ancho - 4}Q${x0 + ancho},${yv} ${x0 + ancho},${yv + 4}V${y(0)}Z`}
+          class="fill-chart-accent"
+        />
+        <text x={cx} y={m.t - 24} text-anchor="middle" class="fill-ink text-[26px] font-extrabold">
+          {Math.round(r.pct)} %
+        </text>
+        {r.cambio && (
+          <text x={cx} y={m.t - 8} text-anchor="middle" class="fill-ink-muted text-[12px] font-extrabold">
+            {r.cambio}
+          </text>
+        )}
+        <text x={cx} y={H - m.b + 20} text-anchor="middle" class="fill-ink text-[12.5px] font-extrabold">
+          {r.label}
+        </text>
+        <text x={cx} y={H - m.b + 36} text-anchor="middle" class="fill-ink-muted text-[11.5px]">
+          {rangoCorto(r.fechas)}
+        </text>
+        <rect
+          x={x0}
+          y={m.t}
+          width={ancho}
+          height={alto}
+          fill="transparent"
+          tabindex="0"
+          data-tip={r.tip}
+          aria-label={r.tip.replace('\n', ': ')}
+          class="cursor-pointer outline-none focus-visible:stroke-focus focus-visible:stroke-[3]"
+        />
+      </>
+    );
+  })}
+  {meta.elecciones.map((e, i) => {
+    const gx = m.l + slot * (i + 1);
+    return (
+      <>
+        <line x1={gx} x2={gx} y1={m.t} y2={y(0)} stroke-dasharray="4 4" class="stroke-chart-eleccion stroke-[1.5]" />
+        <text
+          transform={`translate(${gx + 4},${m.t + alto / 2}) rotate(-90)`}
+          text-anchor="middle"
+          class="fill-chart-eleccion text-[12px] font-extrabold"
+          style={contorno}
+        >
+          {e.label} · {+e.fecha.slice(8)} {MESES[+e.fecha.slice(5, 7) - 5]}
+        </text>
+      </>
+    );
+  })}
+</svg>

@@ -1,0 +1,98 @@
+---
+/**
+ * Distancia al centro ideológico (índice IE) por ronda: cada punto es el 1 % de las personas,
+ * ubicado según su valor; más intenso = más lejos del centro. Con el promedio, la zona de
+ * "4 o más" y las vueltas electorales entre rondas. Réplica del visor.
+ */
+import { HALO, SEQ_FILL, ZONA, fechaCorta, fmt, meta, rangoCorto } from '../../lib/visor/comun';
+import type { GraficaVisor } from '../../lib/visor/tipos';
+
+type Props = Omit<Extract<GraficaVisor, { tipo: 'puntos-ie' }>, 'tipo'>;
+
+const { G, aria } = Astro.props;
+const R = G.rondas;
+const T = G.tramos;
+const E = meta.elecciones;
+const MAX = Math.ceil(G.maximo * 10) / 10;
+const r2 = (v: number) => Math.round(v * 100) / 100;
+const dm = (i: number) => r2(R[i]!.media) - r2(R[i - 1]!.media);
+// 100 puntos por ronda, repartidos con el método del mayor residuo.
+const puntos = (r: (typeof R)[number]) => {
+  const base = r.valores.map((x) => Math.floor(x.pct));
+  const resto = 100 - base.reduce((a, b) => a + b, 0);
+  r.valores
+    .map((x, i) => [x.pct - Math.floor(x.pct), i] as const)
+    .sort((a, b) => b[0] - a[0])
+    .slice(0, resto)
+    .forEach(([, i]) => base[i]!++);
+  return r.valores.map((x, i) => ({ v: x.v, n: base[i]! }));
+};
+// Color según la distancia al centro: pasos 1 a 6 de la rampa.
+const color = (v: number) => SEQ_FILL[Math.min(5, Math.round((Math.min(v / MAX, 1) * 5)))]!;
+const W = 320;
+const m = { l: 10, r: 10 };
+const paso = 6;
+const cols = 3;
+const x = (v: number) => m.l + (v / MAX) * (W - m.l - m.r);
+const P = R.map(puntos);
+const filasMax = Math.max(...P.flat().map((p) => Math.ceil(p.n / cols)));
+const banda = filasMax * paso + 8;
+const fila = banda + 74;
+const H = R.length * fila + 26;
+---
+
+<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} class="block h-auto w-full overflow-visible">
+  {R.map((r, i) => {
+    const y = i * fila;
+    const y0 = y + 22;
+    const cy = y0 + banda / 2;
+    let txt = '';
+    if (i > 0) {
+      const c = G.cambios_media[i - 1]!;
+      const d = dm(i);
+      txt = c.p < 0.05 ? ` (${d > 0 ? '▲ +' : '▼ −'}${fmt(Math.abs(d), 2)})` : ' (= se mantiene)';
+    }
+    const tip = `${r.label} · ${r.fechas}\nPromedio del índice: ${fmt(r.media, 2)}\n${T.map((t, j) => `${t}: ${fmt(r.tramos[j]!)} %`).join('\n')}`;
+    return (
+      <>
+        <text x="0" y={y + 14} class="fill-ink text-[12.5px] font-extrabold">
+          {r.label}<tspan dx="6" class="fill-ink-muted text-[11.5px] font-normal">{rangoCorto(r.fechas)}</tspan>
+        </text>
+        <rect x={x(G.umbral)} y={y0} width={x(MAX) - x(G.umbral) + m.r} height={banda} rx="6" class="fill-chart-accent/10" />
+        <line x1={m.l} x2={W - m.r} y1={cy} y2={cy} class="stroke-border" />
+        {P[i]!.flatMap((p) => {
+          const filas = Math.ceil(p.n / cols);
+          return Array.from({ length: p.n }, (_, k) => {
+            const c = k % cols;
+            const f = Math.floor(k / cols);
+            const enFila = Math.min(cols, p.n - f * cols);
+            return (
+              <circle cx={x(p.v) + (c - (enFila - 1) / 2) * paso} cy={cy + (f - (filas - 1) / 2) * paso} r="2.4" class={color(p.v)} />
+            );
+          });
+        })}
+        <line x1={x(r.media)} x2={x(r.media)} y1={y0 - 2} y2={y0 + banda + 2} stroke-width="2" class="stroke-chart-eleccion" />
+        <text x="0" y={y0 + banda + 16} class="fill-ink-muted text-[12px] font-extrabold">
+          <tspan class="fill-chart-eleccion">│</tspan> Promedio: {fmt(r.media, 2)}{txt}
+        </text>
+        <text x={W} y={y0 + banda + 16} text-anchor="end" class="fill-ink-muted text-[12px] font-extrabold">
+          4 o más: {Math.round(r.pct_lejos)} %
+        </text>
+        <rect x="0" y={y0} width={W} height={banda} fill="transparent" tabindex="0" data-tip={tip} aria-label={r.label} class={ZONA} />
+        {i < E.length && (
+          <>
+            <line x1="0" x2={W} y1={y0 + banda + 36} y2={y0 + banda + 36} stroke-dasharray="4 4" class="stroke-chart-eleccion stroke-[1.5]" />
+            <text x={W / 2} y={y0 + banda + 40} text-anchor="middle" class="fill-chart-eleccion text-[11px] font-extrabold" style={HALO}>
+              {E[i]!.label} · {fechaCorta(E[i]!.fecha)}
+            </text>
+          </>
+        )}
+      </>
+    );
+  })}
+  {[0, 1, 2, 3, 4, 5].map((v) => (
+    <text x={x(v)} y={H - 20} text-anchor="middle" class="fill-ink-muted text-[12px]">{v}</text>
+  ))}
+  <text x="0" y={H - 3} class="fill-ink-muted text-[12px]">← En el centro</text>
+  <text x={W} y={H - 3} text-anchor="end" class="fill-ink-muted text-[12px]">En un extremo →</text>
+</svg>

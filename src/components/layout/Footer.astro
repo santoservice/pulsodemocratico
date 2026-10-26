@@ -4,17 +4,18 @@ import { creditos } from '../../data/sitio';
 ---
 
 <!-- Siempre en tema claro: los logos de las instituciones (azules) no se leen sobre el fondo oscuro. -->
-<footer data-theme="light" class="mt-16 border-t border-brand bg-page">
-  <div class="container-page py-12">
+<footer data-theme="light" class="mt-16 rounded-t-[2rem] border-t border-brand bg-page md:rounded-t-[2.5rem]">
+  <div class="container-page pt-10 pb-6">
+    <!-- «Una iniciativa de» arriba y los logos debajo, juntos y alineados a la izquierda. -->
     <p
       id="footer-instituciones"
-      class="mb-6 text-center text-xs font-semibold tracking-[0.2em] text-brand uppercase"
+      class="mb-5 text-xs font-semibold tracking-[0.2em] text-brand uppercase"
     >
       Una iniciativa de
     </p>
-    <InstitutionLogos size="sm" labelledby="footer-instituciones" />
+    <InstitutionLogos size="sm" labelledby="footer-instituciones" class="md:justify-start" />
 
-    <p class="mx-auto mt-10 max-w-3xl border-t border-border pt-8 text-center text-xs leading-relaxed text-ink-muted">
+    <p class="mt-8 border-t border-border pt-5 text-center text-xs leading-relaxed text-ink-muted md:text-left">
       {creditos}
     </p>
   </div>

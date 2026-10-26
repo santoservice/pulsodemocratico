@@ -61,25 +61,6 @@ export function delta(v: number, decimales = 1): string {
   return `+${s}`;
 }
 
-interface ConStat {
-  stat: 'pct' | 'media';
-}
-
-/** Número sin unidad según el tipo: pct → "27", media → "4,9". */
-export function numero(ind: ConStat, v: number): string {
-  return ind.stat === 'pct' ? entero(v) : decimal(v);
-}
-
-/** Valor listo para mostrar (equivale a `val()` del tablero original): "27 %" o "4,9". */
-export function pctOrMedia(ind: ConStat, v: number): string {
-  return ind.stat === 'pct' ? pct(v) : decimal(v);
-}
-
-/** Diferencia con signo según el tipo: pct → "+3" (puntos), media → "+0,4". */
-export function deltaSegunStat(ind: ConStat, v: number): string {
-  return delta(v, ind.stat === 'pct' ? 0 : 1);
-}
-
 /* ------------------------------------------------------------------ títulos */
 
 /**

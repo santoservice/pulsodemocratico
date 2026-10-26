@@ -1,0 +1,58 @@
+---
+/**
+ * Tarjeta de un hallazgo del visor: etiqueta del tema, pregunta, leyenda y gráfica.
+ * "Ver detalle" abre el detalle a pantalla completa (QuestionModal + DetalleVisor) con la
+ * tabla de datos, "¿Cómo se midió?" y las descargas; el ícono descarga solo la gráfica.
+ */
+import { Icon } from 'astro-icon/components';
+import type { HallazgoVisor } from '../../lib/visor/principales';
+import GraficaVisor from './GraficaVisor.astro';
+
+export interface Props {
+  hallazgo: HallazgoVisor;
+  /** Nivel del título (h3 en listas bajo un h2). */
+  as?: 'h2' | 'h3';
+  class?: string;
+}
+
+const { hallazgo: h, as: Titulo = 'h3', class: className } = Astro.props;
+const idGrafica = `tarjeta-${h.id}-grafica`;
+---
+
+<article
+  aria-labelledby={`tarjeta-${h.id}-t`}
+  class:list={[
+    'flex h-full min-w-0 flex-col rounded-2xl border border-border border-t-4 border-t-chart-accent bg-surface p-5',
+    className,
+  ]}
+>
+  <span class="self-start rounded bg-surface-sunken px-2.5 py-0.5 text-[11.5px] font-bold tracking-[0.08em] text-ink uppercase">
+    {h.etiqueta}
+  </span>
+  <Titulo id={`tarjeta-${h.id}-t`} class="mt-2.5 text-xl leading-tight font-extrabold text-brand md:min-h-[3.75rem]">
+    {h.titulo}
+  </Titulo>
+  <div id={idGrafica} class="mt-3.5" data-descarga={`${h.id}-grafica`} data-titulo={h.titulo} data-tema={h.etiqueta}>
+    <GraficaVisor hallazgo={h} uid={`t-${h.id}`} />
+  </div>
+  <div class="mt-auto flex items-center justify-between gap-3 pt-5">
+    <button
+      type="button"
+      data-tarjeta={`visor-${h.id}`}
+      aria-haspopup="dialog"
+      class="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-white bg-white px-4 py-2 text-sm font-semibold text-negro transition-colors hover:border-cream hover:bg-cream"
+    >
+      Ver detalle<span class="sr-only">: {h.titulo}</span>
+      <Icon name="lucide:arrow-right" class="h-4 w-4" aria-hidden="true" />
+    </button>
+    <button
+      type="button"
+      data-descargar
+      data-objetivo={idGrafica}
+      class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border-strong text-ink transition-colors hover:border-cream hover:bg-cream hover:text-navy disabled:opacity-60"
+    >
+      <Icon name="lucide:download" class="h-4 w-4" aria-hidden="true" />
+      <span class="sr-only">Descargar la gráfica «{h.titulo}» como imagen</span>
+    </button>
+  </div>
+</article>
