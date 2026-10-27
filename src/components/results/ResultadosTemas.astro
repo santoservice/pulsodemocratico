@@ -77,7 +77,7 @@ const items = temas.map((t) => {
 ---
 
 <div data-temas-resultados class="mt-7 scroll-mt-3">
-  <!-- En escritorio el selector se pega bajo el header al bajar, sobre una franja oscura (data-pegado). -->
+  <!-- En escritorio el selector se pega bajo el header al bajar, como tarjeta de vidrio (data-pegado). -->
   <div
     role="tablist"
     aria-label="Temas de resultados"
@@ -93,7 +93,7 @@ const items = temas.map((t) => {
         aria-selected={i === 0 ? 'true' : 'false'}
         tabindex={i === 0 ? 0 : -1}
         data-tema={tema.slug}
-        class="flex min-h-11 items-center justify-center rounded-full border-2 border-border px-3 py-1.5 text-center text-sm leading-tight font-bold text-ink transition-colors hover:border-cream/70 hover:bg-surface aria-selected:border-cream aria-selected:bg-cream aria-selected:text-navy"
+        class="flex min-h-11 items-center justify-center rounded-full px-3 py-1.5 text-center text-sm leading-tight font-bold text-ink transition-colors hover:bg-surface aria-selected:bg-cream aria-selected:text-navy md:hover:bg-[#13306b]"
       >
         {titulo(tema.titulo)}
       </button>
@@ -358,22 +358,25 @@ const items = temas.map((t) => {
 
 <style>
   /*
-   * Franja del selector pegado: sombras en vez de un fondo, para que ocupe todo el ancho de la
-   * pantalla sin desbordar (las sombras no generan scroll). La 1.ª pinta la franja hasta el borde
-   * inferior del selector; la 2.ª, el sombreado debajo. clip-path recorta lo que sobra arriba.
+   * Selector de temas (escritorio): una tarjeta del mismo ancho que el contenido, con esquinas
+   * muy redondeadas, como la maqueta. Siempre tiene fondo; al quedar pegado bajo el header
+   * también gana sombra. El fondo es el vidrio azul noche de la lista de temas de Explora
+   * (ExploraTemas.astro, .explora-lista). En celular no cambia.
    */
   .selector-temas {
-    --franja: var(--color-page);
     transition: box-shadow 0.2s;
   }
-  :global([data-theme='dark']) .selector-temas {
-    --franja: #030c20;
+  @media (min-width: 48rem) {
+    .selector-temas {
+      background: rgba(19, 28, 48, 0.97);
+      -webkit-backdrop-filter: blur(18px);
+      backdrop-filter: blur(18px);
+      border-radius: 2.5rem;
+      padding: 8px;
+      gap: 12px;
+    }
   }
   .selector-temas[data-pegado] {
-    background: var(--franja);
-    box-shadow:
-      0 -100vmax 0 100vmax var(--franja),
-      0 calc(-100vmax + 6px) 14px 100vmax rgb(0 0 0 / 0.45);
-    clip-path: inset(0 -100vmax -2rem);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
   }
 </style>

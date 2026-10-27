@@ -58,7 +58,15 @@ const items: Item[] = rondas.flatMap((ronda, i) => {
         </li>
       ) : (
         <li class="hito relative z-10 flex h-10 items-center justify-center md:self-center" style={`--i:${i}`}>
-          <span class="h-4 w-4 rounded-full bg-grana ring-4 ring-page" aria-hidden="true" />
+          <span
+            class="flex h-10 w-10 items-center justify-center rounded-full bg-cream text-navy"
+            aria-hidden="true"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+              <rect x="4" y="10" width="16" height="10" rx="2" />
+              <path d="M8 10V5h8v5M9 14h6" />
+            </svg>
+          </span>
           <p class="absolute top-1/2 left-1/2 ml-6 w-max -translate-y-1/2 text-sm leading-tight md:top-full md:ml-0 md:-translate-x-1/2 md:translate-y-1 md:text-center">
             <span class="font-semibold text-grana">{item.vuelta.nombre}</span>
             <span class="block text-ink-muted">{item.vuelta.fecha}</span>

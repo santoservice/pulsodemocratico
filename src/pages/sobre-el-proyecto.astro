@@ -1,5 +1,4 @@
 ---
-import { Icon } from 'astro-icon/components';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionHeader from '../components/ui/SectionHeader.astro';
 import IniciativaLogos from '../components/ui/IniciativaLogos.astro';
@@ -9,15 +8,19 @@ import { titulo } from '../lib/format';
 const intro =
   'Investigamos cómo la polarización, el populismo, la desinformación, la inteligencia artificial y el consumo mediático influyen en la forma en que los colombianos viven la democracia.';
 
+// Iconos del mockup (docs/pulso-democratico-limpio.html), con los colores de su tema oscuro.
+const iconoPerspectiva = `<svg viewBox="0 0 88 88" aria-hidden="true"><circle cx="44" cy="44" r="34" fill="none" stroke="#29354F" stroke-width="2"/><path d="M10 44h68M44 10c-12 10-12 58 0 68M44 10c12 10 12 58 0 68" fill="none" stroke="#29354F" stroke-width="2"/><circle cx="34" cy="52" r="7" fill="#B8841F"/><circle cx="58" cy="30" r="4" fill="#5E8BE0"/><circle cx="62" cy="56" r="4" fill="#5E8BE0"/><circle cx="24" cy="28" r="4" fill="#5E8BE0"/><circle cx="50" cy="70" r="4" fill="#5E8BE0"/></svg>`;
+const iconoCampana = `<svg viewBox="0 0 88 88" aria-hidden="true"><path d="M8 60h72" stroke="#29354F" stroke-width="2"/><rect x="12" y="24" width="14" height="36" rx="3" fill="#5E8BE0"/><rect x="37" y="34" width="14" height="26" rx="3" fill="#5E8BE0" opacity=".75"/><rect x="62" y="40" width="14" height="20" rx="3" fill="#5E8BE0" opacity=".5"/><circle cx="31.5" cy="68" r="4" fill="none" stroke="#B8841F" stroke-width="3"/><circle cx="56.5" cy="68" r="4" fill="none" stroke="#B8841F" stroke-width="3"/></svg>`;
+
 const razones = [
   {
-    icono: 'lucide:globe',
+    icono: iconoPerspectiva,
     titulo: 'Colombia en perspectiva',
     texto:
       'El mismo cuestionario se aplica en 32 países. Así, los resultados de Colombia se pueden comparar con los de otras democracias.',
   },
   {
-    icono: 'lucide:calendar-range',
+    icono: iconoCampana,
     titulo: 'Una campaña en tres momentos',
     texto:
       'Las mismas personas respondieron antes, durante y después de las elecciones. Así se ve cómo cambian sus opiniones durante la campaña.',
@@ -30,7 +33,7 @@ const razones = [
   description="Pulso Democrático presenta los resultados de la encuesta Colombia 2026 del Comparative National Elections Project (CNEP), una iniciativa de universidades de Colombia, Estados Unidos y España."
 >
   <div class="container-page py-10 md:py-14">
-    <SectionHeader title="Sobre el proyecto" lead={intro} />
+    <SectionHeader title="Sobre el proyecto" lead={intro} class="[&>p]:text-ink" />
 
     <!-- ¿Qué es? a la izquierda y ¿Por qué es importante? a la derecha (como la maqueta). -->
     <div class="mt-16 grid gap-12 lg:grid-cols-2 lg:gap-12">
@@ -50,19 +53,11 @@ const razones = [
             Universidad de La Sabana junto con aliados nacionales e internacionales.
           </p>
         </div>
-        <!-- Código público del proyecto (lo dio el cliente). -->
-        <div class="mt-6 inline-flex items-center gap-3 rounded-xl border border-border bg-surface-muted px-4 py-3">
-          <span
-            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-accent"
-            aria-hidden="true"
-          >
-            <Icon name="lucide:hash" class="h-4 w-4" />
-          </span>
-          <div>
-            <p class="text-xs font-semibold text-ink-muted">ID del proyecto</p>
-            <p class="font-bold tracking-wide text-brand">COM-58-2026</p>
-          </div>
-        </div>
+        <!-- Código público del proyecto (lo dio el cliente): píldora en una fila, como la maqueta. -->
+        <p class="mt-6 inline-flex max-w-full items-center gap-3 rounded-full bg-(--glass-fill) px-[18px] py-2.5">
+          <span class="text-xs font-bold tracking-[0.12em] text-accent uppercase">ID del proyecto</span>
+          <b class="font-extrabold tracking-wide text-brand-strong tabular-nums">COM-58-2026</b>
+        </p>
       </section>
 
       <section aria-labelledby="importancia">
@@ -71,16 +66,11 @@ const razones = [
         </h2>
         <ul class="mt-6 flex flex-col gap-4">
           {razones.map((r) => (
-            <li class="flex items-start gap-5 rounded-2xl border border-border bg-surface-muted p-5 md:p-6">
-              <span
-                class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-accent"
-                aria-hidden="true"
-              >
-                <Icon name={r.icono} class="h-7 w-7" />
-              </span>
+            <li class="flex items-start gap-5 rounded-2xl bg-(--glass-fill) p-5 md:p-6">
+              <span class="h-16 w-16 shrink-0 [&>svg]:h-full [&>svg]:w-full" aria-hidden="true" set:html={r.icono} />
               <div class="flex-1">
-                <h3 class="text-lg font-bold text-brand">{titulo(r.titulo)}</h3>
-                <p class="mt-1 leading-relaxed text-ink-muted">{r.texto}</p>
+                <h3 class="text-lg font-bold text-white">{titulo(r.titulo)}</h3>
+                <p class="mt-1 leading-relaxed text-white">{r.texto}</p>
               </div>
             </li>
           ))}

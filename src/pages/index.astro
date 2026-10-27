@@ -11,7 +11,7 @@ import { cifrasEncuesta, sitio } from '../data/sitio';
 import { getStats } from '../lib/tablero';
 import { entero } from '../lib/format';
 
-// Hero: "Pulso" en azul 281 y "Democrático" en Grana 187C.
+// Hero: "Pulso Democrático" en un solo color claro (maqueta aprobada).
 const [nombre1, ...resto] = sitio.nombre.split(' ');
 const nombre2 = resto.join(' ');
 const cifras = cifrasEncuesta(getStats(), entero);
@@ -19,18 +19,19 @@ const cifras = cifrasEncuesta(getStats(), entero);
 
 <BaseLayout title={sitio.nombre}>
   <!-- Hero -->
-  <section aria-labelledby="titulo-principal" class="overflow-x-clip border-b border-border">
-    <!-- En escritorio ocupa todo el alto de la ventana bajo el header (69px): no asoma la sección siguiente. -->
-    <div class="container-page grid items-center gap-8 py-10 md:py-14 lg:min-h-[calc(100svh-4.3rem)] lg:grid-cols-[1.2fr_1fr] lg:content-center lg:gap-10 lg:py-12">
-      <div>
+  <section aria-labelledby="titulo-principal" class="overflow-x-clip">
+    <!-- En escritorio, contenedor más ancho (como la maqueta) y ocupa todo el alto de la ventana bajo el header (69px): no asoma la sección siguiente. -->
+    <div class="container-page grid items-center gap-8 py-10 md:py-14 lg:min-h-[calc(100svh-4.3rem)] lg:max-w-[75rem] lg:grid-cols-2 lg:content-center lg:gap-10 lg:py-12">
+      <!-- Texto un poco por debajo del centro, como la maqueta. -->
+      <div class="lg:pt-20">
         <h1
           id="titulo-principal"
-          class="font-display text-[3.5rem] leading-[0.92] font-extrabold tracking-tight sm:text-7xl lg:text-[clamp(4.25rem,6.2vw,5.5rem)]"
+          class="font-display text-[3.5rem] leading-[0.92] font-extrabold tracking-tight text-brand sm:text-7xl lg:text-[clamp(3.5rem,5vw,5rem)]"
         >
-          <span class="block text-brand">{nombre1}</span>
-          <span class="block text-grana">{nombre2}</span>
+          <span class="block">{nombre1}</span>
+          <span class="block">{nombre2}</span>
         </h1>
-        <p class="mt-5 max-w-md text-lg leading-relaxed text-ink">{sitio.descripcion}</p>
+        <p class="mt-5 max-w-md text-lg leading-relaxed text-ink lg:max-w-[30rem] lg:text-[1.3125rem]">{sitio.descripcion}</p>
 
         <!-- Cifras -->
         <h2 id="cifras-titulo" class="sr-only">
@@ -39,7 +40,7 @@ const cifras = cifrasEncuesta(getStats(), entero);
         <!-- Sin caja: la cifra grande es la que manda; filetes finos entre columnas. -->
         <ul
           aria-labelledby="cifras-titulo"
-          class="mt-10 grid w-fit grid-cols-2 gap-y-6 sm:grid-cols-[repeat(4,auto)]"
+          class="mt-8 grid w-fit xl:w-max grid-cols-2 gap-y-6 sm:grid-cols-[repeat(4,auto)]"
         >
           {cifras.map((c, k) => (
             <li
@@ -49,24 +50,24 @@ const cifras = cifrasEncuesta(getStats(), entero);
                 k % 2 === 1 && 'max-sm:border-l max-sm:border-border max-sm:pl-5 dark:max-sm:border-cream/25',
               ]}
             >
-              <span class="text-4xl leading-none font-extrabold tracking-tight whitespace-nowrap text-brand tabular-nums lg:text-[2.5rem] dark:text-cream">
+              <span class="text-4xl leading-none font-extrabold tracking-tight whitespace-nowrap text-brand tabular-nums lg:text-[2.7rem] dark:text-cream">
                 {c.value}
               </span>
-              <span class="max-w-[7.5rem] text-sm leading-snug text-ink-muted dark:text-cream/80">{c.label}</span>
+              <span class="max-w-[7.5rem] text-sm leading-snug lg:text-[0.9375rem] text-ink-muted dark:text-cream/80">{c.label}</span>
             </li>
           ))}
         </ul>
       </div>
 
-      <!-- Ilustración del hero: en escritorio se sale del contenedor hacia la derecha. -->
+      <!-- Ilustración del hero: en celular va primero (como la maqueta); en escritorio se sale del contenedor hacia la derecha. -->
       <Image
         src={imagenInicio}
         alt="Collage sobre el mapa de Colombia: la bandera, una mujer afrocolombiana con turbante, un campesino con sombrero, la estatua de Bolívar, el Capitolio y una orquídea."
-        widths={[480, 720, 960, 1080]}
-        sizes="(min-width: 1024px) 640px, (min-width: 640px) 28rem, 90vw"
+        widths={[480, 720, 945]}
+        sizes="(min-width: 1024px) 760px, (min-width: 640px) 28rem, 90vw"
         loading="eager"
         fetchpriority="high"
-        class="h-auto w-full max-lg:max-w-md max-lg:justify-self-center lg:-mr-8 lg:w-[calc(100%+2rem)] xl:-mr-20 xl:w-[calc(100%+5rem)] xl:max-w-none"
+        class="h-auto w-full max-lg:order-first max-lg:max-w-md max-lg:justify-self-center lg:-mr-8 lg:w-[calc(100%+2rem)] xl:-mr-16 xl:w-[calc(100%+4rem)] 2xl:-mr-24 2xl:w-[calc(100%+6rem)] xl:max-w-none"
       />
     </div>
   </section>

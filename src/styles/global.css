@@ -47,6 +47,13 @@
   --color-surface-highlight: #f7efd9; /* 7499 */
   --color-page: #faf7ed; /* fondo de página: 7499 aclarado */
 
+  /* Relleno translúcido de tarjetas de vidrio (tema oscuro). */
+  --glass-fill: rgba(19, 28, 48, 0.75);
+
+  /* Tarjetas de hallazgos y su gráfica interior (maqueta, tema oscuro: --ex-card y --ex-media). */
+  --color-tarjeta-visor: #131c30;
+  --color-grafica-visor: #0f1729;
+
   /* Bordes y esqueletos (tintas de Pantone Black) */
   --color-border: #e3d7b6; /* 7499 oscurecido: borde de tarjetas */
   --color-border-strong: #969492; /* Black 50 % */
@@ -161,7 +168,7 @@
     --color-tu: #ffffff;
     --color-on-tu: #00205b;
 
-    --color-page: #071735;
+    --color-page: #00102e; /* fondo de la maqueta aprobada */
     --color-surface: #0e2550;
     --color-surface-muted: #15305f;
     --color-surface-sunken: #0a1c40;
@@ -205,6 +212,34 @@
     --dots-base-alpha: 0.3;
     --dots-glow: #ffffff;
     --dots-pulse: #d7b36b; /* Gold 871C */
+  }
+
+  /*
+   * Degradado de fondo de la maqueta aprobada (docs/pulso-democratico-limpio.html), en todas las
+   * páginas: luz crema arriba a la derecha, azul abajo a la derecha y halos azules que alternan
+   * de lado cada ~130vh sobre la base azul noche.
+   */
+  :root[data-theme='dark'] {
+    background:
+      radial-gradient(ellipse 88vw 130vh at 102% -14vh, #f7efd9 0%, rgb(247 239 217 / 0.9) 22%, rgb(247 239 217 / 0.45) 46%, rgb(247 239 217 / 0.12) 64%, rgb(247 239 217 / 0) 78%),
+      radial-gradient(ellipse 85vw 150vh at 104% 115vh, rgb(52 116 255 / 0.95) 0%, rgb(52 116 255 / 0.6) 32%, rgb(52 116 255 / 0.2) 58%, rgb(52 116 255 / 0) 80%),
+      radial-gradient(ellipse 75vw 130vh at -6% 210vh, rgb(52 116 255 / 0.55) 0%, rgb(52 116 255 / 0.22) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 140vh at 100% 360vh, rgb(52 116 255 / 0.45) 0%, rgb(52 116 255 / 0) 75%),
+      radial-gradient(ellipse 80vw 130vh at -8% 480vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at 106% 610vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at -8% 740vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at 106% 870vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at -8% 1000vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at 106% 1130vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at -8% 1260vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at 106% 1390vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at -8% 1520vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at 106% 1650vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at -8% 1780vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at 106% 1910vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      linear-gradient(180deg, #0a2a6b 0%, #00102e 38%, #00102e 100%);
+    background-color: var(--color-page);
+    background-repeat: no-repeat;
   }
 
   /*
