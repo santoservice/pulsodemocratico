@@ -11,7 +11,7 @@ import GraficaVisor from './GraficaVisor.astro';
 export interface Props {
   hallazgo: HallazgoVisor;
   /** Nivel del título (h3 en listas bajo un h2). */
-  as?: 'h2' | 'h3';
+  as?: 'h2' | 'h3' | 'h4';
   class?: string;
 }
 
@@ -22,7 +22,7 @@ const idGrafica = `tarjeta-${h.id}-grafica`;
 <article
   aria-labelledby={`tarjeta-${h.id}-t`}
   class:list={[
-    'flex h-full min-w-0 flex-col rounded-2xl border border-border border-t-4 border-t-chart-accent bg-surface p-5',
+    'flex h-full min-w-0 flex-col rounded-2xl border border-border bg-surface p-5',
     className,
   ]}
 >

@@ -1,0 +1,379 @@
+---
+/**
+ * «Resultados de la encuesta» en /resultados: selector de temas y, debajo, el tema elegido
+ * (ilustración, pregunta y sus hallazgos del visor, sin el principal).
+ *
+ * Pestañas ARIA (tablist/tab/tabpanel) con flechas, Inicio y Fin. Sin JS no hay selector:
+ * se ven todos los temas uno tras otro. `#<slug>` en la URL abre ese tema y baja hasta el
+ * selector: así enlazan el menú, el inicio y el quiz (`temaHref`).
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { Icon } from 'astro-icon/components';
+import TarjetaVisor from '../visor/TarjetaVisor.astro';
+import { temas, type TemaSlug } from '../../data/temas';
+import { titulo } from '../../lib/format';
+import { otrosHallazgosTema } from '../../lib/visor/temas';
+import polarizacion from '../../assets/images/polarizacion.webp';
+import populismo from '../../assets/images/populismo.webp';
+import desinformacion from '../../assets/images/desinformacion.webp';
+import ia from '../../assets/images/inteligencia-artificial.webp';
+import consumo from '../../assets/images/consumo-mediatico.webp';
+import juvenil from '../../assets/images/comportamiento-juvenil.webp';
+
+/**
+ * Ilustración de cada tema y de qué lado va: del lado donde la composición deja el espacio
+ * libre hacia el texto (polarización y consumo cargan su peso a la izquierda).
+ */
+type Ilustracion = { src: ImageMetadata; alt: string; lado: 'izq' | 'der' };
+const ilustraciones: Record<TemaSlug, Ilustracion> = {
+  polarizacion: {
+    src: polarizacion,
+    alt: 'Collage: una silueta azul, estatuas de próceres y un hombre que carga una lámina de zinc, separados por un rayo rojo.',
+    lado: 'izq',
+  },
+  populismo: {
+    src: populismo,
+    alt: 'Collage: un hombre con gorra, una mujer mayor con bolso, un campesino con sombrero y aves azules.',
+    lado: 'der',
+  },
+  desinformacion: {
+    src: desinformacion,
+    alt: 'Collage: una mano mueve con hilos a un títere mientras una mujer mira su computador.',
+    lado: 'der',
+  },
+  'inteligencia-artificial': {
+    src: ia,
+    alt: 'Collage: una mano sostiene un celular del que sale un perro con capa de superhéroe, sobre un estallido rojo con líneas de código.',
+    lado: 'izq',
+  },
+  'consumo-mediatico': {
+    src: consumo,
+    alt: 'Collage: un televisor con un ojo en la pantalla, un vigilante que toma una foto con el celular, un hombre que lee el periódico y una mano con el control remoto.',
+    lado: 'izq',
+  },
+  'comportamiento-juvenil': {
+    src: juvenil,
+    alt: 'Collage: una joven con sombrero que toca un tambor y otra joven en primer plano.',
+    lado: 'der',
+  },
+};
+
+// Temas cuyas gráficas se leen mejor anchas: dos columnas en vez de tres (en Polarización,
+// las de polarización ideológica y percibida quedan una al lado de la otra).
+const dosColumnas: TemaSlug[] = ['polarizacion', 'consumo-mediatico', 'comportamiento-juvenil'];
+
+// La pregunta del inicio del texto del tema va como título; el resto, como bajada.
+const items = temas.map((t) => {
+  const corte = t.intro.indexOf('?') + 1;
+  return {
+    tema: t,
+    pregunta: t.intro.slice(0, corte),
+    bajada: t.intro.slice(corte).trim(),
+    hallazgos: otrosHallazgosTema(t.slug),
+    img: ilustraciones[t.slug],
+  };
+});
+---
+
+<div data-temas-resultados class="mt-7 scroll-mt-3">
+  <!-- En escritorio el selector se pega bajo el header al bajar, sobre una franja oscura (data-pegado). -->
+  <div
+    role="tablist"
+    aria-label="Temas de resultados"
+    hidden
+    class="selector-temas grid grid-cols-2 gap-2 py-3 sm:grid-cols-3 md:sticky md:top-[69px] md:z-20 lg:grid-cols-6"
+  >
+    {items.map(({ tema }, i) => (
+      <button
+        type="button"
+        role="tab"
+        id={`pestana-${tema.slug}`}
+        aria-controls={`panel-${tema.slug}`}
+        aria-selected={i === 0 ? 'true' : 'false'}
+        tabindex={i === 0 ? 0 : -1}
+        data-tema={tema.slug}
+        class="flex min-h-14 items-center justify-center rounded-full border-2 border-border px-4 py-2 text-center text-[15px] leading-tight font-bold text-ink transition-colors hover:border-cream/70 hover:bg-surface aria-selected:border-cream aria-selected:bg-cream aria-selected:text-navy"
+      >
+        {titulo(tema.titulo)}
+      </button>
+    ))}
+  </div>
+
+  <!--
+    Celular: al bajar por los temas, una barra bajo el encabezado dice qué tema se ve; al tocarla
+    se despliega la lista de temas (como el menú principal). El selector de arriba ya no se ve.
+  -->
+  <div
+    data-barra-tema
+    hidden
+    class="fixed inset-x-0 z-30 border-b border-border bg-page/95 backdrop-blur transition-[translate,opacity] duration-200 md:hidden"
+  >
+    <button
+      type="button"
+      data-barra-boton
+      aria-expanded="false"
+      aria-controls="lista-temas-barra"
+      class="container-page flex w-full items-center gap-3 py-3 text-left"
+    >
+      <span class="sr-only">Tema que estás viendo:</span>
+      {items.map(({ tema }, i) => (
+        <span data-barra-actual={tema.slug} hidden={i !== 0} class="min-w-0 flex-1 text-cream">
+          <span class="block truncate text-lg font-bold">{titulo(tema.titulo)}</span>
+        </span>
+      ))}
+      <span class="sr-only">. Cambiar de tema</span>
+      <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border text-ink" aria-hidden="true">
+        <Icon name="lucide:chevron-down" data-barra-flecha class="h-5 w-5 transition-transform duration-200" />
+      </span>
+    </button>
+    <ul
+      id="lista-temas-barra"
+      hidden
+      class="absolute inset-x-0 top-full rounded-b-2xl border-b border-border bg-surface px-4 py-2 shadow-md sm:px-6"
+    >
+        {items.map(({ tema }) => (
+          <li class="border-b border-surface-sunken last:border-b-0">
+            <button
+              type="button"
+              data-barra-opcion={tema.slug}
+              class="flex w-full items-center gap-3 py-3.5 text-left text-base text-ink aria-[current=true]:font-bold aria-[current=true]:text-cream"
+            >
+              <span class="flex-1">{titulo(tema.titulo)}</span>
+              <Icon name="lucide:check" data-marca class="h-5 w-5 shrink-0" aria-hidden="true" />
+            </button>
+          </li>
+        ))}
+    </ul>
+  </div>
+
+  {items.map(({ tema, pregunta, bajada, hallazgos, img }) => (
+    <section
+      id={`panel-${tema.slug}`}
+      role="tabpanel"
+      aria-labelledby={`pestana-${tema.slug}`}
+      data-panel={tema.slug}
+      class="mt-10 scroll-mt-32 md:scroll-mt-24"
+    >
+      <div
+        class:list={[
+          'grid items-end gap-6 md:gap-10',
+          img &&
+            (img.lado === 'der'
+              ? 'md:grid-cols-[1fr_minmax(0,17rem)] lg:grid-cols-[1fr_minmax(0,20rem)]'
+              : 'md:grid-cols-[minmax(0,17rem)_1fr] lg:grid-cols-[minmax(0,20rem)_1fr]'),
+        ]}
+      >
+        {img && (
+          <Image
+            src={img.src}
+            alt={img.alt}
+            widths={[320, 480, 640]}
+            sizes="(min-width: 1024px) 20rem, (min-width: 768px) 17rem, 14rem"
+            class:list={['h-auto w-56 max-md:mx-auto md:w-full', img.lado === 'der' && 'md:order-2']}
+          />
+        )}
+        <div class:list={['pb-2', img?.lado === 'der' && 'md:order-1']}>
+          <p class="text-xs font-bold tracking-[0.18em] text-ink-muted uppercase">{tema.titulo}</p>
+          <h3 class="mt-3 font-display text-3xl leading-[1.08] font-bold tracking-tight text-brand md:text-4xl lg:text-5xl">
+            {pregunta}
+          </h3>
+          {bajada && <p class="mt-4 max-w-2xl leading-relaxed text-ink-muted">{bajada}</p>}
+          {'nota' in tema && tema.nota && (
+            <p class="mt-3 max-w-2xl font-semibold text-ink">{tema.nota}</p>
+          )}
+        </div>
+      </div>
+
+      <ul
+        aria-label={`Hallazgos sobre ${tema.titulo}`}
+        class:list={[
+          'mt-8 grid gap-5 sm:grid-cols-2',
+          !dosColumnas.includes(tema.slug) && 'lg:grid-cols-3',
+        ]}
+      >
+        {hallazgos.map((h) => (
+          <li class="min-w-0">
+            <TarjetaVisor hallazgo={h} as="h4" />
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+</div>
+
+<script>
+  const raiz = document.querySelector<HTMLElement>('[data-temas-resultados]');
+  const lista = raiz?.querySelector<HTMLElement>('[role="tablist"]');
+  if (raiz && lista) {
+    const pestanas = Array.from(lista.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const paneles = Array.from(raiz.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
+    const barra = raiz.querySelector<HTMLElement>('[data-barra-tema]')!;
+    const boton = barra.querySelector<HTMLButtonElement>('[data-barra-boton]')!;
+    const listaBarra = barra.querySelector<HTMLElement>('#lista-temas-barra')!;
+    const flecha = barra.querySelector<SVGElement>('[data-barra-flecha]');
+    const opciones = Array.from(barra.querySelectorAll<HTMLButtonElement>('[data-barra-opcion]'));
+    const encabezado = document.querySelector<HTMLElement>('[data-header]');
+
+    const elegir = (i: number, enfocar = false) => {
+      pestanas.forEach((p, k) => {
+        const activa = k === i;
+        p.setAttribute('aria-selected', String(activa));
+        p.tabIndex = activa ? 0 : -1;
+        paneles[k]!.hidden = !activa;
+      });
+      const slug = pestanas[i]!.dataset.tema;
+      barra.querySelectorAll<HTMLElement>('[data-barra-actual]').forEach((e) => (e.hidden = e.dataset.barraActual !== slug));
+      opciones.forEach((o) => {
+        const actual = o.dataset.barraOpcion === slug;
+        o.setAttribute('aria-current', String(actual));
+        o.querySelector<SVGElement>('[data-marca]')!.style.visibility = actual ? 'visible' : 'hidden';
+      });
+      if (enfocar) pestanas[i]!.focus();
+    };
+
+    // La ilustración de un tema se pide al pasar el mouse, enfocar o tocar su pestaña u
+    // opción: así la página pesa menos al abrir y no aparece tarde al cambiar de tema.
+    const precargar = (e: Event) => {
+      const el = (e.target as Element).closest<HTMLElement>('[data-tema], [data-barra-opcion]');
+      const slug = el?.dataset.tema ?? el?.dataset.barraOpcion;
+      raiz.querySelectorAll<HTMLImageElement>(`[data-panel="${slug}"] img[loading="lazy"]`).forEach((img) => (img.loading = 'eager'));
+    };
+    for (const tipo of ['pointerover', 'focusin', 'touchstart']) {
+      raiz.addEventListener(tipo, precargar, { passive: true });
+    }
+
+    lista.hidden = false;
+    const porHash = (hash: string) => pestanas.findIndex((p) => `#${p.dataset.tema}` === hash);
+    // Abre el tema del hash y baja hasta el selector.
+    const irA = (i: number) => {
+      elegir(i);
+      raiz.scrollIntoView({ block: 'start' });
+    };
+    const inicial = porHash(location.hash);
+    elegir(Math.max(inicial, 0));
+    if (inicial >= 0) requestAnimationFrame(() => raiz.scrollIntoView({ block: 'start' }));
+    // Con el selector pegado arriba, al cambiar de tema se vuelve al inicio del tema (si no,
+    // se quedaría a mitad del anterior).
+    const subirSiPegado = () => {
+      if (lista.hasAttribute('data-pegado')) raiz.scrollIntoView({ block: 'start' });
+    };
+    // Enlaces a /resultados#<slug> desde esta misma página (menú, desplegable): se atienden
+    // aquí para que también bajen cuando el hash ya es el actual.
+    document.addEventListener('click', (e) => {
+      const a = (e.target as Element).closest<HTMLAnchorElement>('a[href*="#"]');
+      if (!a || a.pathname !== location.pathname) return;
+      const i = porHash(a.hash);
+      if (i < 0) return;
+      e.preventDefault();
+      if (a.hash !== location.hash) history.pushState(null, '', a.hash);
+      requestAnimationFrame(() => irA(i));
+    });
+    // Atrás / adelante del navegador o un hash escrito en la barra de direcciones.
+    addEventListener('popstate', () => {
+      const i = porHash(location.hash);
+      if (i >= 0) irA(i);
+    });
+
+    lista.addEventListener('click', (e) => {
+      const p = (e.target as Element).closest<HTMLButtonElement>('[role="tab"]');
+      if (!p) return;
+      elegir(pestanas.indexOf(p));
+      history.replaceState(history.state, '', `#${p.dataset.tema}`);
+      subirSiPegado();
+    });
+    lista.addEventListener('keydown', (e) => {
+      const i = pestanas.indexOf(document.activeElement as HTMLButtonElement);
+      if (i < 0) return;
+      const n = pestanas.length;
+      const destino =
+        e.key === 'ArrowRight' || e.key === 'ArrowDown'
+          ? (i + 1) % n
+          : e.key === 'ArrowLeft' || e.key === 'ArrowUp'
+            ? (i - 1 + n) % n
+            : e.key === 'Home'
+              ? 0
+              : e.key === 'End'
+                ? n - 1
+                : -1;
+      if (destino < 0) return;
+      e.preventDefault();
+      elegir(destino, true);
+      history.replaceState(history.state, '', `#${pestanas[destino]!.dataset.tema}`);
+      subirSiPegado();
+    });
+
+    // Lista desplegable de la barra.
+    const abrirLista = (si: boolean) => {
+      listaBarra.hidden = !si;
+      boton.setAttribute('aria-expanded', String(si));
+      if (flecha) flecha.style.rotate = si ? '180deg' : '';
+    };
+    boton.addEventListener('click', () => abrirLista(boton.getAttribute('aria-expanded') !== 'true'));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !listaBarra.hidden) {
+        abrirLista(false);
+        boton.focus();
+      }
+    });
+    document.addEventListener('click', (e) => {
+      if (!listaBarra.hidden && !barra.contains(e.target as Node)) abrirLista(false);
+    });
+    listaBarra.addEventListener('click', (e) => {
+      const o = (e.target as Element).closest<HTMLButtonElement>('[data-barra-opcion]');
+      if (!o) return;
+      const i = pestanas.findIndex((p) => p.dataset.tema === o.dataset.barraOpcion);
+      abrirLista(false);
+      elegir(i);
+      history.replaceState(history.state, '', `#${o.dataset.barraOpcion}`);
+      // Al inicio del tema elegido (el anterior podía ser más largo que el nuevo).
+      paneles[i]!.scrollIntoView({ block: 'start' });
+      boton.focus({ preventScroll: true });
+    });
+
+    // Barra del celular: visible mientras el selector de arriba está fuera de la pantalla y
+    // todavía se ven los temas. Oculta, sale del orden del teclado (inert).
+    const mostrarBarra = (si: boolean) => {
+      barra.inert = !si;
+      barra.style.opacity = si ? '1' : '0';
+      barra.style.translate = si ? '0' : '0 -100%';
+      if (!si) abrirLista(false);
+    };
+    const ubicar = () => {
+      const tope = encabezado?.getBoundingClientRect().bottom ?? 0;
+      barra.style.top = `${tope}px`;
+      const r = raiz.getBoundingClientRect();
+      // Escritorio: el selector está pegado cuando llegó al header (sticky) y aún quedan temas.
+      const pegado = getComputedStyle(lista).position === 'sticky' && lista.getBoundingClientRect().top <= tope + 1 && r.top < tope;
+      lista.toggleAttribute('data-pegado', pegado);
+      mostrarBarra(lista.getBoundingClientRect().bottom < tope && r.bottom > tope + 120);
+    };
+    barra.hidden = false;
+    mostrarBarra(false);
+    addEventListener('scroll', ubicar, { passive: true });
+    addEventListener('resize', ubicar);
+    ubicar();
+  }
+</script>
+
+<style>
+  /*
+   * Franja del selector pegado: sombras en vez de un fondo, para que ocupe todo el ancho de la
+   * pantalla sin desbordar (las sombras no generan scroll). La 1.ª pinta la franja hasta el borde
+   * inferior del selector; la 2.ª, el sombreado debajo. clip-path recorta lo que sobra arriba.
+   */
+  .selector-temas {
+    --franja: var(--color-page);
+    transition: box-shadow 0.2s;
+  }
+  :global([data-theme='dark']) .selector-temas {
+    --franja: #030c20;
+  }
+  .selector-temas[data-pegado] {
+    background: var(--franja);
+    box-shadow:
+      0 -100vmax 0 100vmax var(--franja),
+      0 calc(-100vmax + 6px) 14px 100vmax rgb(0 0 0 / 0.45);
+    clip-path: inset(0 -100vmax -2rem);
+  }
+</style>

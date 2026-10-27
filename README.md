@@ -34,3 +34,13 @@ Cloudflare Pages (alternativa):
 - Comando de build: `pnpm build`
 - Directorio de salida: `dist`
 - Variable de entorno: `NODE_VERSION=22`
+
+## Pendientes
+
+- **URL propia por tema en `/resultados` (SEO).** Hoy los temas de «Resultados de la encuesta»
+  son pestañas dentro de `/resultados` (`#polarizacion`, etc.). Google no indexa el `#` como
+  página aparte (las páginas `/resultados/<tema>` se quitaron; el menú y el inicio enlazan
+  a `/resultados#<tema>`). Si algún día se quiere posicionar cada tema: que el selector
+  enlace a `/resultados/<tema>` (mismo diseño, el tema marcado) con precarga y View Transitions
+  de Astro, y que `/resultados` muestre solo los principales y el selector. Así cada tema tiene
+  título, descripción y vista previa propios y las páginas pesan menos.

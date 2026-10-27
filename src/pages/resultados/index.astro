@@ -5,16 +5,20 @@ import SectionHeader from '../../components/ui/SectionHeader.astro';
 import QuestionModal from '../../components/results/QuestionModal.astro';
 import TarjetaVisor from '../../components/visor/TarjetaVisor.astro';
 import DetalleVisor from '../../components/visor/DetalleVisor.astro';
+import ResultadosTemas from '../../components/results/ResultadosTemas.astro';
 import { principales } from '../../lib/visor/principales';
-import { temas, temaHref } from '../../data/temas';
+import { otrosHallazgosTema } from '../../lib/visor/temas';
+import { temas } from '../../data/temas';
 import { getIndicadores } from '../../lib/tablero';
 import { datasetJsonLd } from '../../lib/seo';
-import { titulo } from '../../lib/format';
+import { entero, titulo } from '../../lib/format';
+import { meta } from '../../lib/visor/comun';
+import { ruta } from '../../lib/rutas';
 
 // Textos del documento de especificaciones del cliente.
 const lead = 'Una mirada global a los resultados de la encuesta.';
 
-// Primero los datos más llamativos de todos los temas; al bajar, la entrada a cada tema.
+// Primero el hallazgo principal de cada tema; al bajar, los demás hallazgos tema por tema.
 const dataset = datasetJsonLd(
   { variables: getIndicadores().map((i) => i.titulo), path: '/resultados' },
   Astro.site,
@@ -27,65 +31,73 @@ const dataset = datasetJsonLd(
   jsonLd={dataset}
 >
   <div class="container-page py-10 md:py-14">
-    <SectionHeader eyebrow="Colombia 2026" title="Resultados de la encuesta" lead={lead}>
-      <p class="mt-3 text-lg leading-relaxed text-ink-muted">
-        Aquí presentamos, por temática,{' '}
-        <strong class="font-semibold text-ink">los resultados más relevantes</strong> sobre las
-        percepciones, opiniones y actitudes de los colombianos durante la campaña presidencial de
-        2026.
-      </p>
-    </SectionHeader>
-
-    <section aria-labelledby="hallazgos-titulo" class="mt-10">
-      <h2 id="hallazgos-titulo" class="text-2xl font-bold text-brand md:text-3xl">
-        {titulo('Principales hallazgos')}
-      </h2>
-      <p class="mt-2 text-ink-muted">Seis gráficos, uno por tema, con lo más importante de cada uno.</p>
+    <section aria-labelledby="hallazgos-titulo">
+      <SectionHeader
+        id="hallazgos-titulo"
+        title="Principales hallazgos"
+        lead={lead}
+      />
+      <details class="mt-6 max-w-3xl rounded-xl border border-border bg-surface-muted p-4 text-sm">
+        <summary class="flex items-center gap-2 font-semibold">
+          <Icon name="lucide:info" class="h-4 w-4 shrink-0" aria-hidden="true" />
+          Cómo leer estos datos
+        </summary>
+        <ul class="mt-3 list-disc space-y-2 pl-5 leading-relaxed text-ink-muted">
+          <li>
+            La muestra no es probabilística: los resultados describen a las personas encuestadas, no
+            a toda la población. Los datos no están ponderados.
+          </li>
+          <li>
+            Las mismas personas respondieron en tres rondas, entre mayo y julio de 2026 ({entero(meta.n_total)}
+            en la 1.ª ronda). Cuando una gráfica compara rondas, usa solo a quienes respondieron en
+            todas ellas.
+          </li>
+          <li>
+            «▲ sube» o «▼ baja» indican un cambio estadísticamente significativo; «= se mantiene», un
+            cambio que no lo es.
+          </li>
+          <li>Pasa el mouse (o el foco del teclado) sobre una gráfica para ver el dato exacto.</li>
+        </ul>
+        <a
+          href={ruta('/como-se-hizo')}
+          class="mt-3 inline-block font-semibold underline underline-offset-4"
+        >
+          ¿Cómo se hizo la encuesta?
+        </a>
+      </details>
       <!-- Hallazgos del visor de los investigadores (src/lib/visor/principales.ts). -->
-      <ul aria-labelledby="hallazgos-titulo" class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <ul aria-labelledby="hallazgos-titulo" class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {principales.map((h) => (
           <li class="min-w-0">
-            <TarjetaVisor hallazgo={h} />
+            <TarjetaVisor hallazgo={h} as="h2" />
           </li>
         ))}
       </ul>
     </section>
 
-    <section aria-labelledby="temas-titulo" class="mt-16">
-      <h2 id="temas-titulo" class="text-2xl font-bold text-brand md:text-3xl">
-        {titulo('Resultados por tema')}
-      </h2>
-      <p class="mt-2 text-ink-muted">Entra a cada tema para ver todas sus preguntas.</p>
-      <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {temas.map((t) => (
-          <li>
-            <a
-              href={temaHref(t.slug)}
-              class="group flex h-full flex-col rounded-2xl border border-border bg-surface p-5 transition-colors hover:border-accent hover:bg-surface-muted md:p-6"
-            >
-              <span
-                class="flex h-11 w-11 items-center justify-center rounded-xl bg-surface-sunken text-accent"
-                aria-hidden="true"
-              >
-                <Icon name={t.icono} class="h-6 w-6" />
-              </span>
-              <span class="mt-4 text-lg font-bold text-brand">{titulo(t.titulo)}</span>
-              <span class="mt-1 flex-1 leading-snug text-ink-muted">{t.pregunta}</span>
-              <span class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-ink">
-                Ver resultados
-                <Icon
-                  name="lucide:arrow-right"
-                  class="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                  aria-hidden="true"
-                />
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
+    <section aria-labelledby="temas-titulo" class="mt-20 md:mt-28">
+      <SectionHeader
+        as="h2"
+        grande
+        id="temas-titulo"
+        eyebrow="Colombia 2026"
+        title="Resultados de la encuesta"
+        class="mx-auto text-center"
+      >
+        <p class="mt-4 text-lg leading-relaxed text-ink-muted">
+          Aquí presentamos, por temática,{' '}
+          <strong class="font-semibold text-ink">los resultados más relevantes</strong> sobre las
+          percepciones, opiniones y actitudes de los colombianos durante la campaña presidencial de
+          2026.
+        </p>
+        <span class="mx-auto mt-6 block h-1 w-24 rounded-full bg-cream" aria-hidden="true"></span>
+      </SectionHeader>
+      <ResultadosTemas />
     </section>
   </div>
   <QuestionModal>
-    {principales.map((h) => <DetalleVisor hallazgo={h} />)}
+    {[...principales, ...temas.flatMap((t) => otrosHallazgosTema(t.slug))].map((h) => (
+      <DetalleVisor hallazgo={h} />
+    ))}
   </QuestionModal>
 </BaseLayout>

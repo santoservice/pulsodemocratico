@@ -85,6 +85,7 @@ export const temas = [
 
 export type TemaSlug = (typeof temas)[number]['slug'];
 
+/** Enlace a un tema: /resultados con el tema abierto (pestaña por hash). */
 export function temaHref(slug: string): string {
-  return ruta(`/resultados/${slug}`);
+  return ruta(`/resultados#${slug}`);
 }

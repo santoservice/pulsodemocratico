@@ -1,5 +1,5 @@
 /**
- * Hallazgos de cada tema del visor (van en /resultados/<tema>, debajo del hallazgo principal).
+ * Hallazgos de cada tema del visor (van en /resultados, bajo «Resultados de la encuesta»).
  * Mismos textos, cálculos, "¿Cómo se midió?" y tablas del visor de los investigadores
  * (docs/Visor hallazgos CNEP Colombia 2026.html), en el orden de sus secciones.
  */
@@ -14,7 +14,8 @@ import {
   visor,
   type RondaVisor,
 } from './comun';
-import { GRUPOS_EDAD, SE_MANTIENE, WAPSV_TEXTO, principalPorTema } from './principales';
+import { GRUPOS_EDAD, SE_MANTIENE, WAPSV_TEXTO } from './principales';
+import type { TemaSlug } from '../../data/temas';
 import type { HallazgoVisor, ItemDistribucion, ItemLeyenda } from './tipos';
 
 const D = visor;
@@ -1068,7 +1069,7 @@ function conOdio(): HallazgoVisor {
 
 /* ========================================================== POR TEMA */
 
-const porTema: Record<string, HallazgoVisor[]> = {
+const porTema: Record<TemaSlug, HallazgoVisor[]> = {
   polarizacion: [
     mediaRondas({
       id: 'pol',
@@ -1097,7 +1098,7 @@ const porTema: Record<string, HallazgoVisor[]> = {
     polExtremos(),
     polSankey(),
   ],
-  jovenes: [jovPolarizacion(), jovCepeda(), jovCredibilidad(), jovPopulismo(), jovIA(), jovMedios(), jovComparte()],
+  'comportamiento-juvenil': [jovPolarizacion(), jovCepeda(), jovCredibilidad(), jovPopulismo(), jovIA(), jovMedios(), jovComparte()],
   desinformacion: [
     mediaRondas({
       id: 'dpr',
@@ -1177,8 +1178,7 @@ const porTema: Record<string, HallazgoVisor[]> = {
   ],
 };
 
-/** Hallazgos de un tema: el principal (el de /resultados) y luego los del tema. */
-export function hallazgosTema(tema: string): HallazgoVisor[] {
-  const principal = principalPorTema(tema);
-  return [...(principal ? [principal] : []), ...(porTema[tema] ?? [])];
+/** Solo los hallazgos del tema, sin el principal (que ya sale en «Principales hallazgos»). */
+export function otrosHallazgosTema(tema: string): HallazgoVisor[] {
+  return porTema[tema as TemaSlug] ?? [];
 }

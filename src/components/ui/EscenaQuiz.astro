@@ -84,8 +84,8 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
 
   @media (min-width: 64rem) {
     .quiz-escena[data-pin] {
-      /* Alto de la pantalla + recorrido en el que la escena queda fija. */
-      height: calc(100vh + 160vh);
+      /* Alto de la pantalla + recorrido en el que la escena queda fija (= RECORRIDO del script). */
+      height: calc(100vh + 200vh);
     }
     .quiz-escena[data-pin] .quiz-escenario {
       position: sticky;
@@ -133,6 +133,13 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
   const TOPE = 69; // alto del header fijo (4 + 64 + 1 px)
   const CURVA = 48; // px que «Tú» baja de más a mitad de camino
   const SUAVIZADO = 0.14; // fracción del camino que se recorre por cuadro
+  // Tramos del recorrido fijo, en vh de scroll (deben sumar el alto extra del CSS: 200vh).
+  // Tras la entrada de la tarjeta queda un tramo quieto para no saltarse el quiz por accidente.
+  const RECORRIDO = 200;
+  const PAUSA = 40; // escena inicial quieta
+  const TRANSICION = 96; // título y «Tú» a su sitio
+  const ENTRA_TARJETA = 88; // inicio de la entrada de la tarjeta
+  const DURA_TARJETA = 56;
 
   const escena = document.querySelector<HTMLElement>('[data-quiz-escena]');
   const grilla = escena?.querySelector<HTMLElement>('[data-quiz-grilla]');
@@ -167,10 +174,12 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
     };
 
     const pintar = (t: number) => {
-      // 0–0.25: pausa en la escena inicial; 0.25–0.85: transición; luego, quieta y lista.
-      const avance = clamp((t - 0.25) / 0.6);
+      // Pausa en la escena inicial, transición, entrada de la tarjeta y luego quieta y lista
+      // (≈ 56vh de scroll antes de que la escena se suelte).
+      const vh = t * RECORRIDO;
+      const avance = clamp((vh - PAUSA) / TRANSICION);
       const p = suave(avance);
-      const q = suave(clamp((t - 0.55) / 0.35));
+      const q = suave(clamp((vh - ENTRA_TARJETA) / DURA_TARJETA));
       escena.style.setProperty('--p', String(p));
       // «Tú»: el alto se adelanta un poco al lado, y en la mitad del camino baja CURVA px de más.
       escena.style.setProperty('--tuy', String(suave(clamp(avance / 0.85))));

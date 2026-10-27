@@ -33,7 +33,7 @@ interface Props {
 
 type Vista = 'pregunta' | 'resultado' | 'final';
 
-const temaHref = (slug: string) => ruta(`/resultados/${slug}`);
+const temaHref = (slug: string) => ruta(`/resultados#${slug}`);
 const btnBase =
   'inline-flex min-h-11 items-center justify-center gap-2 rounded-full border px-5 py-2 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40';
 const btnPrimario = `${btnBase} border-accent bg-accent text-on-accent hover:enabled:bg-accent-hover dark:border-white dark:bg-white dark:text-negro dark:hover:enabled:border-cream dark:hover:enabled:bg-cream`;

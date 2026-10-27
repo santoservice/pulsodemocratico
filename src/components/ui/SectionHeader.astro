@@ -13,6 +13,8 @@ export interface Props {
   class?: string;
   /** id del título (para aria-labelledby). */
   id?: string;
+  /** Título con el tamaño de h1 aunque sea h2 (p. ej. segunda sección grande de una página). */
+  grande?: boolean;
 }
 
 const {
@@ -22,9 +24,10 @@ const {
   as: Tag = 'h1',
   class: className,
   id,
+  grande = Tag === 'h1',
 } = Astro.props;
 const titleClass =
-  Tag === 'h1'
+  grande
     ? 'font-display text-4xl leading-tight font-bold tracking-tight text-brand sm:text-5xl md:text-6xl'
     : 'font-display text-2xl leading-tight font-bold tracking-tight text-brand md:text-3xl';
 ---

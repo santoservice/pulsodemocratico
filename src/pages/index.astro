@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { Image } from 'astro:assets';
-import imagenInicio from '../assets/Inicio.png';
+import imagenInicio from '../assets/images/inicio.webp';
 import ExploraTemas from '../components/ui/ExploraTemas.astro';
 import EscenaQuiz from '../components/ui/EscenaQuiz.astro';
 import QuestionModal from '../components/results/QuestionModal.astro';
@@ -61,7 +61,7 @@ const cifras = cifrasEncuesta(getStats(), entero);
       <!-- Ilustración del hero: en escritorio se sale del contenedor hacia la derecha. -->
       <Image
         src={imagenInicio}
-        alt="Collage sobre el mapa de Colombia: la bandera, una mujer joven, un campesino con sombrero, la estatua de Bolívar y el Capitolio."
+        alt="Collage sobre el mapa de Colombia: la bandera, una mujer afrocolombiana con turbante, un campesino con sombrero, la estatua de Bolívar, el Capitolio y una orquídea."
         widths={[480, 720, 960, 1080]}
         sizes="(min-width: 1024px) 640px, (min-width: 640px) 28rem, 90vw"
         loading="eager"

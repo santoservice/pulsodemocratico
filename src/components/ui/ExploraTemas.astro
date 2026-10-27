@@ -8,7 +8,7 @@
 import { Icon } from 'astro-icon/components';
 import GraficaVisor from '../visor/GraficaVisor.astro';
 import LinkButton from './LinkButton.astro';
-import { temas, temaHref } from '../../data/temas';
+import { temas, temaHref, type TemaSlug } from '../../data/temas';
 import { titulo } from '../../lib/format';
 import { principalPorTema } from '../../lib/visor/principales';
 
@@ -17,6 +17,14 @@ const items = temas.flatMap((tema) => {
   const h = principalPorTema(tema.slug);
   return h ? [{ tema, h }] : [];
 });
+
+// Gráficas altas: un poco más angostas (y, la de filas, más juntas) para que la tarjeta quepa
+// en pantallas bajas. El SVG escala con el ancho, así que también baja de alto.
+const compacta: Partial<Record<TemaSlug, string>> = {
+  polarizacion: '[&>div]:max-w-[22rem]',
+  'consumo-mediatico': '[&>div]:max-w-[22rem]',
+  'comportamiento-juvenil': '[&>div]:max-w-[22rem] [&_[role=img]]:gap-1.5',
+};
 ---
 
 <section aria-labelledby="temas-titulo" class="explora bg-surface/50" data-explora>
@@ -80,7 +88,7 @@ const items = temas.flatMap((tema) => {
               -->
               <div
                 id={`explora-${tema.slug}-grafica`}
-                class="mt-6 border-t border-border pt-6"
+                class:list={['mt-6 border-t border-border pt-6', compacta[tema.slug]]}
                 data-descarga={`${h.id}-grafica`}
                 data-titulo={h.titulo}
                 data-tema={h.etiqueta}

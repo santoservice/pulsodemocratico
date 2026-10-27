@@ -110,7 +110,7 @@ export interface CifrasStats {
 export const PREGUNTAS_CUESTIONARIO = 100;
 
 /**
- * Cifras clave de la encuesta (fila de estadísticas en Inicio y Resultados), a partir de
+ * Cifras clave de la encuesta (fila de estadísticas en Inicio), a partir de
  * `getStats()`. `formatear` = formato es-CO de enteros (`format.entero`).
  */
 export function cifrasEncuesta(s: CifrasStats, formatear: (n: number) => string): Cifra[] {
