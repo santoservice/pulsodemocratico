@@ -18,6 +18,42 @@ import { ruta } from '../../lib/rutas';
 // Textos del documento de especificaciones del cliente.
 const lead = 'Una mirada global a los resultados de la encuesta.';
 
+const comoLeer = [
+  {
+    icono: 'lucide:users',
+    texto:
+      'La muestra no es probabilística: los resultados describen a las personas encuestadas, no a toda la población. Los datos no están ponderados.',
+  },
+  {
+    icono: 'lucide:calendar-range',
+    texto: `Las mismas personas respondieron en tres rondas, entre mayo y julio de 2026 (${entero(meta.n_total)} en la 1.ª ronda). Cuando una gráfica compara rondas, usa solo a quienes respondieron en todas ellas.`,
+  },
+  {
+    icono: 'lucide:trending-up',
+    texto:
+      '«▲ sube» o «▼ baja» indican un cambio estadísticamente significativo; «= se mantiene», un cambio que no lo es.',
+  },
+  {
+    icono: 'lucide:mouse-pointer-click',
+    texto: 'Pasa el mouse (o el foco del teclado) sobre una gráfica para ver el dato exacto.',
+  },
+];
+
+// Orden y lugar de cada hallazgo en el mosaico de escritorio (como la maqueta).
+const ordenMosaico = [
+  'comportamiento-juvenil',
+  'polarizacion',
+  'desinformacion',
+  'populismo',
+  'inteligencia-artificial',
+  'consumo-mediatico',
+];
+const mosaico = ordenMosaico.map((t) => principales.find((h) => h.tema === t)!);
+const lugar: Record<string, string> = {
+  'comportamiento-juvenil': 'lg:row-span-2',
+  'consumo-mediatico': 'lg:col-span-2',
+};
+
 // Primero el hallazgo principal de cada tema; al bajar, los demás hallazgos tema por tema.
 const dataset = datasetJsonLd(
   { variables: getIndicadores().map((i) => i.titulo), path: '/resultados' },
@@ -32,44 +68,52 @@ const dataset = datasetJsonLd(
 >
   <div class="container-page py-10 md:py-14">
     <section aria-labelledby="hallazgos-titulo">
-      <SectionHeader
-        id="hallazgos-titulo"
-        title="Principales hallazgos"
-        lead={lead}
-      />
-      <details class="mt-6 max-w-3xl rounded-xl border border-border bg-surface-muted p-4 text-sm">
-        <summary class="flex items-center gap-2 font-semibold">
-          <Icon name="lucide:info" class="h-4 w-4 shrink-0" aria-hidden="true" />
-          Cómo leer estos datos
-        </summary>
-        <ul class="mt-3 list-disc space-y-2 pl-5 leading-relaxed text-ink-muted">
-          <li>
-            La muestra no es probabilística: los resultados describen a las personas encuestadas, no
-            a toda la población. Los datos no están ponderados.
-          </li>
-          <li>
-            Las mismas personas respondieron en tres rondas, entre mayo y julio de 2026 ({entero(meta.n_total)}
-            en la 1.ª ronda). Cuando una gráfica compara rondas, usa solo a quienes respondieron en
-            todas ellas.
-          </li>
-          <li>
-            «▲ sube» o «▼ baja» indican un cambio estadísticamente significativo; «= se mantiene», un
-            cambio que no lo es.
-          </li>
-          <li>Pasa el mouse (o el foco del teclado) sobre una gráfica para ver el dato exacto.</li>
-        </ul>
-        <a
-          href={ruta('/como-se-hizo')}
-          class="mt-3 inline-block font-semibold underline underline-offset-4"
+      <!-- Encabezado centrado como la maqueta; «Cómo leer estos datos» despliega una cuadrícula debajo. -->
+      <div class="mx-auto max-w-3xl text-center">
+        <h1
+          id="hallazgos-titulo"
+          class="font-display text-4xl leading-tight font-bold tracking-tight text-brand sm:text-5xl md:text-6xl"
         >
-          ¿Cómo se hizo la encuesta?
-        </a>
-      </details>
-      <!-- Hallazgos del visor de los investigadores (src/lib/visor/principales.ts). -->
-      <ul aria-labelledby="hallazgos-titulo" class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {principales.map((h) => (
-          <li class="min-w-0">
-            <TarjetaVisor hallazgo={h} as="h2" />
+          {titulo('Principales hallazgos')}
+        </h1>
+        <p class="mt-1 text-ink-muted md:text-lg">
+          {lead}{' '}
+          <button
+            type="button"
+            id="como-leer-boton"
+            aria-expanded="false"
+            aria-controls="como-leer"
+            class="ml-1 inline-flex items-center gap-1 rounded-full border border-border px-3 py-0.5 align-middle text-sm font-semibold text-ink transition-colors hover:border-cream hover:text-cream"
+          >
+            Cómo leer estos datos
+            <Icon name="lucide:chevron-down" class="h-4 w-4 transition-transform" aria-hidden="true" />
+          </button>
+        </p>
+      </div>
+      <div id="como-leer" class="como-leer grid" hidden>
+        <div class="min-h-0 overflow-hidden">
+          <ul class="mt-6 grid gap-3 text-sm leading-relaxed text-ink-muted sm:grid-cols-2 lg:grid-cols-4">
+            {comoLeer.map((c) => (
+              <li class="rounded-xl border border-border bg-surface-muted p-4">
+                <Icon name={c.icono} class="h-5 w-5 text-accent" aria-hidden="true" />
+                <p class="mt-2">{c.texto}</p>
+              </li>
+            ))}
+          </ul>
+          <a
+            href={ruta('/como-se-hizo')}
+            class="mt-3 inline-block text-sm font-semibold underline underline-offset-4"
+          >
+            ¿Cómo se hizo la encuesta?
+          </a>
+        </div>
+      </div>
+      <!-- Hallazgos del visor (src/lib/visor/principales.ts). En escritorio caben en una pantalla,
+           como la maqueta: Jóvenes ocupa dos filas a la izquierda y Consumo dos columnas abajo. -->
+      <ul aria-labelledby="hallazgos-titulo" class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {mosaico.map((h) => (
+          <li class:list={['min-w-0', lugar[h.tema]]}>
+            <TarjetaVisor hallazgo={h} as="h2" compacta ancha={h.tema === 'consumo-mediatico'} />
           </li>
         ))}
       </ul>
@@ -101,3 +145,43 @@ const dataset = datasetJsonLd(
     ))}
   </QuestionModal>
 </BaseLayout>
+
+<style>
+  /* Se abre desde alto 0 (sale "de la nada"). */
+  .como-leer {
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+  }
+  .como-leer[data-abierto] {
+    grid-template-rows: 1fr;
+  }
+  :global(#como-leer-boton[aria-expanded='true'] svg) {
+    transform: rotate(180deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .como-leer {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const boton = document.getElementById('como-leer-boton');
+  const panel = document.getElementById('como-leer');
+  boton?.addEventListener('click', () => {
+    if (!panel) return;
+    const abrir = boton.getAttribute('aria-expanded') !== 'true';
+    boton.setAttribute('aria-expanded', String(abrir));
+    if (abrir) {
+      panel.hidden = false;
+      void panel.offsetHeight; // fija el alto 0 antes de animar
+      panel.setAttribute('data-abierto', '');
+    } else {
+      panel.removeAttribute('data-abierto');
+      // Se oculta al terminar la animación (300 ms), si nadie lo volvió a abrir.
+      setTimeout(() => {
+        if (boton.getAttribute('aria-expanded') !== 'true') panel.hidden = true;
+      }, 300);
+    }
+  });
+</script>

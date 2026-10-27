@@ -39,7 +39,7 @@ const compacta: Partial<Record<TemaSlug, string>> = {
         <h2 id="temas-titulo" class="text-3xl font-bold text-brand md:text-4xl lg:text-[2.6rem] lg:leading-[1.05]">
           <!-- Dos líneas fijas en escritorio (la segunda invade un poco el espacio entre columnas). -->
           <span class="lg:block">{titulo('Explora los')}</span>{' '}
-          <span class="lg:block lg:whitespace-nowrap">{titulo('temas principales')}</span>
+          <span class="lg:block lg:whitespace-nowrap">temas principales</span>
         </h2>
         <p class="mt-3 text-ink-muted lg:max-w-[19rem]">Seis conversaciones clave para entender la percepción política.</p>
       </div>
@@ -68,7 +68,7 @@ const compacta: Partial<Record<TemaSlug, string>> = {
       </nav>
     </div>
     <!-- Escritorio: mucho aire entre tarjetas para ver una a la vez, y la primera más abajo. -->
-    <div class="explora-tarjetas mt-10 flex flex-col gap-8 lg:mt-0 lg:gap-[35vh] lg:pt-[18vh] lg:pb-[12vh]">
+    <div class="explora-tarjetas mt-10 flex flex-col gap-8 lg:mt-0 lg:gap-[20vh] lg:pt-[18vh] lg:pb-[12vh]">
         {
           items.map(({ tema, h }) => (
             <article
@@ -140,7 +140,7 @@ const compacta: Partial<Record<TemaSlug, string>> = {
       translate: 0 calc((1 - var(--m)) * 1.5rem);
     }
     .explora[data-intro] .explora-tarjetas {
-      padding-top: 190vh;
+      padding-top: 110vh;
     }
   }
 
@@ -199,7 +199,8 @@ const compacta: Partial<Record<TemaSlug, string>> = {
         const n = inicioDoc - y; // top de la columna en pantalla si no estuviera fija
         const pasado = TOPE_FIJO - n; // cuánto se ha bajado con la columna ya fija
         const b = 1 - clamp((vh * 0.95 - n) / (vh * 0.95 - TOPE_FIJO));
-        const m = suave(clamp((pasado - vh * 0.3) / (vh * 0.6)));
+        // Pausa de 0,15 pantallas con el título aclarado; luego pasa a la izquierda en 0,35.
+        const m = suave(clamp((pasado - vh * 0.15) / (vh * 0.35)));
         seccion.style.setProperty('--b', String(b));
         seccion.style.setProperty('--m', String(m));
       };

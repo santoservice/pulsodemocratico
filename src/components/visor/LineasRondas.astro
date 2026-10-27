@@ -9,7 +9,10 @@ import { CLS, SERIE_FILL, SERIE_TEXT, ZONA, fechaCorta, fmt, meta, rangoCorto } 
 import type { GraficaVisor } from '../../lib/visor/tipos';
 import MarcaSerie from './MarcaSerie.astro';
 
-type Props = Omit<Extract<GraficaVisor, { tipo: 'lineas' }>, 'tipo'>;
+type Props = Omit<Extract<GraficaVisor, { tipo: 'lineas' }>, 'tipo'> & {
+  /** Versión apaisada (tarjeta ancha del mosaico de escritorio). */
+  ancha?: boolean;
+};
 
 const {
   rondas,
@@ -23,9 +26,10 @@ const {
   unidad = ' %',
   signo = false,
   polos,
+  ancha = false,
 } = Astro.props;
-const W = 320;
-const H = 300;
+const W = ancha ? 560 : 320;
+const H = ancha ? 230 : 300;
 // l: 36 (el visor usa 26): el rótulo «50 %» cabe sin salirse del SVG (se corta en las descargas).
 const m = { t: 44, r: 38, b: 44, l: 36 };
 const dia = (t: string) => new Date(`${t}T12:00:00`).getTime();

@@ -1,7 +1,7 @@
 /**
  * Las 6 secciones de resultados del sitio, en el orden de la maqueta.
  *
- * Regla del cliente: títulos con mayúscula inicial en cada palabra, escrita en el
+ * Regla del cliente: títulos solo con mayúscula inicial (tipo oración), escrita en el
  * contenido (no con CSS `capitalize`).
  */
 import { ruta } from '../lib/rutas';
@@ -52,7 +52,7 @@ export const temas = [
   },
   {
     slug: 'inteligencia-artificial',
-    titulo: 'Inteligencia Artificial',
+    titulo: 'Inteligencia artificial',
     pregunta: '¿Oportunidad o amenaza para la democracia?',
     intro:
       '¿Qué piensan los ciudadanos sobre el uso de la inteligencia artificial en el contexto electoral? Conoce sus percepciones, experiencias y opiniones sobre esta tecnología.',
@@ -62,7 +62,7 @@ export const temas = [
   },
   {
     slug: 'consumo-mediatico',
-    titulo: 'Consumo Mediático',
+    titulo: 'Consumo mediático',
     pregunta: '¿Dónde nos informamos sobre política y en qué medios confiamos?',
     intro:
       '¿Cómo se informan los ciudadanos durante el proceso electoral? Explora sus hábitos de consumo de medios, plataformas y fuentes de información política.',
@@ -72,7 +72,7 @@ export const temas = [
   },
   {
     slug: 'comportamiento-juvenil',
-    titulo: 'Comportamiento Juvenil',
+    titulo: 'Comportamiento juvenil',
     pregunta: '¿En qué se diferencian los jóvenes del resto?',
     intro:
       '¿Cómo viven y perciben los jóvenes el contexto electoral? Conoce en qué se parecen y en qué se diferencian de los demás participantes en sus actitudes, percepciones y formas de participación política.',

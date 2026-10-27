@@ -185,7 +185,7 @@
     --color-chart-track: #1c3563;
     /* Series del visor: 292 · dorado · crema · azul medio (todas ≥ 3:1 sobre surface). */
     --color-serie-1: #93aac9;
-    --color-serie-2: #d7b36b;
+    --color-serie-2: #ffb400; /* amarillo de los collages (diseñadora) */
     --color-serie-3: #f7efd9;
     --color-serie-4: #6a8cc2;
     --color-chart-eleccion: #f7efd9;

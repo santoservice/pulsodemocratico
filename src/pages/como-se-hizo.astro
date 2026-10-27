@@ -37,12 +37,14 @@ const dataset = datasetJsonLd(
       <ul class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {fichaTecnica.map((item, i) => (
           <li class="relative flex flex-col overflow-hidden rounded-2xl border border-border bg-surface p-5 md:p-6">
-            {/* Ícono grande y tenue de fondo, cortado por una esquina (alterna abajo/arriba). */}
+            {/* Ícono grande y tenue de fondo, en azul, cortado por una esquina (alterna abajo/arriba).
+                La opacidad va en el ícono entero: con color translúcido los trazos que se cruzan
+                se ven más claros. */}
             <Icon
               name={item.icono}
               aria-hidden="true"
               class:list={[
-                'pointer-events-none absolute text-gold/30',
+                'pointer-events-none absolute text-accent opacity-20',
                 item.id === 'cobertura'
                   ? '-right-8 -bottom-14 h-56 w-44'
                   : i % 2 === 0 || item.id === 'trabajo-de-campo'

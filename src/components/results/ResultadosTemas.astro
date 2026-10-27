@@ -93,7 +93,7 @@ const items = temas.map((t) => {
         aria-selected={i === 0 ? 'true' : 'false'}
         tabindex={i === 0 ? 0 : -1}
         data-tema={tema.slug}
-        class="flex min-h-14 items-center justify-center rounded-full border-2 border-border px-4 py-2 text-center text-[15px] leading-tight font-bold text-ink transition-colors hover:border-cream/70 hover:bg-surface aria-selected:border-cream aria-selected:bg-cream aria-selected:text-navy"
+        class="flex min-h-11 items-center justify-center rounded-full border-2 border-border px-3 py-1.5 text-center text-sm leading-tight font-bold text-ink transition-colors hover:border-cream/70 hover:bg-surface aria-selected:border-cream aria-selected:bg-cream aria-selected:text-navy"
       >
         {titulo(tema.titulo)}
       </button>
@@ -153,29 +153,29 @@ const items = temas.map((t) => {
       role="tabpanel"
       aria-labelledby={`pestana-${tema.slug}`}
       data-panel={tema.slug}
-      class="mt-10 scroll-mt-32 md:scroll-mt-24"
+      class="mt-6 scroll-mt-32 md:scroll-mt-24"
     >
       <div
         class:list={[
           'grid items-end gap-6 md:gap-10',
           img &&
             (img.lado === 'der'
-              ? 'md:grid-cols-[1fr_minmax(0,17rem)] lg:grid-cols-[1fr_minmax(0,20rem)]'
-              : 'md:grid-cols-[minmax(0,17rem)_1fr] lg:grid-cols-[minmax(0,20rem)_1fr]'),
+              ? 'md:grid-cols-[1fr_minmax(0,13rem)] lg:grid-cols-[1fr_minmax(0,14rem)]'
+              : 'md:grid-cols-[minmax(0,13rem)_1fr] lg:grid-cols-[minmax(0,14rem)_1fr]'),
         ]}
       >
         {img && (
           <Image
             src={img.src}
             alt={img.alt}
-            widths={[320, 480, 640]}
-            sizes="(min-width: 1024px) 20rem, (min-width: 768px) 17rem, 14rem"
-            class:list={['h-auto w-56 max-md:mx-auto md:w-full', img.lado === 'der' && 'md:order-2']}
+            widths={[240, 360, 480]}
+            sizes="(min-width: 1024px) 14rem, (min-width: 768px) 13rem, 11rem"
+            class:list={['h-auto w-44 max-md:mx-auto md:w-full', img.lado === 'der' && 'md:order-2']}
           />
         )}
         <div class:list={['pb-2', img?.lado === 'der' && 'md:order-1']}>
           <p class="text-xs font-bold tracking-[0.18em] text-ink-muted uppercase">{tema.titulo}</p>
-          <h3 class="mt-3 font-display text-3xl leading-[1.08] font-bold tracking-tight text-brand md:text-4xl lg:text-5xl">
+          <h3 class="mt-2 font-display text-2xl leading-[1.1] font-bold tracking-tight text-brand md:text-3xl lg:text-4xl">
             {pregunta}
           </h3>
           {bajada && <p class="mt-4 max-w-2xl leading-relaxed text-ink-muted">{bajada}</p>}
@@ -188,7 +188,7 @@ const items = temas.map((t) => {
       <ul
         aria-label={`Hallazgos sobre ${tema.titulo}`}
         class:list={[
-          'mt-8 grid gap-5 sm:grid-cols-2',
+          'mt-6 grid gap-5 sm:grid-cols-2',
           !dosColumnas.includes(tema.slug) && 'lg:grid-cols-3',
         ]}
       >

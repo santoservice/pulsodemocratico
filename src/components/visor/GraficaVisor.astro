@@ -34,13 +34,15 @@ export interface Props {
   hallazgo: HallazgoVisor;
   /** Prefijo de ids SVG (la gráfica sale en la tarjeta y en su detalle). */
   uid: string;
+  /** Gráfica apaisada (solo líneas) para la tarjeta ancha del mosaico. */
+  ancha?: boolean;
 }
 
-const { hallazgo: h, uid } = Astro.props;
+const { hallazgo: h, uid, ancha = false } = Astro.props;
 const g = h.grafica;
 ---
 
-<div class="mx-auto w-full max-w-[26rem]">
+<div class:list={['mx-auto w-full', ancha ? 'max-w-[40rem]' : 'max-w-[26rem]']}>
   {(h.leyenda.items.length > 0 || h.leyenda.nota) && (
     <div class="mb-3 flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[12.5px] text-ink-muted">
       {h.leyenda.items.map((it) => (
@@ -70,7 +72,7 @@ const g = h.grafica;
     <PictogramaRondas rondas={g.rondas} aria={g.aria} entre={g.entre} cambio={g.cambio} uid={uid} />
   )}
   {g.tipo === 'embudo' && <Embudo filas={g.filas} aria={g.aria} />}
-  {g.tipo === 'lineas' && <LineasRondas {...g} />}
+  {g.tipo === 'lineas' && <LineasRondas {...g} ancha={ancha} />}
   {g.tipo === 'mancuernas' && <Mancuernas filas={g.filas} evolucion={g.evolucion} aria={g.aria} />}
   {g.tipo === 'media-rondas' && <MediaRondas {...g} />}
   {g.tipo === 'pendiente' && <Pendiente {...g} />}
