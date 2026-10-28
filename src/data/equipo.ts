@@ -95,10 +95,10 @@ const datos: readonly DatosIntegrante[] = [
   },
   {
     slug: 'miguel-uribe-laverde',
-    nombre: 'Miguel Uribe Laverde',
+    nombre: 'Miguel Ángel Uribe Laverde',
     institucion: 'Universidad de La Sabana',
     orcid: 'https://orcid.org/0000-0002-2460-8657',
-    correos: ['miguelurla@unisabana.edu.co'],
+    correos: ['miguel.uribe1@unisabana.edu.co'],
     perfil:
       'Director del Doctorado en Inteligencia Artificial y del Laboratorio de Innovación en Inteligencia Artificial Ai-lab de la Facultad de Ingeniería de la Universidad de La Sabana. Doctor en Física por la Universidad de Friburgo, Suiza. Tiene amplia experiencia en simulación y optimización de sistemas complejos. Investiga analítica de datos y desarrollo de modelos de machine learning aplicados a diferentes campos del conocimiento.',
   },

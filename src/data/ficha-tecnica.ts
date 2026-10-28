@@ -43,7 +43,7 @@ export const fichaTecnica = [
     id: 'tipo',
     titulo: 'Tipo de estudio',
     texto:
-      'Encuesta tipo panel en línea, en tres rondas, parte del Comparative National Elections Project (CNEP).',
+      'Encuesta panel en línea de tres rondas, que hace parte del Comparative National Elections Project (CNEP).',
     icono: 'lucide:layers-3',
   },
   {

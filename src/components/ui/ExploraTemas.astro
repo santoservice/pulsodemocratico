@@ -6,6 +6,7 @@
  * tema que se ve (el nombre sube y entra el siguiente al hacer scroll) que despliega la lista de temas.
  * Gráfica de cada tema: su hallazgo principal del visor (src/lib/visor/principales.ts).
  */
+import { Icon } from 'astro-icon/components';
 import GraficaVisor from '../visor/GraficaVisor.astro';
 import IconoTema from './IconoTema.astro';
 import LinkButton from './LinkButton.astro';
@@ -113,7 +114,22 @@ const ANCHO_LG = 606; // 654 de la tarjeta menos el relleno del panel (24 px por
                 <div class="max-lg:hidden"><GraficaVisor hallazgo={h} uid={`ea-${h.id}`} ancho={ANCHO_LG} /></div>
               </div>
 
-              <div class="mt-6 flex flex-wrap items-center justify-end gap-3">
+              <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+                <!--
+                  Baja la gráfica de arriba como imagen. Celular: botón redondo solo con el ícono (como
+                  en las tarjetas de /resultados). Escritorio: con el mismo ícono y el texto
+                  «Descargar gráfica».
+                -->
+                <button
+                  type="button"
+                  data-descargar
+                  data-objetivo={`explora-${tema.slug}-grafica`}
+                  class="inline-flex items-center justify-center rounded-full border border-border-strong text-ink transition-colors hover:border-cream hover:bg-cream hover:text-navy disabled:opacity-60 max-lg:h-10 max-lg:w-10 lg:min-h-10 lg:gap-1.5 lg:px-4 lg:py-2 lg:text-sm lg:font-semibold"
+                >
+                  <Icon name="lucide:download" class="h-4 w-4" aria-hidden="true" />
+                  <span class="max-lg:sr-only">Descargar gráfica</span>
+                  <span class="sr-only"> «{h.titulo}»</span>
+                </button>
                 <LinkButton href={temaHref(tema.slug)} icon="lucide:arrow-right" variant="primary">
                   Ver resultados<span class="sr-only"> de {tema.titulo}</span>
                 </LinkButton>

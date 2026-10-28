@@ -26,6 +26,16 @@ const ordenMosaico = [
   'consumo-mediatico',
 ];
 const mosaico = ordenMosaico.map((t) => principales.find((h) => h.tema === t)!);
+// En celular, el orden que pidió el cliente (igual que las pestañas temáticas); en escritorio manda
+// el mosaico de arriba.
+const ordenMovil: Record<string, string> = {
+  polarizacion: 'max-lg:order-1',
+  populismo: 'max-lg:order-2',
+  desinformacion: 'max-lg:order-3',
+  'inteligencia-artificial': 'max-lg:order-4',
+  'consumo-mediatico': 'max-lg:order-5',
+  'comportamiento-juvenil': 'max-lg:order-6',
+};
 // Lugar en el mosaico de escritorio (4 columnas): Jóvenes ocupa dos filas; Consumo, dos columnas.
 const lugar: Record<string, string> = {
   'comportamiento-juvenil': 'lg:row-span-2',
@@ -95,7 +105,7 @@ const dataset = datasetJsonLd(
         class="aparece-hijos mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]"
       >
         {mosaico.map((h) => (
-          <li class:list={['min-w-0', lugar[h.tema]]} data-disperso style={desde[h.tema]}>
+          <li class:list={['min-w-0', ordenMovil[h.tema], lugar[h.tema]]} data-disperso style={desde[h.tema]}>
             {/* Consumo (dos columnas): líneas apaisadas dibujadas a su ancho desde lg (≈535 px de
                 tarjeta a 1280 ÷ zoom 0,85 del mosaico ≈ 629), sin el alto máximo del mosaico. */}
             {h.tema === 'consumo-mediatico' ? (

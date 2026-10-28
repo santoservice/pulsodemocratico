@@ -6,7 +6,6 @@ import logoCnep from '../assets/logos/cnep.webp';
 import logoWisconsin from '../assets/logos/wisconsin.webp';
 import logoLaSabana from '../assets/logos/la-sabana.webp';
 import logoExternado from '../assets/logos/externado.webp';
-import logoComplutense from '../assets/logos/complutense.webp';
 
 export const sitio = {
   nombre: 'Pulso Democrático',
@@ -30,6 +29,7 @@ export interface NavItem {
 
 /** Menú principal. Regla del cliente: títulos solo con mayúscula inicial (`titulo()`). */
 export const nav: NavItem[] = [
+  { label: 'Inicio', href: ruta('/') },
   {
     label: 'Resultados',
     href: ruta('/resultados'),
@@ -69,12 +69,6 @@ export const instituciones: Institucion[] = [
     nombre: 'Universidad Externado de Colombia',
     url: 'https://www.uexternado.edu.co/',
     logo: logoExternado,
-  },
-  {
-    nombre: 'Universidad Complutense de Madrid',
-    url: 'https://www.ucm.es/',
-    logo: logoComplutense,
-    escala: 1.35,
   },
 ];
 

@@ -641,7 +641,7 @@ function jovMedios(): HallazgoVisor {
   return {
     id: 'jme',
     tema: 'comportamiento-juvenil',
-    etiqueta: 'Jóvenes · Consumo de medios',
+    etiqueta: 'Jóvenes · Consumo mediático',
     titulo: '¿Por dónde siguieron la campaña según la edad?',
     leyenda: {
       items: T.map((t, i) => ({ texto: t.nombre, tipo: 'edad', i })),

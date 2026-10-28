@@ -274,7 +274,7 @@ function ia(): HallazgoVisor {
   };
 }
 
-/* ------------------------------------------------- 5. Consumo de medios */
+/* ------------------------------------------------- 5. Consumo mediático */
 
 function consumo(): HallazgoVisor {
   const G = visor.consumo_campana;
@@ -283,7 +283,7 @@ function consumo(): HallazgoVisor {
   return {
     id: 'con-campana',
     tema: 'consumo-mediatico',
-    etiqueta: 'Consumo de medios',
+    etiqueta: 'Consumo mediático',
     titulo: '¿Por dónde siguieron la campaña?',
     leyenda: {
       items: M.map((m, i) => ({ texto: m.corto, tipo: 'serie', i })),

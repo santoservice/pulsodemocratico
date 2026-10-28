@@ -2,8 +2,9 @@
 /**
  * Sección del quiz (Inicio). En escritorio es una escena que se queda fija mientras se hace
  * scroll: primero solo el título grande y «Tú» al lado; al seguir bajando, el título se achica,
- * «Tú» se mueve debajo del texto y entra la tarjeta del quiz por la derecha. Luego la sección
- * sigue su scroll normal. En celular, sin JS o con movimiento reducido: todo visible y apilado.
+ * «Tú» se mueve debajo del texto y la tarjeta del quiz se abre a la derecha como un círculo que
+ * crece desde el botón «Hacer test». Luego la sección sigue su scroll normal. En celular, sin JS o
+ * con movimiento reducido: todo visible y apilado, sin botón.
  */
 import { Icon } from 'astro-icon/components';
 import Quiz from '../islands/Quiz';
@@ -60,6 +61,17 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
         </figure>
       </div>
 
+      {/* Solo escritorio (escena fija): aparece difuminado desde abajo al acercarse y, al pulsarlo, lleva
+          el scroll hasta la tarjeta, que se abre como un círculo desde este botón. */}
+      <button
+        type="button"
+        data-quiz-ir
+        class="quiz-ir rounded-full bg-[#5e8be0] px-6 py-2.5 text-base font-semibold text-(--color-tarjeta-visor) shadow-lg transition-colors hover:bg-white"
+      >
+        Hacer test
+        <Icon name="lucide:arrow-right" class="h-4 w-4 shrink-0" aria-hidden="true" />
+      </button>
+
       {/* Isla React (PLAN.md §6): el HTML de la 1.ª pregunta se pre-renderiza; el JS carga al llegar aquí. */}
       <div class="quiz-tarjeta">
         <Quiz client:visible preguntas={quiz.preguntas} />
@@ -115,13 +127,40 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
     .quiz-desvanece {
       opacity: var(--q);
     }
-    .quiz-tarjeta {
-      opacity: var(--q);
-      translate: calc((1 - var(--q)) * 5rem) 0;
+    /* La tarjeta se abre como un círculo que crece desde el botón (--cx/--cy, en px de la tarjeta;
+       --cr = radio, lo calcula el script con --q). Al terminar se quita la máscara. */
+    .quiz-escena[data-circulo] .quiz-tarjeta {
+      clip-path: circle(var(--cr, 0px) at var(--cx, 0px) var(--cy, 0px));
     }
     .quiz-escena[data-oculta] .quiz-tarjeta {
       visibility: hidden;
     }
+
+    /* Botón «Hacer test», alineado a la izquierda del texto (--bx y --by los mide el script). --bi (0–1) lo
+       es su opacidad (siempre 1 hasta que asoma el círculo); --bs (0–1) lo sube desde abajo hasta su sitio.
+       Solo se puede pulsar cuando ya se ve (data-listo), antes de que la escena termine de llegar. */
+    .quiz-escena[data-pin] .quiz-ir {
+      position: absolute;
+      left: var(--bx, 50%);
+      top: var(--by, 60%);
+      z-index: 5;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: var(--bi, 0);
+      translate: 0 calc((1 - var(--bs, 1)) * 2.5rem);
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .quiz-escena[data-pin] .quiz-ir[data-visible] {
+      visibility: visible;
+    }
+    .quiz-escena[data-pin] .quiz-ir[data-listo] {
+      pointer-events: auto;
+    }
+  }
+  .quiz-ir {
+    display: none;
   }
 </style>
 
@@ -138,21 +177,33 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
   const RECORRIDO = 190;
   const PAUSA = 40; // escena inicial quieta
   const TRANSICION = 96; // título y «Tú» a su sitio
-  const ENTRA_TARJETA = 88; // inicio de la entrada de la tarjeta
-  const DURA_TARJETA = 56;
+  const ENTRA_TARJETA = 44; // el círculo de la tarjeta empieza a abrirse
+  const DURA_TARJETA = 92; // y termina con la transición (44 + 92 = 136)
+  // Botón «Hacer test»: siempre visible; sube a su sitio hasta 20 vh después de fijarse la escena y se va entre 44 y 56, justo cuando empieza a abrirse el círculo.
+  const BOTON_LLEGA = 20;
+  const BOTON_SALE_INI = ENTRA_TARJETA; // se queda hasta que el círculo asoma
+  const BOTON_SALE_FIN = 56;
+  const BOTON_LISTO = 0.3; // opacidad desde la que ya se puede pulsar
+  const META_CLIC = 140; // al pulsarlo se baja hasta aquí (tarjeta ya entera)
 
   const escena = document.querySelector<HTMLElement>('[data-quiz-escena]');
   const grilla = escena?.querySelector<HTMLElement>('[data-quiz-grilla]');
   const intro = escena?.querySelector<HTMLElement>('[data-quiz-intro]');
   const texto = escena?.querySelector<HTMLElement>('[data-quiz-texto]');
   const tu = escena?.querySelector<HTMLElement>('[data-quiz-tu]');
+  const ir = escena?.querySelector<HTMLButtonElement>('[data-quiz-ir]');
+  const tarjeta = escena?.querySelector<HTMLElement>('.quiz-tarjeta');
   const escritorio = window.matchMedia('(min-width: 64rem)');
   const reducido = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  if (escena && grilla && intro && texto && tu) {
+  if (escena && grilla && intro && texto && tu && ir && tarjeta) {
     const clamp = (v: number) => Math.min(1, Math.max(0, v));
     const suave = (v: number) => v * v * (3 - 2 * v);
     const fijar = (k: string, v: number) => escena.style.setProperty(k, `${v}px`);
+    // Centro del botón: desde el borde de la escena (desfase) y dentro de la tarjeta (cx, cy).
+    let desfase = 0;
+    let cx = 0;
+    let cy = 0;
 
     // Posición inicial: título (agrandado) y «Tú» lado a lado, centrados en la escena.
     // Se mide con offset* (sin los transforms, relativo a la columna) en el layout final.
@@ -164,8 +215,29 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
       const centroTexto = texto.offsetTop + texto.offsetHeight / 2;
       fijar('--ax', anchoTexto + SEPARACION + (anchoTu - tu.offsetWidth) / 2 - tu.offsetLeft);
       fijar('--ay', centroTexto - (tu.offsetTop + tu.offsetHeight / 2));
-      fijar('--dx', Math.max(0, (ancho - (anchoTexto + SEPARACION + anchoTu)) / 2));
+      const dx = Math.max(0, (ancho - (anchoTexto + SEPARACION + anchoTu)) / 2);
+      fijar('--dx', dx);
       fijar('--dy', grilla.clientHeight / 2 - (intro.offsetTop + centroTexto));
+      // Botón: centrado, justo debajo del título y «Tú» (que en la escena inicial quedan centrados).
+      const alto = Math.max(texto.offsetHeight * ESCALA_TEXTO, tu.offsetHeight * ESCALA_TU);
+      const por = grilla.clientHeight / 2 + alto / 2 + 40;
+      const centroY = por + ir.offsetHeight / 2;
+      fijar('--by', por);
+      // Alineado a la izquierda del texto (título y párrafo): su borde izquierdo es el del texto.
+      const px = intro.offsetLeft + dx + texto.offsetLeft;
+      fijar('--bx', px);
+      desfase = grilla.offsetTop + centroY;
+      cx = px + ir.offsetWidth / 2 - tarjeta.offsetLeft;
+      cy = centroY - tarjeta.offsetTop;
+      fijar('--cx', cx);
+      fijar('--cy', cy);
+    };
+
+    // Radio que cubre toda la tarjeta desde el centro del botón (con su alto actual).
+    const radioMax = () => {
+      const w = tarjeta.offsetWidth;
+      const h = tarjeta.offsetHeight;
+      return Math.max(Math.hypot(cx, cy), Math.hypot(w - cx, cy), Math.hypot(cx, h - cy), Math.hypot(w - cx, h - cy)) + 2;
     };
 
     const objetivo = () => {
@@ -175,7 +247,7 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
 
     const pintar = (t: number) => {
       // Pausa en la escena inicial, transición, entrada de la tarjeta y luego quieta y lista
-      // (≈ 46vh de scroll antes de que la escena se suelte).
+      // (≈ 54vh de scroll antes de que la escena se suelte).
       const vh = t * RECORRIDO;
       const avance = clamp((vh - PAUSA) / TRANSICION);
       const p = suave(avance);
@@ -186,7 +258,24 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
       escena.style.setProperty('--tux', String(p));
       fijar('--tuc', CURVA * Math.sin(Math.PI * avance));
       escena.style.setProperty('--q', String(q));
-      escena.toggleAttribute('data-oculta', q < 0.02);
+      escena.toggleAttribute('data-oculta', q < 0.002);
+      // Tarjeta: círculo que crece desde el botón; al terminar se quita la máscara.
+      escena.toggleAttribute('data-circulo', q < 0.999);
+      if (q < 0.999) fijar('--cr', q * radioMax());
+
+      // Botón: aparece con el scroll (aun antes de fijarse la escena) y se va al empezar la transición.
+      const alturaVentana = window.innerHeight;
+      const s = TOPE - escena.getBoundingClientRect().top; // px desde que la escena se fija
+      const desde = -(0.97 * alturaVentana - TOPE - desfase); // el botón asoma por abajo
+      const hasta = (BOTON_LLEGA / 100) * alturaVentana;
+      const llega = suave(clamp((s - desde) / (hasta - desde)));
+      const sale = suave(clamp((vh - BOTON_SALE_INI) / (BOTON_SALE_FIN - BOTON_SALE_INI)));
+      // Siempre visible (opaco); con el scroll sube un poco hasta su sitio (--bs) y se va con el círculo.
+      const bi = 1 - sale;
+      escena.style.setProperty('--bi', String(bi));
+      escena.style.setProperty('--bs', String(llega));
+      ir.toggleAttribute('data-visible', bi > 0.02);
+      ir.toggleAttribute('data-listo', bi >= BOTON_LISTO);
     };
 
     // El dibujo sigue al scroll con suavizado (no salta con cada golpe de la rueda del mouse).
@@ -214,9 +303,10 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
       const activa = escritorio.matches && !reducido.matches;
       escena.toggleAttribute('data-pin', activa);
       if (!activa) {
-        for (const k of ['--p', '--q', '--dx', '--dy', '--ax', '--ay', '--tux', '--tuy', '--tuc'])
+        for (const k of ['--p', '--q', '--dx', '--dy', '--ax', '--ay', '--tux', '--tuy', '--tuc', '--by', '--bx', '--cx', '--cy', '--cr', '--bi', '--bs'])
           escena.style.removeProperty(k);
         escena.removeAttribute('data-oculta');
+        escena.removeAttribute('data-circulo');
         window.removeEventListener('scroll', programar);
         return;
       }
@@ -226,7 +316,62 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
       window.addEventListener('scroll', programar, { passive: true });
     };
 
+    // «Hacer test»: baja el scroll (animación propia, el smooth nativo se entrecorta) hasta que la
+    // tarjeta ya está entera; de paso se reproduce toda la escena. Un gesto del usuario la corta.
+    // - Arranca rápido (ease-out): con una curva lenta al inicio parecía que el botón no respondía.
+    // - La rueda no corta en los primeros 600 ms: la inercia del trackpad de un scroll anterior
+    //   (p. ej. subir) llegaba como «rueda» y cancelaba la animación apenas empezaba.
+    // - Un clic nuevo reemplaza la animación en curso en vez de ignorarse.
+    // - Con el mouse se activa al pulsar (pointerdown): mientras la página aún se mueve, el botón se
+    //   desplaza bajo el cursor y el clic (pulsar + soltar sobre el mismo elemento) se perdía.
+    const GRACIA_RUEDA = 600;
+    let detener = () => {};
+    const bajar = () => {
+      detener();
+      const recorrido = escena.offsetHeight - (window.innerHeight - TOPE);
+      const inicioDoc = escena.getBoundingClientRect().top + window.scrollY - TOPE;
+      const destino = inicioDoc + recorrido * (META_CLIC / RECORRIDO);
+      const ini = window.scrollY;
+      const dist = destino - ini;
+      const enfocar = () => tarjeta.querySelector<HTMLElement>('h3')?.focus({ preventScroll: true });
+      if (Math.abs(dist) < 4) return enfocar();
+      const dur = Math.min(1300, Math.max(700, Math.abs(dist) * 0.9));
+      const t0 = performance.now();
+      let activa = true;
+      const eventos = ['wheel', 'touchstart', 'keydown'] as const;
+      const cortar = (e: Event) => {
+        if (e.type === 'wheel' && performance.now() - t0 < GRACIA_RUEDA) return;
+        detener();
+      };
+      detener = () => {
+        activa = false;
+        eventos.forEach((e) => window.removeEventListener(e, cortar));
+      };
+      eventos.forEach((e) => window.addEventListener(e, cortar, { passive: true }));
+      const paso = (ahora: number) => {
+        if (!activa) return;
+        const p = Math.min((ahora - t0) / dur, 1);
+        window.scrollTo({ top: ini + dist * (1 - Math.pow(1 - p, 3)), behavior: 'instant' });
+        if (p < 1) return void requestAnimationFrame(paso);
+        detener();
+        enfocar();
+      };
+      requestAnimationFrame(paso);
+    };
+    ir.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || e.pointerType === 'touch') return;
+      bajar();
+    });
+    // Teclado (Enter/Espacio, detail 0) y táctil; el clic de mouse ya se atendió en pointerdown.
+    ir.addEventListener('click', (e) => {
+      if (e.detail > 0 && (e as PointerEvent).pointerType !== 'touch') return;
+      bajar();
+    });
+
     configurar();
+    // La tipografía y las imágenes de arriba cambian los anchos medidos: se mide otra vez al cargar.
+    void document.fonts?.ready.then(configurar);
+    window.addEventListener('load', configurar);
     window.addEventListener('resize', configurar);
     reducido.addEventListener('change', configurar);
   }

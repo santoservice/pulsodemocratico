@@ -13,7 +13,7 @@ import { instituciones } from '../../data/sitio';
  * - Pie con los logos de las instituciones y los créditos (pedido del cliente).
  */
 
-// Orden de sitio.ts: CNEP, Wisconsin, La Sabana, Externado, Complutense.
+// Orden de sitio.ts: CNEP, Wisconsin, La Sabana, Externado.
 const logos = instituciones.flatMap((i) =>
   i.logo ? [{ nombre: i.nombre, src: i.logo, escala: i.escala ?? 1 }] : [],
 );

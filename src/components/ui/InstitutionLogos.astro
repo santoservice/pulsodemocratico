@@ -32,7 +32,7 @@ const alto = size === 'sm' ? 40 : 52;
 >
   {instituciones.map((i) => {
     const alt = i.sigla ? `${i.nombre} (${i.sigla})` : i.nombre;
-    // Logos que se ven chicos (Complutense) llevan un factor de escala sobre el alto estándar.
+    // Logo que se ve chico lleva un factor de escala sobre el alto estándar (si no, 1).
     const esc = i.escala ?? 1;
     const altoLogo = Math.round(alto * esc);
     return (

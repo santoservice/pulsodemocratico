@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { Image } from 'astro:assets';
 import imagenInicio from '../assets/images/inicio.webp';
 import ExploraTemas from '../components/ui/ExploraTemas.astro';
+import QuestionModal from '../components/results/QuestionModal.astro';
 import EscenaQuiz from '../components/ui/EscenaQuiz.astro';
 import { cifrasEncuesta, sitio } from '../data/sitio';
 import { getStats } from '../lib/tablero';
@@ -74,5 +75,6 @@ const cifras = cifrasEncuesta(getStats(), entero);
   <!-- Temas -->
   <ExploraTemas />
 
-  <!-- "Ver detalle" de los hallazgos de Explora (a pantalla completa). -->
+  <!-- Sin detalles: el modal solo aporta la descarga de la gráfica de cada tema en "Explora". -->
+  <QuestionModal />
 </BaseLayout>
