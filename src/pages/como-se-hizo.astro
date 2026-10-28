@@ -35,22 +35,20 @@ const dataset = datasetJsonLd(
         {titulo('Ficha técnica')}
       </h2>
       <p class="aparece mt-2 text-ink-muted dark:text-[#D9E1EF]">Los datos clave del estudio.</p>
-      <ul class="aparece-hijos mt-6 grid gap-4 sm:grid-cols-2">
-        {fichaTecnica.map((item, i) => (
+      <ul class="aparece-hijos mt-6 grid gap-4 max-sm:auto-rows-fr sm:grid-cols-2">
+        {fichaTecnica.map((item) => (
           <li class="relative flex flex-col overflow-hidden rounded-2xl bg-(--glass-fill) p-5 md:p-6">
-            {/* Ícono grande y tenue de fondo, en azul, cortado por una esquina (alterna abajo/arriba).
-                La opacidad va en el ícono entero: con color translúcido los trazos que se cruzan
-                se ven más claros. */}
+            {/* Ícono grande y tenue de fondo, en azul, siempre del mismo tamaño y en la esquina
+                inferior derecha (cortado por ella). La opacidad va en el ícono entero: con color
+                translúcido los trazos que se cruzan se ven más claros. */}
             <Icon
               name={item.icono}
               aria-hidden="true"
               class:list={[
-                'pointer-events-none absolute text-accent opacity-20',
-                item.id === 'cobertura'
-                  ? '-right-8 -bottom-14 h-56 w-44'
-                  : i % 2 === 0 || item.id === 'trabajo-de-campo'
-                    ? '-right-8 -bottom-8 h-36 w-36'
-                    : '-top-8 -right-8 h-36 w-36',
+                'pointer-events-none absolute -right-8 -bottom-8 h-36 w-36 text-accent opacity-10',
+                // Lucide trae trazo 2; los dos íconos propios (src/icons) llevan el suyo en el SVG,
+                // calculado para verse igual de grueso (≈9 px a 144 px).
+                item.icono.startsWith('lucide:') && '[&_*]:[stroke-width:1.5]',
               ]}
             />
             <h3 class="relative text-lg font-bold text-white">{item.titulo}</h3>
@@ -71,18 +69,17 @@ const dataset = datasetJsonLd(
       </p>
       <LineaPanel />
       <div class="aparece mt-12">
-        <RematePanel />
-      </div>
-      <div class="aparece-hijos mt-8 max-w-3xl space-y-3 leading-relaxed text-ink-muted dark:text-[#D9E1EF]">
-        <p>
-          En las encuestas tipo panel es normal que algunas personas dejen de participar entre una
-          ronda y otra, por falta de tiempo, porque no ven la invitación o porque deciden no
-          continuar. Por eso el número de participantes baja de una ronda a la siguiente.
-        </p>
-        <p>
-          El número de preguntas también varía: cada ronda combina un núcleo común, que permite
-          comparar los cambios, con preguntas propias de cada momento de la campaña.
-        </p>
+        <RematePanel>
+          <p>
+            En las encuestas tipo panel es normal que algunas personas dejen de participar entre
+            una ronda y otra, por falta de tiempo, porque no ven la invitación o porque deciden no
+            continuar. Por eso el número de participantes baja de una ronda a la siguiente.
+          </p>
+          <p>
+            El número de preguntas también varía: cada ronda combina un núcleo común, que permite
+            comparar los cambios, con preguntas propias de cada momento de la campaña.
+          </p>
+        </RematePanel>
       </div>
     </section>
 

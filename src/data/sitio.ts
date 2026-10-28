@@ -30,7 +30,6 @@ export interface NavItem {
 
 /** Menú principal. Regla del cliente: títulos solo con mayúscula inicial (`titulo()`). */
 export const nav: NavItem[] = [
-  { label: 'Inicio', href: ruta('/') },
   {
     label: 'Resultados',
     href: ruta('/resultados'),
@@ -49,6 +48,8 @@ export interface Institucion {
    * `null` = pendiente: se muestra un Placeholder.
    */
   logo: ImageMetadata | null;
+  /** Factor sobre el alto estándar del logo (1 = normal); para logos que se ven chicos. */
+  escala?: number;
 }
 
 /**
@@ -73,6 +74,7 @@ export const instituciones: Institucion[] = [
     nombre: 'Universidad Complutense de Madrid',
     url: 'https://www.ucm.es/',
     logo: logoComplutense,
+    escala: 1.35,
   },
 ];
 

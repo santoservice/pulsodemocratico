@@ -37,7 +37,8 @@ const ya = top + T.length * fila + 6;
     const tip = `${t.nombre} · ${fmtN(t.n)} personas\nTitulares verdaderos: ${fmt(t.verdaderos, 2)}\nTitulares falsos: ${fmt(t.falsos, 2)}\nDistancia entre ambos: ${fmt(t.distingue, 2)}`;
     return (
       <>
-        {i === 0 && <rect x="0" y={y - 2} width={W} height={fila - 6} rx="8" class="fill-chart-accent/10" />}
+        {/* `columna`: se salta el rx de 6 px que global.css aplica a las barras, y queda el de aquí. */}
+        {i === 0 && <rect x="0" y={y - 2} width={W} height={fila - 6} rx="14" class="columna fill-chart-accent/10" />}
         <text x={m.l} y={y + 13} class={CLS.fila}>{t.nombre}</text>
         <text x={W - m.r} y={y + 13} text-anchor="end" class:list={['fill-ink-muted', CLS.cambio]}>
           distancia: {fmt(t.distingue, 2)}

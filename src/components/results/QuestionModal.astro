@@ -14,7 +14,9 @@ import { instituciones } from '../../data/sitio';
  */
 
 // Orden de sitio.ts: CNEP, Wisconsin, La Sabana, Externado, Complutense.
-const logos = instituciones.flatMap((i) => (i.logo ? [{ nombre: i.nombre, src: i.logo }] : []));
+const logos = instituciones.flatMap((i) =>
+  i.logo ? [{ nombre: i.nombre, src: i.logo, escala: i.escala ?? 1 }] : [],
+);
 ---
 
 <div hidden data-detalles>
@@ -36,7 +38,7 @@ const logos = instituciones.flatMap((i) => (i.logo ? [{ nombre: i.nombre, src: i
         <div class="min-w-0">
           <p
             data-modal-eyebrow
-            class="truncate text-xs font-bold tracking-[0.18em] text-ink-muted uppercase"
+            class="truncate text-sm font-bold text-ink-muted lowercase first-letter:uppercase md:text-base"
           ></p>
           <p
             data-modal-titulo
@@ -71,25 +73,24 @@ const logos = instituciones.flatMap((i) => (i.logo ? [{ nombre: i.nombre, src: i
       <p id="modal-pregunta-logos" class="sr-only">
         Instituciones participantes
       </p>
-      <!-- En una fila: centrada si cabe; si no (celular), se desliza de lado. -->
-      <div class="overflow-x-auto">
-        <ul
-          aria-labelledby="modal-pregunta-logos"
-          class="mx-auto flex w-max items-center gap-8 px-4 md:gap-10"
-        >
-          {logos.map((l) => (
-            <li class="shrink-0">
-              <Image
-                src={l.src}
-                alt={l.nombre}
-                height={40}
-                loading="lazy"
-                class="h-10 w-auto object-contain"
-              />
-            </li>
-          ))}
-        </ul>
-      </div>
+      <!-- Centrados; si no caben en una fila (celular), pasan a la siguiente. -->
+      <ul
+        aria-labelledby="modal-pregunta-logos"
+        class="container-page flex flex-wrap items-center justify-center gap-x-8 gap-y-6 md:gap-x-10"
+      >
+        {logos.map((l) => (
+          <li class="shrink-0">
+            <Image
+              src={l.src}
+              alt={l.nombre}
+              height={Math.round(40 * l.escala)}
+              loading="lazy"
+              style={`height:${2.5 * l.escala}rem`}
+              class="w-auto object-contain"
+            />
+          </li>
+        ))}
+      </ul>
       <p class="container-page mt-4 text-center text-xs leading-relaxed text-ink-muted">
         © 2026 Pulso Democrático. Encuesta Colombia 2026, Comparative National Elections Project
         (CNEP).
@@ -104,22 +105,24 @@ const logos = instituciones.flatMap((i) => (i.logo ? [{ nombre: i.nombre, src: i
   Siempre en tema claro (isla data-theme="light"), aunque el sitio se vea en oscuro.
 -->
 <template data-descarga-plantilla>
-  <div data-theme="light" class="bg-page text-ink">
+  <div data-theme="light" class="bg-white text-ink" style="--color-ink: #001844; --color-ink-muted: #001844; --color-brand: #001844">
     <div class="px-8 pt-7 pb-5">
-      <p data-d-eyebrow class="text-xs font-bold tracking-[0.18em] text-ink-muted uppercase"></p>
+      <p data-d-eyebrow class="text-base font-bold text-ink-muted"></p>
       <p data-d-titulo class="mt-1 text-2xl leading-tight font-bold text-brand"></p>
     </div>
-    <div data-d-cuerpo class="px-8 pb-8"></div>
-    <div data-theme="light" class="border-t-2 border-brand bg-cream px-8 py-5">
+    <!-- Las tarjetas de la imagen (bg-surface) van en gris claro #f3f3f3, no en el crema del tema. -->
+    <div data-d-cuerpo class="px-8 pb-8" style="--color-surface: #f3f3f3"></div>
+    <div data-theme="light" class="bg-white px-8 py-5" style="--color-ink: #001844; --color-ink-muted: #001844; --color-brand: #001844">
       <ul class="flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
         {logos.map((l) => (
           <li class="shrink-0">
             <Image
               src={l.src}
               alt={l.nombre}
-              height={40}
+              height={Math.round(40 * l.escala)}
               loading="eager"
-              class="h-8 w-auto object-contain"
+              style={`height:${2 * l.escala}rem`}
+              class="w-auto object-contain"
             />
           </li>
         ))}
@@ -131,6 +134,14 @@ const logos = instituciones.flatMap((i) => (i.logo ? [{ nombre: i.nombre, src: i
     </div>
   </div>
 </template>
+
+<style is:global>
+  /* Imagen descargable: bordes de tarjetas y líneas de tablas en blanco (las líneas de las gráficas,
+     que son SVG con stroke-border, no se tocan). */
+  [data-d-cuerpo] .border-border {
+    border-color: #fff;
+  }
+</style>
 
 <style>
   .modal-pregunta[open] {
@@ -234,11 +245,18 @@ const logos = instituciones.flatMap((i) => (i.logo ? [{ nombre: i.nombre, src: i
       try {
         const { domToPng } = await import('modern-screenshot');
         const lienzo = (plantilla.content.firstElementChild as HTMLElement).cloneNode(true) as HTMLElement;
-        const ancho = Math.max(bloque.offsetWidth, 560);
+        // En celular la imagen sale con el diseño de escritorio: las variantes `lg:` no se aplican
+        // (el viewport es chico), así que se emulan sobre la copia más abajo y el lienzo se ensancha.
+        const movil = !window.matchMedia('(min-width: 64rem)').matches;
+        const completo = bloque.dataset.descarga?.endsWith('-completo');
+        const ancho = movil ? (completo ? 1100 : 504) : Math.max(bloque.offsetWidth, 560);
         lienzo.style.width = `${ancho + 64}px`;
         // Tema y título: los del bloque (tarjetas fuera del modal) o los de la barra del modal.
+        // Con la primera en mayúscula y el resto en minúscula, en el texto mismo: modern-screenshot
+        // no dibuja ::first-letter.
+        const tema = (bloque.dataset.tema ?? eyebrow.textContent ?? '').toLocaleLowerCase('es');
         lienzo.querySelector('[data-d-eyebrow]')!.textContent =
-          bloque.dataset.tema ?? eyebrow.textContent;
+          tema.charAt(0).toLocaleUpperCase('es') + tema.slice(1);
         lienzo.querySelector('[data-d-titulo]')!.textContent =
           bloque.dataset.titulo ?? tituloBarra.textContent;
         const copia = bloque.cloneNode(true) as HTMLElement;
@@ -247,6 +265,19 @@ const logos = instituciones.flatMap((i) => (i.logo ? [{ nombre: i.nombre, src: i
         copia.querySelectorAll('details').forEach((d) => (d.open = true));
         // Íconos de astro-icon repetidos (<use href="#ai:…">): modern-screenshot no acepta ese id.
         copia.querySelectorAll('use[href^="#ai:"]').forEach((u) => u.closest('svg')?.remove());
+        if (movil) {
+          // Gráfica ancha en vez de la de celular.
+          copia.querySelectorAll<HTMLElement>('.lg\\:hidden').forEach((e) => (e.style.display = 'none'));
+          copia
+            .querySelectorAll<HTMLElement>('.max-lg\\:hidden')
+            .forEach((e) => e.style.setProperty('display', 'block', 'important'));
+          // Columnas y filas completas de la cuadrícula del detalle (`lg:grid-cols-[..]`, `lg:col-span-2`).
+          [copia, ...copia.querySelectorAll<HTMLElement>('*')].forEach((e) => {
+            const col = [...e.classList].find((c) => c.startsWith('lg:grid-cols-['));
+            if (col) e.style.gridTemplateColumns = col.slice(14, -1).replaceAll('_', ' ');
+            if (e.classList.contains('lg:col-span-2')) e.style.gridColumn = 'span 2';
+          });
+        }
         copia.style.margin = '0';
         lienzo.querySelector('[data-d-cuerpo]')!.append(copia);
         fuera.append(lienzo);

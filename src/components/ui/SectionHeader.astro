@@ -37,7 +37,17 @@ const titleClass =
     <p class="mb-3 text-xs font-semibold tracking-[0.25em] text-accent uppercase">{eyebrow}</p>
   )}
   <Tag id={id} class={titleClass}>
-    {titulo(title)}
+    {/* Un «\n» en el título es un salto de línea solo en celular (en escritorio, un espacio). */}
+    {titulo(title).split('\n').map((parte, k) => (
+      <>
+        {k > 0 && (
+          <>
+            <br class="md:hidden" />{' '}
+          </>
+        )}
+        {parte}
+      </>
+    ))}
   </Tag>
   {lead && <p class="mt-4 text-lg leading-relaxed text-ink-muted">{lead}</p>}
   <slot />

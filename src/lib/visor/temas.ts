@@ -599,7 +599,7 @@ function jovIA(): HallazgoVisor {
     etiqueta: 'Jóvenes · Inteligencia artificial',
     titulo: '¿Los jóvenes usan y confían más en la IA para votar?',
     leyenda: {
-      items: GRUPOS_EDAD.map((g, i) => ({ texto: g.et, tipo: 'color', bg: i ? 'bg-serie-2' : 'bg-serie-1' })),
+      items: GRUPOS_EDAD.map((g, i) => ({ texto: g.et, tipo: 'color', bg: i ? 'bg-serie-amarillo' : 'bg-serie-1' })),
       nota: `De cada 100 personas de cada grupo · ${rondaCorta(Rd)}. Cada escalón incluye solo a quienes pasaron los anteriores.`,
     },
     grafica: {

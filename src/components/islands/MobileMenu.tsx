@@ -95,7 +95,7 @@ export default function MobileMenu({ items, currentPath }: Props) {
       <nav
         id={panelId}
         aria-label="Principal (móvil)"
-        className={`fixed inset-0 z-0 overflow-y-auto bg-[rgb(0_16_46/0.62)] px-6 pt-24 pb-8 backdrop-blur-[22px] backdrop-saturate-[1.3] transition-[opacity,visibility] duration-300 ${open ? 'visible opacity-100' : 'invisible opacity-0'}`}
+        className={`fixed inset-0 z-0 overflow-y-auto bg-[rgb(0_16_46/0.62)] pt-24 pb-8 backdrop-blur-[22px] backdrop-saturate-[1.3] transition-[opacity,visibility] duration-300 ${open ? 'visible opacity-100' : 'invisible opacity-0'}`}
       >
         <ul className="container-page flex flex-col">
           {items.map((item, i) => {

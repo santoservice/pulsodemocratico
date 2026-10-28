@@ -18,17 +18,17 @@ const cifras = cifrasEncuesta(getStats(), entero);
   <!-- Hero -->
   <section aria-labelledby="titulo-principal" class="overflow-x-clip">
     <!-- En escritorio, contenedor más ancho (como la maqueta) y ocupa todo el alto de la ventana bajo el header (69px): no asoma la sección siguiente. -->
-    <div class="container-page grid items-center gap-8 py-10 md:py-14 lg:min-h-[calc(100svh-4.3rem)] lg:max-w-[75rem] lg:grid-cols-2 lg:content-center lg:gap-10 lg:py-12">
+    <div class="container-page grid max-lg:grid-cols-1 items-center gap-8 py-10 md:py-14 lg:min-h-[calc(100svh-4.3rem)] lg:max-w-[75rem] lg:grid-cols-2 lg:content-center lg:gap-10 lg:py-12">
       <!-- Texto un poco por debajo del centro, como la maqueta. -->
-      <div class="lg:pt-20">
+      <div class="lg:pt-20 max-lg:contents">
         <h1
           id="titulo-principal"
-          class="font-display text-[3.5rem] leading-[0.92] font-extrabold tracking-tight text-brand sm:text-7xl lg:text-[clamp(3.5rem,5vw,5rem)]"
+          class="max-lg:col-span-full max-lg:row-start-2 font-display text-[3.5rem] leading-[0.92] font-extrabold tracking-tight text-brand sm:text-7xl dark:text-white lg:text-[clamp(3.5rem,5vw,5rem)]"
         >
           <span class="block">{nombre1}</span>
           <span class="block">{nombre2}</span>
         </h1>
-        <p class="mt-5 max-w-md text-lg leading-relaxed text-ink lg:max-w-[30rem] lg:text-[1.3125rem]">{sitio.descripcion}</p>
+        <p class="mt-1 max-lg:-mt-3.5 max-w-md text-lg leading-relaxed text-ink max-lg:col-span-full max-lg:row-start-3 lg:max-w-[30rem] lg:text-[1.3125rem]">{sitio.descripcion}</p>
 
         <!-- Cifras -->
         <h2 id="cifras-titulo" class="sr-only">
@@ -37,20 +37,19 @@ const cifras = cifrasEncuesta(getStats(), entero);
         <!-- Sin caja: la cifra grande es la que manda; filetes finos entre columnas. -->
         <ul
           aria-labelledby="cifras-titulo"
-          class="mt-8 grid w-fit xl:w-max grid-cols-2 gap-y-6 sm:grid-cols-[repeat(4,auto)]"
+          class="mt-8 grid w-fit xl:w-max grid-cols-1 gap-y-5 lg:grid-cols-[repeat(4,auto)] max-lg:relative max-lg:z-10 max-lg:w-[144px] max-lg:rounded-2xl max-lg:p-3 max-lg:backdrop-blur-md max-lg:mt-0 max-lg:row-start-1 max-lg:col-start-1 max-lg:self-end max-lg:justify-self-start"
         >
           {cifras.map((c, k) => (
             <li
               class:list={[
-                'flex flex-col gap-1.5 pr-5',
-                k > 0 && 'sm:border-l sm:border-border sm:pl-5 dark:sm:border-cream/25',
-                k % 2 === 1 && 'max-sm:border-l max-sm:border-border max-sm:pl-5 dark:max-sm:border-cream/25',
+                'flex flex-col gap-1.5 pr-5 max-lg:pr-0',
+                k > 0 && 'max-lg:border-t max-lg:border-border max-lg:pt-4 dark:max-lg:border-cream/25 lg:border-l lg:border-border lg:pl-5 dark:lg:border-cream/25',
               ]}
             >
               <span class="text-4xl leading-none font-extrabold tracking-tight whitespace-nowrap text-brand tabular-nums lg:text-[2.7rem] dark:text-cream">
                 {c.value}
               </span>
-              <span class="max-w-[7.5rem] text-sm leading-snug lg:text-[0.9375rem] text-ink-muted dark:text-cream/80">{c.label}</span>
+              <span class="max-w-[7.5rem] max-lg:max-w-none text-sm leading-snug lg:text-[0.9375rem] text-ink-muted dark:text-cream/80">{c.label}</span>
             </li>
           ))}
         </ul>
@@ -61,10 +60,10 @@ const cifras = cifrasEncuesta(getStats(), entero);
         src={imagenInicio}
         alt="Collage sobre el mapa de Colombia: la bandera, una mujer afrocolombiana con turbante, un campesino con sombrero, la estatua de Bolívar, el Capitolio y una orquídea."
         widths={[480, 720, 945]}
-        sizes="(min-width: 1024px) 760px, (min-width: 640px) 28rem, 90vw"
+        sizes="(min-width: 1024px) 760px, 90vw"
         loading="eager"
         fetchpriority="high"
-        class="h-auto w-full max-lg:order-first max-lg:max-w-md max-lg:justify-self-center lg:-mr-8 lg:w-[calc(100%+2rem)] xl:-mr-16 xl:w-[calc(100%+4rem)] 2xl:-mr-24 2xl:w-[calc(100%+6rem)] xl:max-w-none"
+        class="h-auto w-full max-lg:col-span-full max-lg:row-start-1 max-lg:max-w-none max-lg:ml-[110px] max-lg:justify-self-start lg:-mr-8 lg:w-[calc(100%+2rem)] xl:-mr-16 xl:w-[calc(100%+4rem)] 2xl:-mr-24 2xl:w-[calc(100%+6rem)] xl:max-w-none"
       />
     </div>
   </section>

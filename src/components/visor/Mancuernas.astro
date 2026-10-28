@@ -18,8 +18,8 @@ const { filas, evolucion, aria, ancho = 320 } = Astro.props;
 const W = ancho;
 const P = 26; // alto de cada pista
 const x = (v: number) => 30 + (v / 100) * (W - 60);
-const COLOR = ['text-serie-1', 'text-serie-2'];
-const RELLENO = ['fill-serie-1', 'fill-serie-2'];
+const COLOR = ['text-serie-1', 'text-serie-amarillo'];
+const RELLENO = ['fill-serie-1', 'fill-serie-amarillo'];
 const rot = 'text-[12px] font-extrabold';
 ---
 
@@ -30,7 +30,7 @@ const rot = 'text-[12px] font-extrabold';
     const b = Math.max(...vals);
     return (
       <div class="cursor-pointer" data-tip={f.tip}>
-        <p class="text-[12.5px] leading-tight font-bold text-ink-muted">{f.titulo}</p>
+        <p class="mb-2 text-[12.5px] leading-tight text-ink-muted">{f.titulo}</p>
         <svg viewBox={`0 0 ${W} ${P}`} class="block h-auto w-full overflow-visible" aria-hidden="true">
           <line x1={x(0)} x2={x(100)} y1={P / 2} y2={P / 2} class="stroke-border" />
           <line x1={x(a)} x2={x(b)} y1={P / 2} y2={P / 2} stroke-width="3" stroke-linecap="round" class="stroke-ink-muted/50" />
@@ -51,7 +51,7 @@ const rot = 'text-[12px] font-extrabold';
   })}
   {evolucion && (
     <div class="border-t border-border pt-2.5">
-      <p class="text-[12.5px] leading-tight font-bold text-ink-muted">{evolucion.titulo}</p>
+      <p class="mb-2 text-[12.5px] leading-tight text-ink-muted">{evolucion.titulo}</p>
       {evolucion.grupos.map((g, gi) => {
         const p = g.valores;
         const cambio = Math.round(p[2]!) - Math.round(p[0]!);

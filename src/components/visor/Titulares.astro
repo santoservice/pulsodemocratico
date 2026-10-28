@@ -53,7 +53,7 @@ const ya = fin + 12;
     const lm = lado(tp.media);
     return (
       <>
-        <rect x="0" y={y0} width={W} height={cab - 6} rx="8" class="fill-chart-accent/10" />
+        <rect x="0" y={y0} width={W} height={cab - 6} rx="14" class="columna fill-chart-accent/10" />
         <text x={m.l} y={y0 + 16} class:list={[s.col, 'text-[12.5px] font-bold']}>{s.et} · promedio</text>
         <rect x={bm.x} y={y0 + 24} width={bm.w} height="14" rx="4.7" class={s.col} />
         <text x={x(tp.media) + lm.dx} y={y0 + 31} dominant-baseline="central" text-anchor={lm.anchor} class:list={[s.col, 'text-[12px] font-extrabold']}>

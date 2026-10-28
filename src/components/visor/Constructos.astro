@@ -43,7 +43,7 @@ const ya = y + 14;
   ))}
   {bloques.map(({ k, y: y0, items }) => (
     <>
-      <rect x="0" y={y0} width={W} height={cab - 6} rx="8" class="fill-chart-accent/10" />
+      <rect x="0" y={y0} width={W} height={cab - 6} rx="14" class="columna fill-chart-accent/10" />
       <text x="8" y={y0 + 16} class:list={[COL[k.clave], 'text-[12.5px] font-bold']}>{k.nombre} · promedio</text>
       <rect x="0" y={y0 + 24} width={x(k.media)} height="14" rx="4" class={COL[k.clave]} />
       <text x={x(k.media) + 6} y={y0 + 31} dominant-baseline="central" class:list={[COL[k.clave], 'text-[14px] font-extrabold']}>

@@ -6,7 +6,6 @@
  * tema que se ve (el nombre sube y entra el siguiente al hacer scroll) que despliega la lista de temas.
  * Gráfica de cada tema: su hallazgo principal del visor (src/lib/visor/principales.ts).
  */
-import { Icon } from 'astro-icon/components';
 import GraficaVisor from '../visor/GraficaVisor.astro';
 import IconoTema from './IconoTema.astro';
 import LinkButton from './LinkButton.astro';
@@ -33,7 +32,7 @@ const ANCHO_LG = 606; // 654 de la tarjeta menos el relleno del panel (24 px por
     <div class="lg:sticky lg:top-[calc(4.3rem+1.5rem)] lg:self-start" data-explora-columna>
       <!-- Intro (escritorio): el título entra grande y borroso al centro, se aclara y pasa a la izquierda. -->
       <div class="explora-titulo w-fit" data-explora-titulo>
-        <h2 id="temas-titulo" class="text-3xl font-bold text-brand md:text-4xl lg:text-[2.6rem] lg:leading-[1.05]">
+        <h2 id="temas-titulo" class="text-3xl font-bold text-brand dark:text-white md:text-4xl lg:text-[2.6rem] lg:leading-[1.05]">
           <!-- Dos líneas fijas en escritorio (la segunda invade un poco el espacio entre columnas). -->
           <span class="lg:block">{titulo('Explora los')}</span>{' '}
           <span class="lg:block lg:whitespace-nowrap">temas principales</span>
@@ -65,50 +64,22 @@ const ANCHO_LG = 606; // 654 de la tarjeta menos el relleno del panel (24 px por
     </div>
 
     <!--
-      Celular y tablet: barra pegada bajo el header mientras pasan las tarjetas (sticky dentro de la
-      grilla). Dice el tema que se ve y, al tocarla, despliega la lista de temas.
+      Celular y tablet: carrusel de temas pegado bajo el header mientras pasan las tarjetas (sticky
+      dentro de la grilla). Al cambiar de tarjeta, el carrusel se desliza para llevar el tema
+      activo al inicio (como la maqueta).
     -->
     <div class="explora-franja sticky top-[69px] z-20 -mx-4 mt-8 px-4 md:-mx-8 md:px-8 lg:hidden" data-explora-barra>
-      <button
-        type="button"
-        aria-expanded="false"
-        aria-controls="explora-lista"
-        data-explora-boton
-        class="flex w-full items-center gap-3 py-3 text-left"
-      >
-        <span class="sr-only">Tema que estás viendo:</span>
-        <!-- Nombres apilados: el actual al centro, los anteriores arriba y los siguientes abajo. -->
-        <span class="relative block h-7 min-w-0 flex-1 overflow-hidden">
-          {items.map(({ tema }, i) => (
-            <span
-              data-explora-nombre={tema.slug}
-              data-pos={i === 0 ? 'actual' : 'abajo'}
-              aria-hidden={i === 0 ? undefined : 'true'}
-              class="explora-nombre absolute inset-0 truncate text-lg leading-7 font-bold text-cream"
-            >
-              {titulo(tema.titulo)}
-            </span>
-          ))}
-        </span>
-        <span class="sr-only">. Cambiar de tema</span>
-        <span class="flex shrink-0 items-center text-ink" aria-hidden="true">
-          <Icon name="lucide:chevron-down" data-explora-flecha class="h-5 w-5 transition-transform duration-200" />
-        </span>
-      </button>
-      <ul id="explora-lista" hidden class="explora-lista mb-3 rounded-3xl px-4 py-2">
+      <nav aria-label="Temas" class="explora-carrusel relative flex gap-2 overflow-x-auto py-3" data-explora-carrusel>
         {items.map(({ tema }) => (
-          <li class="border-b border-white/10 last:border-b-0">
-            <a
-              href={`#explora-${tema.slug}`}
-              data-explora-opcion={tema.slug}
-              class="flex items-center gap-3 px-2 py-3.5 text-ink aria-[current=true]:font-bold aria-[current=true]:text-cream"
-            >
-              <span class="flex-1">{titulo(tema.titulo)}</span>
-              <IconoTema slug={tema.slug} class="h-5 w-10 shrink-0" />
-            </a>
-          </li>
+          <a
+            href={`#explora-${tema.slug}`}
+            data-explora-opcion={tema.slug}
+            class="shrink-0 rounded-full border border-transparent px-5 py-2.5 text-sm font-bold whitespace-nowrap text-ink transition-colors duration-300 aria-[current=true]:border-white/25 aria-[current=true]:bg-[rgb(19_28_48/0.95)] aria-[current=true]:text-white"
+          >
+            {titulo(tema.titulo)}
+          </a>
         ))}
-      </ul>
+      </nav>
     </div>
 
     <!-- Escritorio: mucho aire entre tarjetas para ver una a la vez, y la primera más abajo. -->
@@ -121,8 +92,8 @@ const ANCHO_LG = 606; // 654 de la tarjeta menos el relleno del panel (24 px por
               aria-labelledby={`explora-${tema.slug}-t`}
               class="explora-tarjeta scroll-mt-40 rounded-2xl lg:scroll-mt-28 border border-border bg-surface p-5 md:p-8"
             >
-              <p class="text-xs font-bold tracking-[0.18em] text-ink uppercase">{tema.titulo}</p>
-              <h3 id={`explora-${tema.slug}-t`} class="mt-3 text-xl leading-snug font-bold text-brand md:text-2xl">
+              <p class="text-sm text-ink dark:text-white">{titulo(tema.titulo)}</p>
+              <h3 id={`explora-${tema.slug}-t`} class="mt-3 text-xl leading-snug font-bold text-brand md:text-2xl dark:text-white">
                 {h.titulo}
               </h3>
 
@@ -208,25 +179,14 @@ const ANCHO_LG = 606; // 654 de la tarjeta menos el relleno del panel (24 px por
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
   }
-  .explora-lista {
-    background-color: var(--color-surface);
+  /* Carrusel de temas: se desliza solo (scrollTo suave desde el script); sin barra visible. */
+  .explora-carrusel {
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    scroll-behavior: auto;
   }
-  :global(:root[data-theme='dark']) .explora-lista {
-    background-color: rgb(19 28 48 / 0.95);
-  }
-  /* Nombre del tema: el que sale sube y el siguiente entra desde abajo (al revés si se sube). */
-  .explora-nombre {
-    transition:
-      translate 0.45s cubic-bezier(0.23, 1, 0.32, 1),
-      opacity 0.3s ease;
-  }
-  .explora-nombre[data-pos='arriba'] {
-    translate: 0 -100%;
-    opacity: 0;
-  }
-  .explora-nombre[data-pos='abajo'] {
-    translate: 0 100%;
-    opacity: 0;
+  .explora-carrusel::-webkit-scrollbar {
+    display: none;
   }
 
   /* Aparición suave de cada tarjeta al entrar en pantalla (solo con JS y sin movimiento reducido). */
@@ -336,17 +296,40 @@ const ANCHO_LG = 606; // 654 de la tarjeta menos el relleno del panel (24 px por
   const links = [...document.querySelectorAll<HTMLElement>('[data-explora-link]')];
 
   if (tarjetas.length && 'IntersectionObserver' in window) {
-    const nombres = [...document.querySelectorAll<HTMLElement>('[data-explora-nombre]')];
     const opciones = [...document.querySelectorAll<HTMLElement>('[data-explora-opcion]')];
+    const carrusel = document.querySelector<HTMLElement>('[data-explora-carrusel]');
+    const reducido = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let ultimo = '';
+    // Desliza el carrusel con una animación propia (ease-out, 450 ms): el scroll "smooth" nativo se
+    // entrecorta cuando la página también está en movimiento. Una animación nueva reemplaza a la anterior.
+    let cuadro = 0;
+    const deslizar = (destino: number, animar: boolean) => {
+      cancelAnimationFrame(cuadro);
+      if (!carrusel) return;
+      const max = carrusel.scrollWidth - carrusel.clientWidth;
+      const fin = Math.min(Math.max(destino, 0), max);
+      const ini = carrusel.scrollLeft;
+      if (!animar || Math.abs(fin - ini) < 1) {
+        carrusel.scrollLeft = fin;
+        return;
+      }
+      const t0 = performance.now();
+      const paso = (ahora: number) => {
+        const p = Math.min((ahora - t0) / 450, 1);
+        carrusel.scrollLeft = ini + (fin - ini) * (1 - Math.pow(1 - p, 3));
+        if (p < 1) cuadro = requestAnimationFrame(paso);
+      };
+      cuadro = requestAnimationFrame(paso);
+    };
     const activar = (slug: string) => {
       links.forEach((a) => a.toggleAttribute('data-activo', a.dataset.exploraLink === slug));
-      // Barra del celular: los nombres antes del actual quedan arriba y los siguientes abajo.
-      const k = nombres.findIndex((n) => n.dataset.exploraNombre === slug);
-      nombres.forEach((n, i) => {
-        n.dataset.pos = i < k ? 'arriba' : i > k ? 'abajo' : 'actual';
-        n.toggleAttribute('aria-hidden', i !== k);
-      });
       opciones.forEach((o) => o.setAttribute('aria-current', String(o.dataset.exploraOpcion === slug)));
+      // Carrusel del celular: se desliza para dejar el tema activo al inicio (solo si hay desborde).
+      if (carrusel && slug !== ultimo && carrusel.scrollWidth > carrusel.clientWidth) {
+        const o = opciones.find((x) => x.dataset.exploraOpcion === slug);
+        if (o) deslizar(o.offsetLeft, ultimo !== '' && !reducido.matches);
+      }
+      ultimo = slug;
     };
 
     // Tema activo: la última tarjeta que ya llegó a la mitad de la pantalla.
@@ -367,29 +350,6 @@ const ANCHO_LG = 606; // 654 de la tarjeta menos el relleno del panel (24 px por
     actualizar();
     window.addEventListener('scroll', programar, { passive: true });
 
-    // Lista desplegable de la barra del celular; al elegir un tema, el enlace baja a su tarjeta.
-    const barra = document.querySelector<HTMLElement>('[data-explora-barra]');
-    const boton = barra?.querySelector<HTMLButtonElement>('[data-explora-boton]');
-    const lista = document.getElementById('explora-lista');
-    const flecha = barra?.querySelector<SVGElement>('[data-explora-flecha]');
-    if (barra && boton && lista) {
-      const abrir = (si: boolean) => {
-        lista.hidden = !si;
-        boton.setAttribute('aria-expanded', String(si));
-        if (flecha) flecha.style.rotate = si ? '180deg' : '';
-      };
-      boton.addEventListener('click', () => abrir(lista.hidden !== false));
-      lista.addEventListener('click', () => abrir(false));
-      document.addEventListener('click', (e) => {
-        if (!lista.hidden && !barra.contains(e.target as Node)) abrir(false);
-      });
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !lista.hidden) {
-          abrir(false);
-          boton.focus();
-        }
-      });
-    }
     window.addEventListener('resize', programar);
 
     if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {

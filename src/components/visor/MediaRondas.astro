@@ -50,7 +50,7 @@ const tip = (r: (typeof R)[number]) =>
     const c = x(medio(r));
     return (
       <>
-        <rect x={a} y={m.t} width={b - a} height={H - m.t - m.b} rx="6" class="fill-chart-accent/10" />
+        <rect x={a} y={m.t} width={b - a} height={H - m.t - m.b} rx="14" class="columna fill-chart-accent/10" />
         <text x={c} y={H - m.b + 22} text-anchor="middle" class={CLS.et}>{r.label}</text>
         <text x={c} y={H - m.b + 39} text-anchor="middle" class={CLS.fecha}>{rango(r.inicio, r.fin)}</text>
       </>

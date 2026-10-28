@@ -86,6 +86,8 @@
    */
   --color-serie-1: #00387d;
   --color-serie-2: #89764b;
+  /* Amarillo de las gráficas (2.ª serie del visor); en tema oscuro es #ffb400. */
+  --color-serie-amarillo: #89764b;
   --color-serie-3: #575451;
   --color-serie-4: #6f8fbf;
   /* Marcas de las vueltas electorales en las gráficas del visor. */
@@ -209,6 +211,7 @@
     /* Series del visor: 292 · dorado · crema · azul medio (todas ≥ 3:1 sobre surface). */
     --color-serie-1: #93aac9;
     --color-serie-2: #ffb400; /* amarillo de los collages (diseñadora) */
+    --color-serie-amarillo: #ffb400;
     --color-serie-3: #f7efd9;
     --color-serie-4: #6a8cc2;
     --color-chart-eleccion: #f7efd9;
@@ -294,6 +297,7 @@
     --color-chart-track: #d9e1ef;
     --color-serie-1: #00387d;
     --color-serie-2: #89764b;
+    --color-serie-amarillo: #89764b;
     --color-serie-3: #575451;
     --color-serie-4: #6f8fbf;
     --color-chart-eleccion: #89764b;
@@ -325,6 +329,7 @@
     --color-chart-eleccion: #f7efd9;
     --color-serie-1: #d9e1ef;
     --color-serie-2: #5e8be0;
+    --color-serie-amarillo: #ffb400;
     --color-serie-3: #f7efd9;
     --color-serie-4: #93aac9;
     --color-seq-1: #e6ecf5;

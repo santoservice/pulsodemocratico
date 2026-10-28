@@ -1,5 +1,4 @@
 ---
-import { Icon } from 'astro-icon/components';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionHeader from '../../components/ui/SectionHeader.astro';
 import QuestionModal from '../../components/results/QuestionModal.astro';
@@ -12,18 +11,10 @@ import { otrosHallazgosTema } from '../../lib/visor/temas';
 import { temas } from '../../data/temas';
 import { getIndicadores } from '../../lib/tablero';
 import { datasetJsonLd } from '../../lib/seo';
-import { entero, titulo } from '../../lib/format';
-import { meta } from '../../lib/visor/comun';
+import { titulo } from '../../lib/format';
 
 // Textos del documento de especificaciones del cliente.
 const lead = 'Una mirada global a los resultados de la encuesta.';
-
-const comoLeer = [
-  'La muestra no es probabilística: los resultados describen a las personas encuestadas, no a toda la población. Los datos no están ponderados.',
-  `Las mismas personas respondieron en tres rondas, entre mayo y julio de 2026 (${entero(meta.n_total)} en la 1.ª ronda). Cuando una gráfica compara rondas, usa solo a quienes respondieron en todas ellas.`,
-  '«▲ sube» o «▼ baja» indican un cambio estadísticamente significativo; «= se mantiene», un cambio que no lo es.',
-  'Pasa el mouse (o el foco del teclado) sobre una gráfica para ver el dato exacto.',
-];
 
 // Orden de los hallazgos en la cuadrícula (como la maqueta).
 const ordenMosaico = [
@@ -42,9 +33,18 @@ const lugar: Record<string, string> = {
 };
 // Gráficas más altas, un poco más chicas en el mosaico para que todo quepa en una pantalla.
 const zoom: Record<string, string> = {
-  'comportamiento-juvenil': 'lg:[&>div[id]]:[zoom:1.2]',
   'inteligencia-artificial': 'lg:[&>div[id]]:[zoom:0.75]',
 };
+// Jóvenes (columna más ancha, dos filas) se dibuja al ancho de su tarjeta (anchoLg 376 px: 1280 de
+// mosaico → 376 de tarjeta − 56 de relleno ÷ zoom 0,85). Además llena el alto de su tarjeta
+// (desde lg): la gráfica crece y su lista de filas reparte el espacio sobrante entre ellas.
+const llenar = [
+  'lg:[&>div[id]_.grafica-visor]:flex',
+  'lg:[&>div[id]_.grafica-visor]:flex-1',
+  'lg:[&>div[id]_.grafica-visor]:flex-col',
+  'lg:[&>div[id]_.grafica-visor>[role=img]]:flex-1',
+  'lg:[&>div[id]_.grafica-visor>[role=img]]:justify-between',
+].join(' ');
 // Columnas y figuras: versión baja dibujada al ancho de la tarjeta desde lg (≈233 px de tarjeta a
 // 1440 ÷ zoom 0,85 del mosaico ≈ 274), para que no queden cuadradas y el texto se lea mejor.
 const bajas = ['polarizacion', 'desinformacion', 'populismo'];
@@ -71,9 +71,9 @@ const dataset = datasetJsonLd(
   description="Principales hallazgos de la encuesta panel CNEP Colombia 2026: polarización, populismo, desinformación, inteligencia artificial, consumo mediático y comportamiento juvenil."
   jsonLd={dataset}
 >
-  <div class="container-page pt-2 pb-10 md:pt-4 md:pb-14">
+  <div class="container-page pt-2 pb-10 md:px-0! md:pt-4 md:pb-14">
     <section aria-labelledby="hallazgos-titulo">
-      <!-- Encabezado centrado como la maqueta; «Cómo leer estos datos» despliega una tarjeta con la lista debajo. -->
+      <!-- Encabezado centrado como la maqueta. -->
       <div class="mx-auto max-w-3xl text-center">
         <h1
           id="hallazgos-titulo"
@@ -81,33 +81,10 @@ const dataset = datasetJsonLd(
         >
           {titulo('Principales hallazgos')}
         </h1>
-        <p class="mt-1 text-sm text-ink-muted">
-          {lead}{' '}
-          <button
-            type="button"
-            id="como-leer-boton"
-            aria-expanded="false"
-            aria-controls="como-leer"
-            class="ml-1 inline-flex items-center gap-1.5 align-middle font-semibold text-ink underline-offset-4 transition-colors hover:text-cream hover:underline"
-          >
-            <Icon name="lucide:circle-help" class="h-4 w-4 shrink-0" aria-hidden="true" />
-            Cómo leer estos datos
-            <Icon name="lucide:chevron-down" class="flecha h-4 w-4 shrink-0 transition-transform" aria-hidden="true" />
-          </button>
-        </p>
+        <p class="mt-1 text-[20px] font-medium text-white">{lead}</p>
       </div>
       <!-- Más ancho que el contenedor en escritorio (hasta 80rem, 2rem de margen a cada lado). -->
       <div class="lg:mx-[calc(50%-min(40rem,50vw-2rem))]">
-      <div id="como-leer" class="como-leer grid" hidden>
-        <div class="min-h-0 overflow-hidden">
-          <!-- Misma tarjeta que los hallazgos (TarjetaVisor). -->
-          <div class="mt-6 rounded-2xl border border-border bg-surface p-5 md:p-6 dark:border-transparent dark:bg-tarjeta-visor">
-            <ul class="list-disc space-y-2 pl-5 text-sm leading-relaxed text-ink marker:text-ink-muted md:text-base">
-              {comoLeer.map((texto) => <li>{texto}</li>)}
-            </ul>
-          </div>
-        </div>
-      </div>
       <!--
         Hallazgos del visor (src/lib/visor/principales.ts). En escritorio, mosaico de la maqueta en
         una sola pantalla: 4 columnas (Jóvenes, en dos filas, más ancha) y Consumo en dos columnas;
@@ -139,6 +116,8 @@ const dataset = datasetJsonLd(
                 anchoLg={274}
                 class="lg:[&>div[id]_svg[role=img]]:max-h-none"
               />
+            ) : h.tema === 'comportamiento-juvenil' ? (
+              <TarjetaVisor hallazgo={h} as="h2" compacta anchoLg={376} class={llenar} />
             ) : (
               <TarjetaVisor hallazgo={h} as="h2" compacta class={zoom[h.tema]} />
             )}
@@ -161,16 +140,16 @@ const dataset = datasetJsonLd(
         grande
         id="temas-titulo"
         eyebrow="Colombia 2026"
-        title="Resultados de la encuesta"
-        class="mx-auto text-center"
+        title={'Resultados\nde la encuesta'}
+        class="mx-auto max-w-5xl! text-left md:text-center"
       >
-        <p class="mt-4 text-lg leading-relaxed text-ink-muted">
+        <p class="mt-4 text-base leading-relaxed font-medium text-white md:text-[20px]">
           Aquí presentamos, por temática,{' '}
-          <strong class="font-semibold text-ink">los resultados más relevantes</strong> sobre las
+          <strong class="font-semibold text-white">los resultados más relevantes</strong> sobre las
           percepciones, opiniones y actitudes de los colombianos durante la campaña presidencial de
           2026.
         </p>
-        <span class="mx-auto mt-6 block h-1 w-24 rounded-full bg-cream" aria-hidden="true"></span>
+        <span class="mt-6 block h-1 w-24 rounded-full bg-cream max-md:mx-0 md:mx-auto" aria-hidden="true"></span>
       </SectionHeader>
       </div>
       </div>
@@ -186,23 +165,6 @@ const dataset = datasetJsonLd(
 </BaseLayout>
 
 <style>
-  /* Se abre desde alto 0 (sale "de la nada"). */
-  .como-leer {
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.3s ease;
-  }
-  .como-leer[data-abierto] {
-    grid-template-rows: 1fr;
-  }
-  :global(#como-leer-boton[aria-expanded='true'] .flecha) {
-    transform: rotate(180deg);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .como-leer {
-      transition: none;
-    }
-  }
-
   /*
    * Intro: --b = borroso (1 → 0), --e = escala extra (0,5 → 0), --top = top fijo que centra el
    * título en la pantalla. Arriba, aire para que no se vea la cuadrícula anterior; abajo, el
@@ -291,23 +253,4 @@ const dataset = datasetJsonLd(
       reducido.addEventListener('change', configurar);
     }
   }
-
-  const boton = document.getElementById('como-leer-boton');
-  const panel = document.getElementById('como-leer');
-  boton?.addEventListener('click', () => {
-    if (!panel) return;
-    const abrir = boton.getAttribute('aria-expanded') !== 'true';
-    boton.setAttribute('aria-expanded', String(abrir));
-    if (abrir) {
-      panel.hidden = false;
-      void panel.offsetHeight; // fija el alto 0 antes de animar
-      panel.setAttribute('data-abierto', '');
-    } else {
-      panel.removeAttribute('data-abierto');
-      // Se oculta al terminar la animación (300 ms), si nadie lo volvió a abrir.
-      setTimeout(() => {
-        if (boton.getAttribute('aria-expanded') !== 'true') panel.hidden = true;
-      }, 300);
-    }
-  });
 </script>

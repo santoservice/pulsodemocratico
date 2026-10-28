@@ -61,7 +61,7 @@ const H = R.length * fila + 26;
         <text x="0" y={y + 14} class="fill-ink text-[12.5px] font-extrabold">
           {r.label}<tspan dx="6" class="fill-ink-muted text-[11.5px] font-normal">{rangoCorto(r.fechas)}</tspan>
         </text>
-        <rect x={x(G.umbral)} y={y0} width={x(MAX) - x(G.umbral) + m.r} height={banda} rx="6" class="fill-chart-accent/10" />
+        <rect x={x(G.umbral)} y={y0} width={x(MAX) - x(G.umbral) + m.r} height={banda} rx="14" class="columna fill-chart-accent/10" />
         <line x1={m.l} x2={W - m.r} y1={cy} y2={cy} class="stroke-border" />
         {P[i]!.flatMap((p) => {
           const filas = Math.ceil(p.n / cols);

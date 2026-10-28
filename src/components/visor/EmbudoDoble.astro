@@ -22,7 +22,7 @@ const tip = (i: number) =>
 <div role="img" aria-label={aria} class="flex flex-col gap-2">
   <div class="grid grid-cols-2 gap-4 text-[12.5px] font-extrabold">
     <span class="text-right text-serie-1">{GRUPOS_EDAD[0].et}</span>
-    <span class="text-serie-2">{GRUPOS_EDAD[1].et}</span>
+    <span class="text-serie-amarillo">{GRUPOS_EDAD[1].et}</span>
   </div>
   {filas.map((f, i) => (
     <div class:list={['flex flex-col gap-1', i > 0 && 'cursor-pointer']} data-tip={i > 0 ? tip(i) : undefined}>
@@ -32,7 +32,7 @@ const tip = (i: number) =>
           const v = valor(g.k, i);
           const dentro = v > 16;
           const num = (
-            <span class:list={['shrink-0 px-2 text-[15px] font-extrabold tabular-nums', i === 0 ? 'text-ink' : dentro ? 'text-navy' : gi === 0 ? 'text-serie-1' : 'text-serie-2']}>
+            <span class:list={['shrink-0 px-2 text-[15px] font-extrabold tabular-nums', i === 0 ? 'text-ink' : dentro ? 'text-navy' : gi === 0 ? 'text-serie-1' : 'text-serie-amarillo']}>
               {Math.round(v)}
             </span>
           );

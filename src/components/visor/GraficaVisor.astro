@@ -53,7 +53,13 @@ const g = h.grafica;
 -->
 <div class="grafica-visor mx-auto w-full" style={`max-width:${ancho}px`}>
   {(h.leyenda.items.length > 0 || h.leyenda.nota) && (
-    <div class="mb-3 flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[12.5px] text-ink-muted">
+    <div
+      class:list={[
+        'flex flex-wrap items-center gap-x-3.5 text-[12.5px] text-ink-muted',
+        // Sankey (polarización percibida): más aire entre los textos y hasta la gráfica.
+        g.tipo === 'sankey' ? 'mb-10 gap-y-2' : 'mb-3 gap-y-1',
+      ]}
+    >
       {h.leyenda.items.map((it) => (
         <span class="inline-flex items-center gap-1.5">
           {it.tipo === 'si' && <i class="inline-block h-[11px] w-[11px] rounded-full bg-chart-accent"></i>}
@@ -135,7 +141,12 @@ const g = h.grafica;
     actual = null;
   };
 
-  const objetivo = (e: Event) => (e.target as Element | null)?.closest<HTMLElement>('[data-tip]');
+  // Solo en el detalle (el <dialog>): las tarjetas de Principales hallazgos y de los temas no
+  // muestran el recuadro.
+  const objetivo = (e: Event) => {
+    const el = (e.target as Element | null)?.closest<HTMLElement>('[data-tip]');
+    return el?.closest('dialog') ? el : null;
+  };
   document.addEventListener('pointerover', (e) => {
     const el = objetivo(e);
     if (el && el !== actual) mostrar(el);

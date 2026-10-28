@@ -9,7 +9,6 @@
  */
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
-import { Icon } from 'astro-icon/components';
 import TarjetaVisor from '../visor/TarjetaVisor.astro';
 import { temas, type TemaSlug } from '../../data/temas';
 import { titulo } from '../../lib/format';
@@ -109,8 +108,11 @@ const items = temas.map((t) => {
     role="tablist"
     aria-label="Temas de resultados"
     hidden
-    class="selector-temas grid grid-cols-2 gap-2 py-3 sm:grid-cols-3 md:sticky md:top-[69px] md:z-20 lg:grid-cols-6"
+    class="selector-temas sticky top-[61px] z-20 md:top-[69px] md:grid md:grid-cols-3 lg:grid-cols-[repeat(6,minmax(max-content,1fr))]"
   >
+    {/* Celular: el carrusel es esta caja interior, así el texto se corta en el borde del relleno
+        (a 8 px del borde del selector) y no pegado al borde. Desde md desaparece (contents). */}
+    <div data-carrusel class="carrusel-temas relative flex gap-2 overflow-x-auto md:contents">
     {items.map(({ tema }, i) => (
       <button
         type="button"
@@ -120,58 +122,12 @@ const items = temas.map((t) => {
         aria-selected={i === 0 ? 'true' : 'false'}
         tabindex={i === 0 ? 0 : -1}
         data-tema={tema.slug}
-        class="flex min-h-11 items-center justify-center rounded-full px-3 py-1.5 text-center text-sm leading-tight font-bold text-ink transition-colors hover:bg-cream hover:text-navy aria-selected:bg-cream aria-selected:text-navy"
+        class="flex min-h-11 shrink-0 items-center justify-center rounded-full px-5 py-1.5 text-center text-sm leading-tight font-bold whitespace-nowrap text-ink transition-colors md:px-3 hover:bg-[#5e8be0] hover:text-(--color-tarjeta-visor) aria-selected:bg-cream aria-selected:text-navy"
       >
         {titulo(tema.titulo)}
       </button>
     ))}
-  </div>
-
-  <!--
-    Celular: al bajar por los temas, una barra bajo el encabezado dice qué tema se ve; al tocarla
-    se despliega la lista de temas (como el menú principal). El selector de arriba ya no se ve.
-  -->
-  <div
-    data-barra-tema
-    hidden
-    class="fixed inset-x-0 z-30 border-b border-border bg-page/95 backdrop-blur transition-[translate,opacity] duration-200 md:hidden"
-  >
-    <button
-      type="button"
-      data-barra-boton
-      aria-expanded="false"
-      aria-controls="lista-temas-barra"
-      class="container-page flex w-full items-center gap-3 py-3 text-left"
-    >
-      <span class="sr-only">Tema que estás viendo:</span>
-      {items.map(({ tema }, i) => (
-        <span data-barra-actual={tema.slug} hidden={i !== 0} class="min-w-0 flex-1 text-cream">
-          <span class="block truncate text-lg font-bold">{titulo(tema.titulo)}</span>
-        </span>
-      ))}
-      <span class="sr-only">. Cambiar de tema</span>
-      <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border text-ink" aria-hidden="true">
-        <Icon name="lucide:chevron-down" data-barra-flecha class="h-5 w-5 transition-transform duration-200" />
-      </span>
-    </button>
-    <ul
-      id="lista-temas-barra"
-      hidden
-      class="absolute inset-x-0 top-full rounded-b-2xl border-b border-border bg-surface px-4 py-2 shadow-md sm:px-6"
-    >
-        {items.map(({ tema }) => (
-          <li class="border-b border-surface-sunken last:border-b-0">
-            <button
-              type="button"
-              data-barra-opcion={tema.slug}
-              class="flex w-full items-center gap-3 py-3.5 text-left text-base text-ink aria-[current=true]:font-bold aria-[current=true]:text-cream"
-            >
-              <span class="flex-1">{titulo(tema.titulo)}</span>
-              <Icon name="lucide:check" data-marca class="h-5 w-5 shrink-0" aria-hidden="true" />
-            </button>
-          </li>
-        ))}
-    </ul>
+    </div>
   </div>
 
   {items.map(({ tema, pregunta, bajada, hallazgos, img }) => (
@@ -201,7 +157,7 @@ const items = temas.map((t) => {
           />
         )}
         <div class:list={['pb-2', img?.lado === 'der' && 'md:order-1']}>
-          <p class="text-xs font-bold tracking-[0.18em] text-ink-muted uppercase">{tema.titulo}</p>
+          <p class="text-xs font-bold tracking-[0.18em] text-ink-muted uppercase max-md:hidden">{tema.titulo}</p>
           <h3 class="mt-2 font-display text-2xl leading-[1.1] font-bold tracking-tight text-brand md:text-3xl lg:text-4xl">
             {pregunta}
           </h3>
@@ -223,7 +179,7 @@ const items = temas.map((t) => {
         {hallazgos.map((h) => (
           <li class:list={['min-w-0', anchos.has(h.id) && 'sm:col-span-2']}>
             <!-- Ancho de la gráfica desde lg: media fila (468 px) o la fila entera (1024 px). -->
-            <TarjetaVisor hallazgo={h} as="h4" anchoLg={anchos.has(h.id) ? 1024 : 468} />
+            <TarjetaVisor hallazgo={h} as="h4" encabezado anchoLg={anchos.has(h.id) ? 1024 : 468} />
           </li>
         ))}
       </ul>
@@ -237,12 +193,32 @@ const items = temas.map((t) => {
   if (raiz && lista) {
     const pestanas = Array.from(lista.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
     const paneles = Array.from(raiz.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
-    const barra = raiz.querySelector<HTMLElement>('[data-barra-tema]')!;
-    const boton = barra.querySelector<HTMLButtonElement>('[data-barra-boton]')!;
-    const listaBarra = barra.querySelector<HTMLElement>('#lista-temas-barra')!;
-    const flecha = barra.querySelector<SVGElement>('[data-barra-flecha]');
-    const opciones = Array.from(barra.querySelectorAll<HTMLButtonElement>('[data-barra-opcion]'));
     const encabezado = document.querySelector<HTMLElement>('[data-header]');
+    const reducido = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    // Celular: el selector es un carrusel horizontal; al elegir un tema se desliza (animación
+    // propia, ease-out) para dejarlo al inicio. En escritorio no hay desborde y no hace nada.
+    const carrusel = lista.querySelector<HTMLElement>('[data-carrusel]')!;
+    let cuadro = 0;
+    const deslizar = (i: number, animar: boolean) => {
+      cancelAnimationFrame(cuadro);
+      const max = carrusel.scrollWidth - carrusel.clientWidth;
+      if (max <= 0) return;
+      const fin = Math.min(Math.max(pestanas[i]!.offsetLeft, 0), max);
+      const ini = carrusel.scrollLeft;
+      if (!animar || Math.abs(fin - ini) < 1) {
+        carrusel.scrollLeft = fin;
+        return;
+      }
+      const t0 = performance.now();
+      const paso = (ahora: number) => {
+        const p = Math.min((ahora - t0) / 450, 1);
+        carrusel.scrollLeft = ini + (fin - ini) * (1 - Math.pow(1 - p, 3));
+        if (p < 1) cuadro = requestAnimationFrame(paso);
+      };
+      cuadro = requestAnimationFrame(paso);
+    };
+    let primera = true;
 
     const elegir = (i: number, enfocar = false) => {
       pestanas.forEach((p, k) => {
@@ -251,21 +227,16 @@ const items = temas.map((t) => {
         p.tabIndex = activa ? 0 : -1;
         paneles[k]!.hidden = !activa;
       });
-      const slug = pestanas[i]!.dataset.tema;
-      barra.querySelectorAll<HTMLElement>('[data-barra-actual]').forEach((e) => (e.hidden = e.dataset.barraActual !== slug));
-      opciones.forEach((o) => {
-        const actual = o.dataset.barraOpcion === slug;
-        o.setAttribute('aria-current', String(actual));
-        o.querySelector<SVGElement>('[data-marca]')!.style.visibility = actual ? 'visible' : 'hidden';
-      });
-      if (enfocar) pestanas[i]!.focus();
+      deslizar(i, !primera && !reducido.matches);
+      primera = false;
+      if (enfocar) pestanas[i]!.focus({ preventScroll: true });
     };
 
-    // La ilustración de un tema se pide al pasar el mouse, enfocar o tocar su pestaña u
-    // opción: así la página pesa menos al abrir y no aparece tarde al cambiar de tema.
+    // La ilustración de un tema se pide al pasar el mouse, enfocar o tocar su pestaña:
+    // así la página pesa menos al abrir y no aparece tarde al cambiar de tema.
     const precargar = (e: Event) => {
-      const el = (e.target as Element).closest<HTMLElement>('[data-tema], [data-barra-opcion]');
-      const slug = el?.dataset.tema ?? el?.dataset.barraOpcion;
+      const el = (e.target as Element).closest<HTMLElement>('[data-tema]');
+      const slug = el?.dataset.tema;
       raiz.querySelectorAll<HTMLImageElement>(`[data-panel="${slug}"] img[loading="lazy"]`).forEach((img) => (img.loading = 'eager'));
     };
     for (const tipo of ['pointerover', 'focusin', 'touchstart']) {
@@ -332,53 +303,13 @@ const items = temas.map((t) => {
       subirSiPegado();
     });
 
-    // Lista desplegable de la barra.
-    const abrirLista = (si: boolean) => {
-      listaBarra.hidden = !si;
-      boton.setAttribute('aria-expanded', String(si));
-      if (flecha) flecha.style.rotate = si ? '180deg' : '';
-    };
-    boton.addEventListener('click', () => abrirLista(boton.getAttribute('aria-expanded') !== 'true'));
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !listaBarra.hidden) {
-        abrirLista(false);
-        boton.focus();
-      }
-    });
-    document.addEventListener('click', (e) => {
-      if (!listaBarra.hidden && !barra.contains(e.target as Node)) abrirLista(false);
-    });
-    listaBarra.addEventListener('click', (e) => {
-      const o = (e.target as Element).closest<HTMLButtonElement>('[data-barra-opcion]');
-      if (!o) return;
-      const i = pestanas.findIndex((p) => p.dataset.tema === o.dataset.barraOpcion);
-      abrirLista(false);
-      elegir(i);
-      history.replaceState(history.state, '', `#${o.dataset.barraOpcion}`);
-      // Al inicio del tema elegido (el anterior podía ser más largo que el nuevo).
-      paneles[i]!.scrollIntoView({ block: 'start' });
-      boton.focus({ preventScroll: true });
-    });
-
-    // Barra del celular: visible mientras el selector de arriba está fuera de la pantalla y
-    // todavía se ven los temas. Oculta, sale del orden del teclado (inert).
-    const mostrarBarra = (si: boolean) => {
-      barra.inert = !si;
-      barra.style.opacity = si ? '1' : '0';
-      barra.style.translate = si ? '0' : '0 -100%';
-      if (!si) abrirLista(false);
-    };
+    // El selector está pegado cuando llegó al header (sticky) y aún quedan temas.
     const ubicar = () => {
       const tope = encabezado?.getBoundingClientRect().bottom ?? 0;
-      barra.style.top = `${tope}px`;
       const r = raiz.getBoundingClientRect();
-      // Escritorio: el selector está pegado cuando llegó al header (sticky) y aún quedan temas.
-      const pegado = getComputedStyle(lista).position === 'sticky' && lista.getBoundingClientRect().top <= tope + 1 && r.top < tope;
+      const pegado = lista.getBoundingClientRect().top <= tope + 1 && r.top < tope;
       lista.toggleAttribute('data-pegado', pegado);
-      mostrarBarra(lista.getBoundingClientRect().bottom < tope && r.bottom > tope + 120);
     };
-    barra.hidden = false;
-    mostrarBarra(false);
     addEventListener('scroll', ubicar, { passive: true });
     addEventListener('resize', ubicar);
     ubicar();
@@ -394,14 +325,24 @@ const items = temas.map((t) => {
    */
   .selector-temas {
     transition: box-shadow 0.2s;
+    background: rgba(19, 28, 48, 0.97);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+    border-radius: 2.5rem;
+    padding: 12px;
+    gap: 8px;
+  }
+  /* Celular: carrusel horizontal sin barra de scroll. */
+  .carrusel-temas {
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+  .carrusel-temas::-webkit-scrollbar {
+    display: none;
   }
   @media (min-width: 48rem) {
     .selector-temas {
-      background: rgba(19, 28, 48, 0.97);
-      -webkit-backdrop-filter: blur(18px);
-      backdrop-filter: blur(18px);
-      border-radius: 2.5rem;
-      padding: 8px;
+      padding: 12px;
       gap: 12px;
     }
   }

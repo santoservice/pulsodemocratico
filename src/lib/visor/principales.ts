@@ -336,7 +336,7 @@ function jovenes(): HallazgoVisor {
   return {
     id: 'jovenes',
     tema: 'comportamiento-juvenil',
-    etiqueta: 'Jóvenes',
+    etiqueta: 'Comportamiento juvenil',
     titulo: '¿En qué se diferencian los jóvenes?',
     leyenda: {
       items: GRUPOS_EDAD.map((g, i) => ({ texto: g.et, tipo: 'grupo', i })),

@@ -24,7 +24,7 @@ export const fichaTecnica = [
     titulo: 'Realizado por',
     // Texto tal como lo entregó el cliente (incluye Universitat Pompeu Fabra).
     texto:
-      'Universidad de Wisconsin, Universidad Externado de Colombia, Universitat Pompeu Fabra y Universidad de La Sabana.',
+      'Universidad de La Sabana, Universidad de Wisconsin, Universidad Externado de Colombia y Universitat Pompeu Fabra.',
     icono: 'lucide:university',
   },
   {

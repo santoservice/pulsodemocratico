@@ -2,7 +2,7 @@
 /**
  * Detalle de un hallazgo del visor (se abre a pantalla completa desde "Ver detalle"; lo mueve
  * al diálogo QuestionModal). Gráfica grande, "Los datos del gráfico" a la vista, "¿Cómo se
- * midió?" desplegable y tres descargas: gráfica (PNG), datos (CSV) y todo (PNG).
+ * midió?" desplegable y dos descargas: gráfica (PNG) y todo (PNG).
  */
 import { Icon } from 'astro-icon/components';
 import type { HallazgoVisor } from '../../lib/visor/principales';
@@ -32,14 +32,10 @@ const boton =
   <h2 id={`${id}-titulo`} class="sr-only">{h.titulo}</h2>
 
   <!-- Descargas: la principal es "todo" (gráfica, datos y método con los logos). -->
-  <div class="flex flex-wrap items-center justify-end gap-2">
+  <div class="flex flex-wrap items-center justify-end gap-2 max-md:justify-evenly">
     <button type="button" data-descargar data-objetivo={`${id}-grafica`} class:list={[boton, 'border-border-strong text-ink hover:border-cream hover:bg-cream hover:text-navy']}>
       <Icon name="lucide:image" class="h-4 w-4" aria-hidden="true" />
       Descargar gráfica
-    </button>
-    <button type="button" data-descargar-csv data-objetivo={id} class:list={[boton, 'border-border-strong text-ink hover:border-cream hover:bg-cream hover:text-navy']}>
-      <Icon name="lucide:file-spreadsheet" class="h-4 w-4" aria-hidden="true" />
-      Descargar datos (CSV)
     </button>
     <button type="button" data-descargar data-objetivo={`${id}-todo`} class:list={[boton, 'border-white bg-white text-negro hover:border-cream hover:bg-cream']}>
       <Icon name="lucide:download" class="h-4 w-4" aria-hidden="true" />
@@ -62,7 +58,7 @@ const boton =
     </section>
 
     <section aria-labelledby={`${id}-datos`} class="min-w-0 rounded-2xl border border-border bg-surface p-5 md:p-6" data-tablas>
-      <h3 id={`${id}-datos`} class="text-xs font-bold tracking-[0.18em] text-ink-muted uppercase">
+      <h3 id={`${id}-datos`} class="text-base font-bold text-ink-muted">
         Los datos del gráfico
       </h3>
       <div class="mt-3 flex flex-col gap-5">

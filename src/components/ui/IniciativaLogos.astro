@@ -41,7 +41,7 @@ const origenes = [
           return (
             <li
               class="iniciativa-logo"
-              style={`--ox:${o.x}vw;--oy:${o.y}vh;--or:${o.r}deg;--os:${o.s};--d:${o.d}`}
+              style={`--ox:${o.x}vw;--oy:${o.y}vh;--or:${o.r}deg;--os:${o.s};--d:${o.d};--esc:${i.escala ?? 1}`}
             >
               <a
                 href={i.url}
@@ -53,9 +53,9 @@ const origenes = [
                   <Image
                     src={i.logo}
                     alt={`${alt} (abre en una pestaña nueva)`}
-                    height={52}
-                    densities={i.logo.height >= 104 ? [1, 2] : [1]}
-                    class="h-10 w-auto max-w-full object-contain md:h-12"
+                    height={Math.round(52 * (i.escala ?? 1))}
+                    densities={i.logo.height >= 104 * (i.escala ?? 1) ? [1, 2] : [1]}
+                    class="h-[calc(2.5rem*var(--esc))] w-auto max-w-full object-contain md:h-[calc(3rem*var(--esc))]"
                   />
                 ) : (
                   <span class="text-center text-sm font-semibold text-navy">{alt}</span>

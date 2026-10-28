@@ -1,44 +1,28 @@
 ---
 /**
- * Remate de la línea del panel: cuántas personas respondieron las tres rondas.
- * De fondo, una malla de puntos tenue como textura; la proporción que siguió hasta el
- * final va coloreada.
+ * Remate de la línea del panel: cuántas personas respondieron las tres rondas, alineado a la
+ * izquierda en una tarjeta de vidrio. El slot son los textos de explicación, que van dentro de
+ * la misma tarjeta, debajo de la cifra.
  */
 import { PANEL_COMPLETO, rondas } from '../../data/ficha-tecnica';
 import { entero } from '../../lib/format';
 
 const de100 = Math.round((PANEL_COMPLETO / rondas[0].personas) * 100);
-// 400 puntos (20×20 en celular, 40×10 desde md); se colorea la misma proporción.
-const PUNTOS = 400;
-const coloreados = Math.round((PANEL_COMPLETO / rondas[0].personas) * PUNTOS);
 ---
 
-<div class="relative overflow-hidden rounded-2xl border border-border bg-surface px-5 py-10 md:px-10 md:py-14">
-  <div
-    class="absolute inset-0 grid grid-cols-20 place-items-center p-2 md:grid-cols-40"
-    aria-hidden="true"
-  >
-    {
-      Array.from({ length: PUNTOS }, (_, i) => (
-        <span
-          class={`h-1.5 w-1.5 rounded-full ${i < coloreados ? 'bg-accent/25 md:bg-accent/45' : 'bg-ink-muted/7 md:bg-ink-muted/10'}`}
-        />
-      ))
-    }
+<!-- Dos columnas desde md: a la izquierda la cifra y su frase; a la derecha, la explicación (slot). -->
+<div class="grid gap-6 rounded-2xl bg-(--glass-fill) p-5 text-white md:grid-cols-2 md:items-center md:gap-10 md:p-8">
+  <div>
+    <p class="text-6xl leading-none font-semibold tabular-nums md:text-7xl">
+      {entero(PANEL_COMPLETO)}
+    </p>
+    <!-- Las dos frases con el mismo estilo de letra, seguidas. -->
+    <p class="mt-1 text-xl leading-snug md:text-2xl">
+      personas respondieron las tres rondas. {de100} de cada 100 que empezaron en la ronda 1
+      siguieron hasta el final.
+    </p>
   </div>
-  <!-- Halo del color de la tarjeta para que el texto se lea sobre los puntos. -->
-  <div
-    class="relative text-center [text-shadow:0_0_4px_var(--color-surface),0_0_10px_var(--color-surface),0_0_16px_var(--color-surface)]"
-  >
-    <p class="text-brand">
-      <span class="text-6xl leading-none font-semibold tabular-nums md:text-7xl">
-        {entero(PANEL_COMPLETO)}
-      </span>
-      <span class="mt-3 block text-xl md:text-2xl">personas respondieron las tres rondas</span>
-    </p>
-    <p class="mt-3 text-ink">
-      <strong class="font-semibold">{de100} de cada 100</strong> que empezaron en la ronda
-      1 siguieron hasta el final.
-    </p>
+  <div class="aparece-hijos space-y-3 leading-relaxed text-[#D9E1EF]">
+    <slot />
   </div>
 </div>

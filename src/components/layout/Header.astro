@@ -5,25 +5,22 @@ import { isActive, isCurrent, nav, sitio } from '../../data/sitio';
 import { ruta } from '../../lib/rutas';
 
 const path = Astro.url.pathname;
-// En Inicio el nombre del sitio se oculta mientras se ve el título grande del hero.
-const enInicio = isCurrent(path, ruta('/'));
 ---
 
 <!--
   Fijo arriba, sin fondo sólido: un velo azul con blur que se difumina hacia abajo (maqueta
   aprobada). Los bordes van transparentes para conservar el alto de 69px del que dependen
-  otros sticky. En Inicio el nombre aparece cuando el título del hero sale de pantalla (data-nombre).
+  otros sticky. El nombre del sitio se ve siempre, también en Inicio.
 -->
 <header
   class="cabecera group/header sticky top-0 z-40 border-t-4 border-b border-transparent"
   data-header
-  data-nombre={enInicio ? 'oculto' : undefined}
 >
-  <div class="container-page flex h-14 items-center justify-between gap-6 md:h-16">
+  <div class="container-page flex h-14 items-center justify-between gap-6 md:h-16 md:pl-0">
     <!-- TODO (cliente): sin logo; va el texto "Pulso Democrático" -->
     <a
       href={ruta('/')}
-      class="relative z-10 text-lg font-bold tracking-tight text-brand transition-[opacity,translate,color] duration-300 group-data-[menu-open]/header:text-[#F3F5FA] group-data-[nombre=oculto]/header:pointer-events-none group-data-[nombre=oculto]/header:-translate-y-1 group-data-[nombre=oculto]/header:opacity-0 md:text-xl"
+      class="relative z-10 text-lg font-bold tracking-tight text-brand transition-[opacity,translate,color] duration-300 group-data-[menu-open]/header:text-[#F3F5FA] md:text-xl"
     >
       {sitio.nombre}
     </a>
@@ -130,21 +127,6 @@ const enInicio = isCurrent(path, ruta('/'));
 </style>
 
 <script>
-  // En Inicio, nombre del sitio tras pasar el título del hero.
-  const header = document.querySelector<HTMLElement>('[data-header]');
-  if (header) {
-    const titulo = document.getElementById('titulo-principal');
-    if (titulo && header.dataset.nombre) {
-      new IntersectionObserver(
-        ([e]) => {
-          if (e) header.dataset.nombre = e.isIntersecting ? 'oculto' : 'visible';
-        },
-        // El título cuenta como "visible" solo por debajo del header fijo.
-        { rootMargin: `-${header.offsetHeight}px 0px 0px 0px` },
-      ).observe(titulo);
-    }
-  }
-
   // Mejora progresiva del desplegable de escritorio: el CSS (:hover / :focus-within)
   // ya lo abre; este script sincroniza aria-expanded, permite abrir con el botón y
   // cerrar con Escape.

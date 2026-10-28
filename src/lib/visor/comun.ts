@@ -90,9 +90,9 @@ export const HALO = 'paint-order:stroke;stroke:var(--color-surface);stroke-width
 export const ZONA = 'cursor-pointer outline-none focus-visible:stroke-focus focus-visible:stroke-[3]';
 
 /** Colores de series (1–4), como relleno, texto (currentColor) o trazo. */
-export const SERIE_FILL = ['fill-serie-1', 'fill-serie-2', 'fill-serie-3', 'fill-serie-4'];
-export const SERIE_TEXT = ['text-serie-1', 'text-serie-2', 'text-serie-3', 'text-serie-4'];
-export const SERIE_BG = ['bg-serie-1', 'bg-serie-2', 'bg-serie-3', 'bg-serie-4'];
+export const SERIE_FILL = ['fill-serie-1', 'fill-serie-amarillo', 'fill-serie-3', 'fill-serie-4'];
+export const SERIE_TEXT = ['text-serie-1', 'text-serie-amarillo', 'text-serie-3', 'text-serie-4'];
+export const SERIE_BG = ['bg-serie-1', 'bg-serie-amarillo', 'bg-serie-3', 'bg-serie-4'];
 
 /** Rampa de un solo tono (6 pasos). */
 export const SEQ_FILL = ['fill-seq-1', 'fill-seq-2', 'fill-seq-3', 'fill-seq-4', 'fill-seq-5', 'fill-seq-6'];

@@ -41,7 +41,8 @@ const id = orcidId(persona.orcid);
       </span>
     </a>
   </li>
-  {persona.correos.map((correo) => {
+  {/* En la tarjeta, solo el primer correo; el perfil (`completo`) los muestra todos. */}
+  {(completo ? persona.correos : persona.correos.slice(0, 1)).map((correo) => {
     const { usuario, dominio } = partesCorreo(correo);
     return (
       <li class="flex items-center gap-1.5 break-all">

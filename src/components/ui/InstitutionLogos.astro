@@ -32,6 +32,9 @@ const alto = size === 'sm' ? 40 : 52;
 >
   {instituciones.map((i) => {
     const alt = i.sigla ? `${i.nombre} (${i.sigla})` : i.nombre;
+    // Logos que se ven chicos (Complutense) llevan un factor de escala sobre el alto estándar.
+    const esc = i.escala ?? 1;
+    const altoLogo = Math.round(alto * esc);
     return (
       <li class="flex items-center">
         {i.logo && enlaces && i.url ? (
@@ -44,28 +47,24 @@ const alto = size === 'sm' ? 40 : 52;
             <Image
               src={i.logo}
               alt={`${alt} (abre en una pestaña nueva)`}
-              height={alto}
-              densities={i.logo.height >= alto * 2 ? [1, 2] : [1]}
+              height={altoLogo}
+              densities={i.logo.height >= altoLogo * 2 ? [1, 2] : [1]}
               loading="lazy"
               decoding="async"
-              class:list={[
-                'w-auto object-contain',
-                size === 'sm' ? 'h-10 max-w-40' : 'h-[52px] max-w-48',
-              ]}
+              style={`height:${altoLogo}px`}
+              class:list={['w-auto object-contain', size === 'sm' ? 'max-w-40' : 'max-w-48']}
             />
           </a>
         ) : i.logo ? (
           <Image
             src={i.logo}
             alt={alt}
-            height={alto}
-            densities={i.logo.height >= alto * 2 ? [1, 2] : [1]}
+            height={altoLogo}
+            densities={i.logo.height >= altoLogo * 2 ? [1, 2] : [1]}
             loading="lazy"
             decoding="async"
-            class:list={[
-              'w-auto object-contain',
-              size === 'sm' ? 'h-10 max-w-40' : 'h-[52px] max-w-48',
-            ]}
+            style={`height:${altoLogo}px`}
+            class:list={['w-auto object-contain', size === 'sm' ? 'max-w-40' : 'max-w-48']}
           />
         ) : (
           <div class="flex flex-col items-center gap-1">

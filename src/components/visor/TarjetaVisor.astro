@@ -24,6 +24,11 @@ export interface Props {
   compacta?: boolean;
   anchoLg?: number;
   apaisada?: boolean;
+  /**
+   * Tarjetas por tema (/resultados): misma fila superior que el mosaico (tema y «Ver más») en
+   * todos los anchos, sin los botones de abajo, pero con los tamaños de texto normales.
+   */
+  encabezado?: boolean;
 }
 
 const {
@@ -33,6 +38,7 @@ const {
   compacta = false,
   anchoLg,
   apaisada = false,
+  encabezado = false,
 } = Astro.props;
 const idGrafica = `tarjeta-${h.id}-grafica`;
 // En el mosaico el tema comparte fila con «Ver más»: «Inteligencia artificial» no cabe.
@@ -42,19 +48,19 @@ const temaCorto = h.etiqueta === 'Inteligencia artificial' ? 'IA' : h.etiqueta;
 <article
   aria-labelledby={`tarjeta-${h.id}-t`}
   class:list={[
-    'relative flex h-full min-w-0 flex-col rounded-2xl border border-border bg-surface p-5 dark:border-transparent dark:bg-tarjeta-visor',
-    compacta && 'lg:p-4',
+    'relative flex h-full min-w-0 flex-col rounded-2xl border border-border bg-surface dark:border-transparent dark:bg-tarjeta-visor',
+    compacta ? 'p-4' : 'p-5',
     className,
   ]}
 >
-  {compacta && (
-    <div class="mb-1.5 flex items-center justify-between gap-2 max-lg:hidden">
-      <p class="text-[11px] font-bold tracking-[0.14em] text-ink uppercase">{temaCorto}</p>
+  {(compacta || encabezado) && (
+    <div class:list={['mb-1.5 flex items-center justify-between gap-2', encabezado && 'justify-end']}>
+      {!encabezado && <p class="text-[12px] text-ink">{temaCorto}</p>}
       <button
         type="button"
         data-tarjeta={`visor-${h.id}`}
         aria-haspopup="dialog"
-        class="inline-flex shrink-0 items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-[11px] font-semibold text-negro transition-colors hover:bg-cream focus-visible:ring-2 focus-visible:ring-focus focus-visible:outline-none"
+        class="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#5e8be0] px-2.5 py-0.5 text-[11px] font-semibold text-(--color-tarjeta-visor) transition-colors hover:bg-white focus-visible:ring-2 focus-visible:ring-focus focus-visible:outline-none"
       >
         Ver más<span class="sr-only">: {h.titulo}</span>
         <Icon name="lucide:arrow-right" class="h-3 w-3" aria-hidden="true" />
@@ -64,8 +70,10 @@ const temaCorto = h.etiqueta === 'Inteligencia artificial' ? 'IA' : h.etiqueta;
   <Titulo
     id={`tarjeta-${h.id}-t`}
     class:list={[
-      'text-xl leading-tight font-extrabold text-brand md:min-h-[3.75rem]',
-      compacta && 'lg:min-h-0 lg:text-[14px] lg:leading-snug',
+      'text-xl leading-tight font-extrabold text-brand',
+      !(encabezado || compacta) && 'md:min-h-[3.75rem]',
+      (encabezado || compacta) && 'mt-3',
+      compacta && 'lg:text-[14px] lg:leading-snug',
     ]}
   >
     {h.titulo}
@@ -75,23 +83,25 @@ const temaCorto = h.etiqueta === 'Inteligencia artificial' ? 'IA' : h.etiqueta;
     class:list={[
       // El fondo de la gráfica llega hasta los botones y la gráfica va centrada en él, para que
       // las tarjetas de una misma fila no se vean descuadradas.
-      'mt-3.5 flex flex-1 flex-col justify-center dark:rounded-2xl dark:bg-grafica-visor dark:p-3',
+      'flex flex-1 flex-col justify-center dark:rounded-2xl dark:bg-grafica-visor dark:p-3',
+      compacta ? 'mt-2.5' : 'mt-3.5',
       compacta && 'lg:justify-start',
       // Mosaico, como la maqueta: sin la nota de la leyenda y la gráfica más chica (zoom y alto
       // máximo) para que todo quepa en una pantalla.
       compacta &&
-        'lg:mt-2.5 lg:flex-1 lg:[zoom:0.85] lg:[&_.grafica-visor>div:first-child_small]:hidden lg:[&_svg[role=img]]:max-h-[12rem]',
+        'lg:flex-1 lg:[zoom:0.85] lg:[&_.grafica-visor>div:first-child_small]:hidden lg:[&_svg[role=img]]:max-h-[12rem]',
     ]} data-descarga={`${h.id}-grafica`} data-titulo={h.titulo} data-tema={h.etiqueta}>
     {anchoLg ? (
       <>
         <div class="lg:hidden"><GraficaVisor hallazgo={h} uid={`t-${h.id}`} /></div>
-        <div class="max-lg:hidden"><GraficaVisor hallazgo={h} uid={`ta-${h.id}`} ancho={anchoLg} apaisada={apaisada} /></div>
+        {/* flex-col y flex-1 desde lg: la gráfica puede crecer al alto de la tarjeta (ver `llenar` en resultados/index.astro). */}
+        <div class="max-lg:hidden lg:flex lg:flex-1 lg:flex-col"><GraficaVisor hallazgo={h} uid={`ta-${h.id}`} ancho={anchoLg} apaisada={apaisada} /></div>
       </>
     ) : (
       <GraficaVisor hallazgo={h} uid={`t-${h.id}`} apaisada={apaisada} />
     )}
   </div>
-  <div class:list={['mt-auto flex items-center justify-between gap-3 pt-5', compacta && 'lg:hidden']}>
+  <div class:list={['mt-auto flex items-center justify-between gap-3 pt-5', (compacta || encabezado) && 'hidden']}>
     <button
       type="button"
       data-tarjeta={`visor-${h.id}`}
