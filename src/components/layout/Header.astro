@@ -7,17 +7,15 @@ import { ruta } from '../../lib/rutas';
 const path = Astro.url.pathname;
 // En Inicio el nombre del sitio se oculta mientras se ve el título grande del hero.
 const enInicio = isCurrent(path, ruta('/'));
-// Como en el hero: la segunda palabra con el color de resaltado (Grana; dorado en tema oscuro).
-const [nombre1, ...resto] = sitio.nombre.split(' ');
-const nombre2 = resto.join(' ');
 ---
 
 <!--
-  Fijo arriba. La línea inferior aparece al hacer scroll (data-scroll); en Inicio el nombre
-  aparece cuando el título del hero sale de pantalla (data-nombre).
+  Fijo arriba, sin fondo sólido: un velo azul con blur que se difumina hacia abajo (maqueta
+  aprobada). Los bordes van transparentes para conservar el alto de 69px del que dependen
+  otros sticky. En Inicio el nombre aparece cuando el título del hero sale de pantalla (data-nombre).
 -->
 <header
-  class="group/header sticky top-0 z-40 border-t-4 border-b border-t-brand dark:border-t-navy border-b-transparent bg-page transition-colors duration-300 data-[scroll]:border-b-border"
+  class="cabecera group/header sticky top-0 z-40 border-t-4 border-b border-transparent"
   data-header
   data-nombre={enInicio ? 'oculto' : undefined}
 >
@@ -25,21 +23,24 @@ const nombre2 = resto.join(' ');
     <!-- TODO (cliente): sin logo; va el texto "Pulso Democrático" -->
     <a
       href={ruta('/')}
-      class="text-lg font-bold tracking-tight text-brand transition-[opacity,translate] duration-300 group-data-[nombre=oculto]/header:pointer-events-none group-data-[nombre=oculto]/header:-translate-y-1 group-data-[nombre=oculto]/header:opacity-0 md:text-xl"
+      class="relative z-10 text-lg font-bold tracking-tight text-brand transition-[opacity,translate,color] duration-300 group-data-[menu-open]/header:text-[#F3F5FA] group-data-[nombre=oculto]/header:pointer-events-none group-data-[nombre=oculto]/header:-translate-y-1 group-data-[nombre=oculto]/header:opacity-0 md:text-xl"
     >
-      {nombre1} <span class="text-grana">{nombre2}</span>
+      {sitio.nombre}
     </a>
 
     <nav aria-label="Principal" class="hidden md:block">
-      <ul class="flex items-center gap-1 lg:gap-4">
+      <ul class="flex items-center gap-1">
         {nav.map((item) => {
           const active = isActive(path, item.href);
-          // Activo: "píldora" blanca con texto azul; al pasar el mouse, un blanco tenue.
-          const pildora = active
-            ? 'bg-white font-semibold text-brand shadow-sm dark:text-negro'
-            : 'text-ink hover:bg-white/60 dark:hover:bg-surface-muted/60';
+          // Activo: texto más claro con rayita azul debajo; al pasar el mouse, rayita crema.
+          const pildora = [
+            'relative after:pointer-events-none after:absolute after:inset-x-3 after:bottom-0.5 after:h-[3px] after:rounded-full after:transition-opacity',
+            active
+              ? 'text-brand-strong after:bg-accent dark:after:bg-[#5e8be0]'
+              : 'text-ink after:bg-cream after:opacity-0 hover:text-brand-strong hover:after:opacity-100',
+          ].join(' ');
           const linkClass = [
-            'inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-[0.95rem] transition-colors',
+            'inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-[0.95rem] font-semibold transition-colors',
             item.children ? '' : pildora,
           ].join(' ');
           if (!item.children) {
@@ -105,14 +106,33 @@ const nombre2 = resto.join(' ');
   </div>
 </header>
 
+<style>
+  /* Velo de la maqueta: azul translúcido + blur, se desvanece por debajo del header. */
+  .cabecera::before {
+    content: '';
+    position: absolute;
+    inset: -4px 0 -14px;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgb(0 16 46 / 0.45), rgb(0 16 46 / 0.25) 70%, rgb(0 16 46 / 0));
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 55%, rgb(0 0 0 / 0.6) 75%, rgb(0 0 0 / 0.2) 90%, transparent 100%);
+    transition: opacity 0.3s ease;
+  }
+  /* Menú móvil abierto: el velo se quita (como en la maqueta); el menú pone su propio fondo. */
+  .cabecera[data-menu-open]::before {
+    opacity: 0;
+  }
+  :global([data-theme='light']) .cabecera::before {
+    background: linear-gradient(to bottom, rgb(247 239 217 / 0.85), rgb(247 239 217 / 0.6) 70%, rgb(247 239 217 / 0));
+  }
+</style>
+
 <script>
-  // Línea inferior al hacer scroll y, en Inicio, nombre del sitio tras pasar el título del hero.
+  // En Inicio, nombre del sitio tras pasar el título del hero.
   const header = document.querySelector<HTMLElement>('[data-header]');
   if (header) {
-    const marcarScroll = () => header.toggleAttribute('data-scroll', window.scrollY > 4);
-    marcarScroll();
-    window.addEventListener('scroll', marcarScroll, { passive: true });
-
     const titulo = document.getElementById('titulo-principal');
     if (titulo && header.dataset.nombre) {
       new IntersectionObserver(

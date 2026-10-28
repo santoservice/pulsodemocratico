@@ -19,7 +19,7 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
 
 <section
   aria-labelledby="quiz-titulo"
-  class="quiz-escena border-b border-border bg-surface/50"
+  class="quiz-escena"
   data-quiz-escena
 >
   <div class="quiz-escenario">
@@ -85,7 +85,7 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
   @media (min-width: 64rem) {
     .quiz-escena[data-pin] {
       /* Alto de la pantalla + recorrido en el que la escena queda fija (= RECORRIDO del script). */
-      height: calc(100vh + 200vh);
+      height: calc(100vh + 190vh);
     }
     .quiz-escena[data-pin] .quiz-escenario {
       position: sticky;
@@ -133,9 +133,9 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
   const TOPE = 69; // alto del header fijo (4 + 64 + 1 px)
   const CURVA = 48; // px que «Tú» baja de más a mitad de camino
   const SUAVIZADO = 0.14; // fracción del camino que se recorre por cuadro
-  // Tramos del recorrido fijo, en vh de scroll (deben sumar el alto extra del CSS: 200vh).
+  // Tramos del recorrido fijo, en vh de scroll (deben sumar el alto extra del CSS: 190vh).
   // Tras la entrada de la tarjeta queda un tramo quieto para no saltarse el quiz por accidente.
-  const RECORRIDO = 200;
+  const RECORRIDO = 190;
   const PAUSA = 40; // escena inicial quieta
   const TRANSICION = 96; // título y «Tú» a su sitio
   const ENTRA_TARJETA = 88; // inicio de la entrada de la tarjeta
@@ -175,7 +175,7 @@ const lineas = corte > 0 ? [tituloQuiz.slice(0, corte), tituloQuiz.slice(corte +
 
     const pintar = (t: number) => {
       // Pausa en la escena inicial, transición, entrada de la tarjeta y luego quieta y lista
-      // (≈ 56vh de scroll antes de que la escena se suelte).
+      // (≈ 46vh de scroll antes de que la escena se suelte).
       const vh = t * RECORRIDO;
       const avance = clamp((vh - PAUSA) / TRANSICION);
       const p = suave(avance);

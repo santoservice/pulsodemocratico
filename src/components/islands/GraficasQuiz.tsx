@@ -101,7 +101,7 @@ export function Columnas({ pregunta: p, valor }: { pregunta: PreguntaQuiz; valor
               </div>
             )}
             <div
-              className={`w-full max-w-20 ${tuya ? 'bg-chart-accent' : 'bg-chart-muted/60'}`}
+              className={`w-full max-w-20 rounded-lg ${tuya ? 'bg-chart-accent' : 'bg-chart-muted/25'}`}
               style={{
                 height: crece ? Math.max(4, (d.pct / max) * ALTO) : 4,
                 transition: `height 600ms ${curva}`,
@@ -154,16 +154,16 @@ export function BarraTramos({ pregunta: p, valor }: { pregunta: PreguntaQuiz; va
           <ChipTu />
           <Figura pose={llego ? 'pie' : 'corre'} className="w-9" />
         </div>
-        <div className="flex h-7 w-full gap-0.5">
+        <div className="flex h-7 w-full gap-1">
           {conPos.map((t, k) => (
             <div
               key={t.v}
-              className={`h-full transition-colors duration-500 ${
+              className={`h-full rounded-md transition-colors duration-500 ${
                 t.v === valor && llego
                   ? 'bg-chart-accent'
                   : k % 2 === 0
-                    ? 'bg-chart-muted/70'
-                    : 'bg-chart-muted/40'
+                    ? 'bg-chart-muted/25'
+                    : 'bg-chart-muted/25'
               }`}
               style={{ width: `${t.pct}%` }}
             />
@@ -239,7 +239,7 @@ export function Personas({
           return (
             <div
               key={k}
-              className={`relative ${tu && marca ? 'text-tu' : enSi ? 'text-chart-accent' : 'text-chart-muted/45'}`}
+              className={`relative ${tu && marca ? 'text-tu' : enSi ? 'text-chart-accent' : 'text-chart-muted/15'}`}
               style={{
                 opacity: aparece ? 1 : 0,
                 transform: tu && marca ? 'scale(1.5)' : 'none',
@@ -267,7 +267,7 @@ export function Personas({
           </span>
         </li>
         <li className="flex items-start gap-2">
-          <i className="mt-1 inline-block h-3 w-3 shrink-0 bg-chart-muted/45" />
+          <i className="mt-1 inline-block h-3 w-3 shrink-0 bg-chart-muted/15" />
           <span className={dentro ? 'text-ink-muted' : 'font-semibold text-ink'}>
             <b className="tabular-nums">{entero(100 - nSi)}</b> {no}
           </span>
@@ -331,7 +331,7 @@ export function Pastel({
                 fill="none"
                 strokeWidth={2 * R}
                 transform="rotate(-90 60 60)"
-                className={x.tuya ? 'stroke-chart-accent' : 'stroke-chart-muted/50'}
+                className={x.tuya ? 'stroke-chart-accent' : 'stroke-chart-muted/25'}
                 strokeDasharray={`${dibuja ? (x.cuanto / 100) * L : 0} ${L}`}
                 strokeDashoffset={-(x.desde / 100) * L}
                 style={{ transition: `stroke-dasharray 900ms ${curva}` }}
@@ -341,7 +341,7 @@ export function Pastel({
         </svg>
         {/* Tú: en el centro de tu parte (a 55 % del radio), en contraste sobre el color. */}
         <div
-          className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-0.5 text-on-accent"
+          className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-0.5 text-white"
           style={{
             left: `${50 + dir.x * (27.5 + separa / 1.32)}%`,
             top: `${50 + dir.y * (27.5 + separa / 1.32)}%`,

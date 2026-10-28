@@ -14,15 +14,21 @@ export interface Props {
   cambio: string;
   /** Prefijo de ids (la gráfica puede salir dos veces en la página: tarjeta y detalle). */
   uid: string;
+  /** Ancho de dibujo (px): la gráfica se dibuja a este ancho y se muestra 1:1, sin ampliarse. */
+  ancho?: number;
+  /** Mosaico: sin la línea punteada y con las vueltas y el cambio en texto más grande. */
+  baja?: boolean;
 }
 
-const { rondas, aria, entre, cambio, uid } = Astro.props;
-const W = 320;
+const { rondas, aria, entre, cambio, uid, ancho: anchoDibujo = 320, baja = false } = Astro.props;
+// Las figuras no se separan de más en tarjetas anchas: hasta 48 px por figura (como la maqueta).
+const W = Math.min(anchoDibujo, 10 * 48 + 64);
 const der = 64;
 const paso = (W - der) / 10;
 const alto = Math.min(paso * 2.1, 54);
 const ancho = (alto * 20) / 44;
-const filas = [30, alto + 112];
+// En `baja`, 16 px más entre rondas para el cambio en su propia línea.
+const filas = [30, alto + 112 + (baja ? 16 : 0)];
 const H = filas[1]! + alto + 10;
 const ym = filas[0]! + alto + 30;
 const contorno = 'paint-order:stroke;stroke:var(--color-surface);stroke-width:6px;stroke-linejoin:round';
@@ -35,7 +41,7 @@ const parciales = rondas.map((r, i) => {
 });
 ---
 
-<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} class="block h-auto w-full overflow-visible">
+<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={aria} class="mx-auto block h-auto w-full overflow-visible" style={`max-width:${W}px`}>
   <defs>
     <symbol id={`${uid}-persona`} viewBox="0 0 20 44">
       <circle cx="10" cy="7" r="6"></circle>
@@ -63,7 +69,7 @@ const parciales = rondas.map((r, i) => {
           const x = k * paso + (paso - ancho) / 2;
           return (
             <>
-              <use href={`#${uid}-persona`} x={x} y={y0} width={ancho} height={alto} class="fill-chart-track" />
+              <use href={`#${uid}-persona`} x={x} y={y0} width={ancho} height={alto} class="fill-chart-no" />
               {k + 1 <= llenas ? (
                 <use href={`#${uid}-persona`} x={x} y={y0} width={ancho} height={alto} class="fill-chart-accent" />
               ) : (
@@ -93,9 +99,18 @@ const parciales = rondas.map((r, i) => {
       </>
     );
   })}
-  <line x1="0" x2={W - der - 6} y1={ym} y2={ym} stroke-dasharray="4 4" class="stroke-chart-eleccion stroke-[1.5]" />
-  <text x={(W - der) / 2} y={ym + 4} text-anchor="middle" class="fill-chart-eleccion text-[11px] font-extrabold" style={contorno}>
-    {entre}
-  </text>
-  <text x={W} y={ym + 4} text-anchor="end" class="fill-ink-muted text-[12px] font-extrabold">{cambio}</text>
+  {baja ? (
+    <>
+      <text x={W / 2} y={ym + 4} text-anchor="middle" class="fill-chart-eleccion text-[13px] font-semibold">{entre}</text>
+      <text x={W / 2} y={ym + 22} text-anchor="middle" class="fill-ink-muted text-[13px] font-extrabold">{cambio}</text>
+    </>
+  ) : (
+    <>
+      <line x1="0" x2={W - der - 6} y1={ym} y2={ym} stroke-dasharray="4 4" class="stroke-chart-eleccion stroke-[1.5]" />
+      <text x={(W - der) / 2} y={ym + 4} text-anchor="middle" class="fill-chart-eleccion text-[11px] font-extrabold" style={contorno}>
+        {entre}
+      </text>
+      <text x={W} y={ym + 4} text-anchor="end" class="fill-ink-muted text-[12px] font-extrabold">{cambio}</text>
+    </>
+  )}
 </svg>

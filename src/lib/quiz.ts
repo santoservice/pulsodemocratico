@@ -11,7 +11,7 @@
  * Wording (muestra no probabilística, PLAN.md §5.1): siempre `PROMEDIO_ENCUESTADOS`, nunca
  * "promedio nacional"; los % siempre "de los encuestados".
  */
-import { decimal, entero, pct } from './format';
+import { decimal, entero, pct, PCT_SEPARADOR } from './format';
 
 /** Única forma de nombrar la referencia del quiz en todo el sitio. */
 export const PROMEDIO_ENCUESTADOS = 'promedio de los encuestados';
@@ -243,7 +243,7 @@ export interface Destacado {
 
 /**
  * Proporción en palabras: 79,7 → "8 de cada 10"; 76,8 → "casi 8 de cada 10";
- * 5,5 → "más de 1 de cada 20". Por debajo del 10 % usa "1 de cada N" (N redondo).
+ * 5,5 → "6 de cada 100". Por debajo del 10 % cuenta sobre 100 (pedido de los investigadores).
  */
 export function deCada(porcentaje: number): string {
   const matiz = (real: number, redondo: number) =>
@@ -253,9 +253,7 @@ export function deCada(porcentaje: number): string {
     if (n === 10) return 'casi todos los';
     return `${matiz(porcentaje, n * 10)}${n} de cada 10`;
   }
-  const bruto = 100 / Math.max(porcentaje, 0.5);
-  const n = bruto <= 5 ? Math.round(bruto) : Math.round(bruto / 5) * 5;
-  return `${matiz(porcentaje, 100 / n)}1 de cada ${n}`;
+  return `${Math.max(1, Math.round(porcentaje))} de cada 100`;
 }
 
 /** Sello según el % que dio tu misma respuesta. */
@@ -280,7 +278,8 @@ export function destacadoResultado(p: PreguntaQuiz, valor: number): Destacado {
         ...(cur.prefijo ? [{ t: `${cur.prefijo} ` }] : []),
         { t: cur.prefijo ? quienes : quienes.replace(/^./, (l) => l.toUpperCase()), b: true },
         { t: ` ${cur.texto} ` },
-        { t: `(${pct(pctCurioso)}).` },
+        // Por debajo del 10 % con un decimal (5,5 %): el entero se confunde con «N de cada 100».
+        { t: `(${pctCurioso < 10 ? `${decimal(pctCurioso)}${PCT_SEPARADOR}%` : pct(pctCurioso)}).` },
       ]
     : null;
 

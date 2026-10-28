@@ -17,6 +17,8 @@ export interface ItemLeyenda {
    */
   tipo: 'si' | 'no' | 'serie' | 'grupo' | 'edad' | 'color';
   i?: number;
+  /** Color de la serie si no es el de `i` (la forma sigue siendo la de `i`). */
+  color?: number;
   bg?: string;
 }
 

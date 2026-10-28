@@ -101,9 +101,10 @@ const logos = instituciones.flatMap((i) => (i.logo ? [{ nombre: i.nombre, src: i
 <!--
   Plantilla de la imagen descargable de una gráfica (botones [data-descargar] del detalle):
   tema y título arriba, la gráfica en medio y una franja crema con los logos abajo.
+  Siempre en tema claro (isla data-theme="light"), aunque el sitio se vea en oscuro.
 -->
 <template data-descarga-plantilla>
-  <div class="bg-page text-ink">
+  <div data-theme="light" class="bg-page text-ink">
     <div class="px-8 pt-7 pb-5">
       <p data-d-eyebrow class="text-xs font-bold tracking-[0.18em] text-ink-muted uppercase"></p>
       <p data-d-titulo class="mt-1 text-2xl leading-tight font-bold text-brand"></p>

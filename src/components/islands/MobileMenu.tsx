@@ -60,12 +60,17 @@ export default function MobileMenu({ items, currentPath }: Props) {
     };
   }, [open]);
 
+  // La cabecera se entera de que el menú está abierto: pinta el logo en claro y quita el velo.
+  useEffect(() => {
+    buttonRef.current?.closest('[data-header]')?.toggleAttribute('data-menu-open', open);
+  }, [open]);
+
   return (
     <div className="md:hidden">
       <button
         ref={buttonRef}
         type="button"
-        className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border text-ink"
+        className="relative z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-(--glass-fill) text-ink transition-colors group-data-[menu-open]/header:border-white/20 group-data-[menu-open]/header:text-[#F3F5FA]"
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((v) => !v)}
@@ -85,29 +90,34 @@ export default function MobileMenu({ items, currentPath }: Props) {
         </svg>
       </button>
 
+      {/* Velo azul translúcido de la maqueta, a pantalla completa (cubre también la cabecera).
+          Los puntos entran en cascada al abrir. */}
       <nav
         id={panelId}
         aria-label="Principal (móvil)"
-        hidden={!open}
-        className="absolute inset-x-0 top-full z-40 h-[calc(100dvh-100%)] overflow-y-auto border-t border-border bg-page"
+        className={`fixed inset-0 z-0 overflow-y-auto bg-[rgb(0_16_46/0.62)] px-6 pt-24 pb-8 backdrop-blur-[22px] backdrop-saturate-[1.3] transition-[opacity,visibility] duration-300 ${open ? 'visible opacity-100' : 'invisible opacity-0'}`}
       >
-        <ul className="container-page flex flex-col py-4">
-          {items.map((item) => {
+        <ul className="container-page flex flex-col">
+          {items.map((item, i) => {
             const active = isActive(currentPath, item.href);
             return (
-              <li key={item.href} className="border-b border-border last:border-b-0">
+              <li
+                key={item.href}
+                className={`border-b border-white/15 transition-[opacity,transform] duration-500 ease-out last:border-b-0 ${open ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'}`}
+                style={{ transitionDelay: open ? `${120 + i * 80}ms` : '0ms' }}
+              >
                 <div className="flex items-center justify-between gap-4">
                   <a
                     href={item.href}
                     aria-current={isCurrent(currentPath, item.href) ? 'page' : undefined}
-                    className={`block flex-1 py-4 font-display text-3xl leading-tight font-bold ${active ? 'text-cream' : 'text-ink'}`}
+                    className={`block flex-1 py-4 font-display text-3xl leading-tight font-bold ${active ? 'text-[#F7EFD9]' : 'text-[#F3F5FA]'}`}
                   >
                     {item.label}
                   </a>
                   {item.children && (
                     <button
                       type="button"
-                      className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border text-ink"
+                      className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 text-[#F3F5FA]"
                       aria-expanded={subOpen}
                       aria-controls={subId}
                       onClick={() => setSubOpen((v) => !v)}
@@ -142,7 +152,7 @@ export default function MobileMenu({ items, currentPath }: Props) {
                             // Los temas son /resultados#<slug>: si ya estamos ahí no hay
                             // navegación, así que el menú se cierra a mano.
                             onClick={() => setOpen(false)}
-                            className={`block py-2.5 text-lg ${childActive ? 'font-semibold text-cream' : 'text-ink-muted'}`}
+                            className={`block py-2.5 text-lg ${childActive ? 'font-semibold text-[#F7EFD9]' : 'text-[#D9E1EF]'}`}
                           >
                             {child.label}
                           </a>

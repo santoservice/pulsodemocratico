@@ -9,7 +9,12 @@ import { CLS, SERIE_FILL, SERIE_TEXT, ZONA, fechaCorta, fmt, meta, rangoCorto } 
 import type { GraficaVisor } from '../../lib/visor/tipos';
 import MarcaSerie from './MarcaSerie.astro';
 
-type Props = Omit<Extract<GraficaVisor, { tipo: 'lineas' }>, 'tipo'>;
+type Props = Omit<Extract<GraficaVisor, { tipo: 'lineas' }>, 'tipo'> & {
+  /** Versión apaisada (más baja). */
+  ancha?: boolean;
+  /** Ancho de dibujo (px): la gráfica se dibuja a este ancho y se muestra 1:1, sin ampliarse. */
+  ancho?: number;
+};
 
 const {
   rondas,
@@ -23,9 +28,11 @@ const {
   unidad = ' %',
   signo = false,
   polos,
+  ancha = false,
+  ancho = 320,
 } = Astro.props;
-const W = 320;
-const H = 300;
+const W = ancho;
+const H = ancha ? 215 : 300;
 // l: 36 (el visor usa 26): el rótulo «50 %» cabe sin salirse del SVG (se corta en las descargas).
 const m = { t: 44, r: 38, b: 44, l: 36 };
 const dia = (t: string) => new Date(`${t}T12:00:00`).getTime();

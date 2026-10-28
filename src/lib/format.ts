@@ -64,52 +64,12 @@ export function delta(v: number, decimales = 1): string {
 /* ------------------------------------------------------------------ títulos */
 
 /**
- * Palabras funcionales que van en minúscula dentro de un título (salvo al inicio).
- * Regla del cliente: mayúscula inicial en cada palabra, excepto artículos, preposiciones
- * y conjunciones cortas.
- */
-export const PALABRAS_MENORES: ReadonlySet<string> = new Set([
-  'a',
-  'al',
-  'con',
-  'de',
-  'del',
-  'e',
-  'el',
-  'en',
-  'la',
-  'las',
-  'lo',
-  'los',
-  'ni',
-  'o',
-  'para',
-  'por',
-  'que',
-  'se',
-  'sobre',
-  'u',
-  'un',
-  'una',
-  'y',
-]);
-
-/**
- * Convierte un texto a "título" según la regla del cliente:
- * "¿Cómo se hizo la encuesta?" → "¿Cómo se Hizo la Encuesta?".
- * - Mayúscula inicial en cada palabra; las de `PALABRAS_MENORES` en minúscula salvo al inicio.
- * - Respeta signos iniciales (¿ ¡ « " ( …) y no toca el resto de la palabra (siglas: CNEP, IA).
- * - Las partes de una palabra con guion se tratan por separado (Amazonía-Orinoquía).
+ * Convierte un texto a "título" según la regla del cliente (tipo oración):
+ * "¿cómo se hizo la encuesta?" → "¿Cómo se hizo la encuesta?".
+ * - Solo va en mayúscula la primera letra; el resto se deja como está escrito
+ *   (nombres propios y siglas: Colombia, CNEP, IA).
+ * - Respeta signos iniciales (¿ ¡ « " ( …).
  */
 export function titulo(texto: string): string {
-  let primera = true;
-  return texto.replace(/[\p{L}\p{N}]+/gu, (palabra, offset: number) => {
-    // Primera palabra del título, o tras un signo que abre frase (¿ ¡ : .).
-    const previo = texto.slice(0, offset).trimEnd();
-    const inicio = primera || /[¿¡:.]$/u.test(previo);
-    primera = false;
-    const minuscula = palabra.toLocaleLowerCase('es');
-    if (!inicio && PALABRAS_MENORES.has(minuscula)) return minuscula;
-    return palabra.charAt(0).toLocaleUpperCase('es') + palabra.slice(1);
-  });
+  return texto.replace(/[\p{L}\p{N}]/u, (letra) => letra.toLocaleUpperCase('es'));
 }

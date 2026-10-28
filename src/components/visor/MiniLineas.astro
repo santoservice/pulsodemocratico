@@ -8,11 +8,15 @@ import { EDAD_FILL, EDAD_TEXT, ZONA, fmt } from '../../lib/visor/comun';
 import type { GraficaVisor } from '../../lib/visor/tipos';
 import MarcaSerie from './MarcaSerie.astro';
 
-type Props = Omit<Extract<GraficaVisor, { tipo: 'mini-lineas' }>, 'tipo'>;
+type Props = Omit<Extract<GraficaVisor, { tipo: 'mini-lineas' }>, 'tipo'> & {
+  /** Ancho de dibujo (px): la gráfica se dibuja a este ancho y se muestra 1:1, sin ampliarse. */
+  ancho?: number;
+};
 
-const { C, aria } = Astro.props;
+const { C, aria, ancho = 320 } = Astro.props;
 const T = C.tramos;
-const PW = 150;
+// Dos paneles por fila (gap de 16 px): cada uno ocupa la mitad del ancho de dibujo.
+const PW = Math.max(150, (ancho - 16) / 2);
 const PH = 150;
 const MAX = 5;
 const m = { t: 22, b: 22, l: 18, r: 30 };
@@ -37,8 +41,8 @@ const paneles = C.medios.map((md) => {
 <div role="img" aria-label={aria} class="@container">
   <div class="mx-auto grid max-w-64 grid-cols-1 gap-x-4 gap-y-2 @[19rem]:max-w-none @[19rem]:grid-cols-2">
   {paneles.map(({ md, fin, tip }) => (
-    <svg viewBox={`0 0 ${PW} ${PH}`} class="block h-auto w-full overflow-visible" aria-hidden="true">
-      <text x="0" y="12" class="fill-ink text-[12.5px] font-extrabold">{md.corto}</text>
+    <svg viewBox={`0 0 ${PW} ${PH}`} class="mx-auto block h-auto w-full overflow-visible" style={`max-width:${PW}px`} aria-hidden="true">
+      <text x="0" y="12" class="fill-ink text-[12.5px]">{md.corto}</text>
       {[0, 1, 2, 3, 4, 5].map((v) => (
         <>
           <line x1={m.l} x2={PW - m.r} y1={y(v)} y2={y(v)} class="stroke-border" />

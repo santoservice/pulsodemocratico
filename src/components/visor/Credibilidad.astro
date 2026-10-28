@@ -7,16 +7,19 @@ import { CLS, HALO, SERIE_FILL, SERIE_TEXT, ZONA, fmt, fmtN } from '../../lib/vi
 import type { GraficaVisor } from '../../lib/visor/tipos';
 import MarcaSerie from './MarcaSerie.astro';
 
-type Props = Omit<Extract<GraficaVisor, { tipo: 'credibilidad' }>, 'tipo'>;
+type Props = Omit<Extract<GraficaVisor, { tipo: 'credibilidad' }>, 'tipo'> & {
+  /** Ancho de dibujo (px): la gráfica se dibuja a este ancho y se muestra 1:1, sin ampliarse. */
+  ancho?: number;
+};
 
-const { C, aria } = Astro.props;
+const { C, aria, ancho = 320 } = Astro.props;
 const T = C.tramos;
-// Verdaderos: serie 1 (círculo); falsos: serie 2 (cuadrado).
+// Forma (i): verdaderos círculo, falsos cuadrado. Color (c), como la maqueta: cat-3 y cat-2.
 const S = [
-  { k: 'verdaderos', i: 0 },
-  { k: 'falsos', i: 1 },
+  { k: 'verdaderos', i: 0, c: 2 },
+  { k: 'falsos', i: 1, c: 1 },
 ] as const;
-const W = 320;
+const W = ancho;
 const m = { l: 12, r: 12 };
 const fila = 62;
 const top = 22;
@@ -44,13 +47,13 @@ const ya = top + T.length * fila + 6;
           const v = t[s.k];
           const izq = s.k === 'falsos';
           return (
-            <g class={SERIE_TEXT[s.i]}>
+            <g class={SERIE_TEXT[s.c]}>
               <MarcaSerie i={s.i} x={x(v)} y={yc} r={7} />
               <text
                 x={x(v) + (izq ? -12 : 12)}
                 y={yc + 4}
                 text-anchor={izq ? 'end' : 'start'}
-                class:list={[SERIE_FILL[s.i], 'text-[12px] font-extrabold']}
+                class:list={[SERIE_FILL[s.c], 'text-[12px] font-extrabold']}
                 style={HALO}
               >
                 {fmt(v, 2)}

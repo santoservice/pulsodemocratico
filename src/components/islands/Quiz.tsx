@@ -1,4 +1,12 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+  type ReactNode,
+} from 'react';
 import { decimal, entero, pct } from '../../lib/format';
 import { ruta } from '../../lib/rutas';
 import {
@@ -26,6 +34,8 @@ import { GraficaResultado } from './GraficasQuiz';
  * resultado final» con las comparaciones. Nada se guarda ni se envía.
  *
  * Sin librerías de gráficas: las mini-visualizaciones son HTML/CSS con tokens del tema.
+ * La tarjeta es siempre azul claro (degradado de la maqueta, en ambos temas): `estiloTarjeta`
+ * reasigna los tokens para los descendientes, así que los componentes no necesitan `dark:`.
  */
 interface Props {
   preguntas: readonly PreguntaQuiz[];
@@ -34,13 +44,41 @@ interface Props {
 type Vista = 'pregunta' | 'resultado' | 'final';
 
 const temaHref = (slug: string) => ruta(`/resultados#${slug}`);
+
+/**
+ * Paleta de la tarjeta (valores finales de la maqueta aprobada), clara u oscura según el tema:
+ * --tc texto, --dot acento de gráficas, --acc2 acento claro, --bg fondo de página, --opt fondo de opciones.
+ */
+const paletaTarjeta =
+  '[--tc:#0C1322] [--dot:#1F4FA3] [--acc2:#00387D] [--bg:#FBF7EC] [--card:#FFFFFF] [--panel:#EDF0F8] [--opt:color-mix(in_srgb,#0C1322_7%,#FBF7EC)] [--on-acc:#fff] ' +
+  'dark:[--tc:#FAFAFA] dark:[--dot:#5E8BE0] dark:[--acc2:#D9E1EF] dark:[--bg:#00102E] dark:[--card:#141D33] dark:[--panel:#0A1226] dark:[--opt:#1B2540] dark:[--on-acc:#00102E]';
+
+/** Reasigna los tokens del tema para los descendientes: la tarjeta no necesita `dark:` por dentro. */
+const estiloTarjeta = {
+  background: 'var(--card)',
+  color: 'var(--tc)',
+  '--color-ink': 'var(--tc)',
+  '--color-ink-muted': 'color-mix(in srgb, var(--tc) 80%, transparent)',
+  '--color-brand': 'var(--tc)',
+  '--color-grana': 'var(--dot)',
+  '--color-accent': 'var(--tc)',
+  '--color-accent-hover': 'var(--acc2)',
+  '--color-on-accent': 'var(--bg)',
+  '--color-tu': 'var(--acc2)',
+  '--color-on-tu': 'var(--on-acc)',
+  '--color-chart-accent': 'var(--dot)',
+  '--color-chart-muted': 'var(--tc)',
+  '--color-surface-sunken': 'color-mix(in srgb, var(--tc) 14%, transparent)',
+} as CSSProperties;
+
 const btnBase =
   'inline-flex min-h-11 items-center justify-center gap-2 rounded-full border px-5 py-2 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40';
-const btnPrimario = `${btnBase} border-accent bg-accent text-on-accent hover:enabled:bg-accent-hover dark:border-white dark:bg-white dark:text-negro dark:hover:enabled:border-cream dark:hover:enabled:bg-cream`;
+const btnPrimario = `${btnBase} border-accent bg-accent text-on-accent hover:enabled:border-accent-hover hover:enabled:bg-accent-hover hover:enabled:text-[#00102e]`;
 const btnTexto =
   'inline-flex min-h-11 items-center gap-1 px-1 font-medium text-ink underline-offset-4 hover:underline disabled:cursor-not-allowed disabled:text-ink-muted disabled:no-underline disabled:opacity-60';
-const enlaceTexto =
-  'inline-flex min-h-11 items-center gap-1 px-1 font-medium text-accent underline-offset-4 hover:underline';
+// «Ver el tema»: píldora en la esquina superior derecha de la tarjeta (como la maqueta).
+const enlaceTema =
+  'inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-sm font-bold text-accent transition-colors hover:bg-(--opt)';
 
 export default function Quiz({ preguntas }: Props) {
   const total = preguntas.length;
@@ -87,7 +125,10 @@ export default function Quiz({ preguntas }: Props) {
     'text-xl leading-snug font-semibold text-ink focus:outline-none focus-visible:outline-2 sm:text-2xl';
 
   return (
-    <div className="flex min-h-[30rem] min-w-0 flex-col rounded-2xl border border-border bg-surface p-4 sm:p-6 xl:p-7 dark:border-white/10 dark:bg-[#06132e] dark:shadow-2xl dark:shadow-black/40">
+    <div
+      className={`flex min-h-[30rem] min-w-0 flex-col rounded-3xl p-4 sm:p-6 xl:p-7 ${paletaTarjeta}`}
+      style={estiloTarjeta}
+    >
       <div className="mb-3 flex items-center justify-between gap-3 text-sm text-ink-muted">
         <p>
           {vista === 'final' ? 'Tu resultado final' : `Pregunta ${paso + 1} de ${total}`}
@@ -102,11 +143,11 @@ export default function Quiz({ preguntas }: Props) {
           return (
             <li
               key={q.id}
-              className={`h-1.5 flex-1 transition-colors duration-300 ${
+              className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
                 hecha
-                  ? 'bg-accent dark:bg-cream'
+                  ? 'bg-accent'
                   : k === paso
-                    ? 'bg-accent/40 dark:bg-cream/40'
+                    ? 'bg-accent/40'
                     : 'bg-surface-sunken'
               }`}
             />
@@ -155,9 +196,14 @@ export default function Quiz({ preguntas }: Props) {
 
       {vista === 'resultado' && evaluacion && (
         <Aparece key={`r-${p.id}`} retraso={0} className="flex flex-1 flex-col">
-          <p className="text-sm font-semibold tracking-wide text-ink-muted uppercase">
-            Tu resultado · {p.temaTitulo}
-          </p>
+          <div className="flex items-start justify-between gap-3">
+            <p className="pt-2 text-sm font-semibold tracking-wide text-ink-muted uppercase">
+              Tu resultado · {p.temaTitulo}
+            </p>
+            <a href={temaHref(p.tema)} className={`-mt-1 -mr-2 ${enlaceTema}`}>
+              Ver el tema <span aria-hidden="true">→</span>
+            </a>
+          </div>
           {/* Lo primero que se lee: cifra grande + frase corta. */}
           <h3
             ref={tituloRef}
@@ -166,7 +212,7 @@ export default function Quiz({ preguntas }: Props) {
             aria-live="polite"
           >
             {destacado!.sello && (
-              <span className="mb-2 inline-block rounded-full bg-accent px-3 py-0.5 text-xs font-bold tracking-wide text-on-accent uppercase dark:bg-cream dark:text-navy">
+              <span className="mb-2 inline-block rounded-full bg-(--acc2) px-3 py-0.5 text-xs font-bold tracking-wide text-[#00102e] uppercase">
                 {destacado!.sello}
               </span>
             )}
@@ -175,12 +221,13 @@ export default function Quiz({ preguntas }: Props) {
               <Trozos trozos={destacado!.frase} />
             </span>
           </h3>
-          <div className="mt-4">
+          {/* Panel redondeado de la gráfica (otro color que la tarjeta, como la maqueta). */}
+          <div className="mt-4 rounded-2xl bg-(--panel) p-4 sm:p-6">
             <GraficaResultado pregunta={p} valor={valor!} />
           </div>
           {destacado!.curioso && (
             // Solo texto (sin caja, para no alargar la tarjeta), más visible que la nota de abajo.
-            <p className="mt-4 text-sm leading-snug text-ink sm:text-base dark:text-cream">
+            <p className="mt-4 text-sm leading-snug text-ink sm:text-base">
               <Trozos trozos={destacado!.curioso} />
             </p>
           )}
@@ -191,9 +238,10 @@ export default function Quiz({ preguntas }: Props) {
             {p.ronda} · {entero(p.n)} personas encuestadas.
           </p>
           <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-5">
-            <a href={temaHref(p.tema)} className={enlaceTexto}>
-              Ver resultados del tema <span aria-hidden="true">→</span>
-            </a>
+            {/* Vuelve a la misma pregunta (la respuesta se conserva) para cambiarla y ver el resultado otra vez. */}
+            <button type="button" className={btnTexto} onClick={() => cambiar('pregunta')}>
+              <span aria-hidden="true">←</span> Cambiar respuesta
+            </button>
             <button type="button" className={btnPrimario} onClick={continuar}>
               Continuar <span aria-hidden="true">→</span>
             </button>
@@ -300,8 +348,8 @@ function Opciones({
                   : 'h-12 min-w-0 flex-1 rounded-lg px-0 text-sm sm:h-14 sm:text-base'
               } ${
                 sel
-                  ? 'border-accent bg-accent text-on-accent dark:border-cream dark:bg-cream dark:text-navy'
-                  : 'border-border-strong bg-surface text-ink hover:border-ink hover:bg-surface-muted dark:border-[#7088b2] dark:bg-surface-muted dark:hover:border-white dark:hover:bg-[#1d3c72]'
+                  ? 'border-(--acc2) bg-(--acc2) text-[#00102e]'
+                  : 'border-transparent bg-(--opt) text-ink hover:border-ink hover:bg-ink hover:text-(--bg)'
               }`}
             >
               {etiqueta}

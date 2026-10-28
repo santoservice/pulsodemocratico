@@ -2,13 +2,15 @@
 /**
  * "Explora los temas principales" (Inicio). En escritorio: título y menú de temas fijos a la
  * izquierda y las tarjetas, una debajo de otra, a la derecha; al hacer scroll, el tema cuya tarjeta
- * está en el centro de la pantalla se marca en el menú. En celular: solo las tarjetas.
+ * está en el centro de la pantalla se marca en el menú. En celular y tablet: una barra fija con el
+ * tema que se ve (el nombre sube y entra el siguiente al hacer scroll) que despliega la lista de temas.
  * Gráfica de cada tema: su hallazgo principal del visor (src/lib/visor/principales.ts).
  */
 import { Icon } from 'astro-icon/components';
 import GraficaVisor from '../visor/GraficaVisor.astro';
+import IconoTema from './IconoTema.astro';
 import LinkButton from './LinkButton.astro';
-import { temas, temaHref, type TemaSlug } from '../../data/temas';
+import { temas, temaHref } from '../../data/temas';
 import { titulo } from '../../lib/format';
 import { principalPorTema } from '../../lib/visor/principales';
 
@@ -18,16 +20,11 @@ const items = temas.flatMap((tema) => {
   return h ? [{ tema, h }] : [];
 });
 
-// Gráficas altas: un poco más angostas (y, la de filas, más juntas) para que la tarjeta quepa
-// en pantallas bajas. El SVG escala con el ancho, así que también baja de alto.
-const compacta: Partial<Record<TemaSlug, string>> = {
-  polarizacion: '[&>div]:max-w-[22rem]',
-  'consumo-mediatico': '[&>div]:max-w-[22rem]',
-  'comportamiento-juvenil': '[&>div]:max-w-[22rem] [&_[role=img]]:gap-1.5',
-};
+// Ancho de la gráfica en la tarjeta desde lg (px): ahí se dibuja a ese ancho para llenarla 1:1.
+const ANCHO_LG = 606; // 654 de la tarjeta menos el relleno del panel (24 px por lado)
 ---
 
-<section aria-labelledby="temas-titulo" class="explora bg-surface/50" data-explora>
+<section aria-labelledby="temas-titulo" class="explora" data-explora>
   <div
     class="container-page py-12 md:py-16 lg:grid lg:grid-cols-[19rem_minmax(0,1fr)] lg:gap-16"
     data-explora-grilla
@@ -39,7 +36,7 @@ const compacta: Partial<Record<TemaSlug, string>> = {
         <h2 id="temas-titulo" class="text-3xl font-bold text-brand md:text-4xl lg:text-[2.6rem] lg:leading-[1.05]">
           <!-- Dos líneas fijas en escritorio (la segunda invade un poco el espacio entre columnas). -->
           <span class="lg:block">{titulo('Explora los')}</span>{' '}
-          <span class="lg:block lg:whitespace-nowrap">{titulo('temas principales')}</span>
+          <span class="lg:block lg:whitespace-nowrap">temas principales</span>
         </h2>
         <p class="mt-3 text-ink-muted lg:max-w-[19rem]">Seis conversaciones clave para entender la percepción política.</p>
       </div>
@@ -47,18 +44,17 @@ const compacta: Partial<Record<TemaSlug, string>> = {
       <nav aria-label="Temas" class="explora-nav mt-8 hidden lg:block">
         <ol class="flex flex-col gap-1">
           {
-            items.map(({ tema }) => (
-              <li>
+            items.map(({ tema }, i) => (
+              <li class="explora-tab" style={`--i:${i}`}>
                 <a
                   href={`#explora-${tema.slug}`}
                   data-explora-link={tema.slug}
-                  class="group flex items-center justify-between gap-3 rounded-full px-6 py-4 text-lg font-semibold text-ink transition-[background-color,box-shadow,color] duration-300 hover:bg-white/60 data-[activo]:bg-white data-[activo]:text-brand data-[activo]:shadow-md data-[activo]:ring-4 data-[activo]:ring-white/60 dark:hover:bg-surface/60 dark:data-[activo]:bg-surface-sunken dark:data-[activo]:ring-surface-muted"
+                  class="group flex items-center justify-between gap-3 rounded-[20px] px-6 py-4 text-lg font-semibold text-ink transition-[background-color,box-shadow,color] duration-300 hover:bg-white/60 data-[activo]:bg-white data-[activo]:text-brand data-[activo]:shadow-md data-[activo]:ring-4 data-[activo]:ring-white/60 dark:hover:bg-surface/60 dark:data-[activo]:bg-surface-sunken dark:data-[activo]:ring-surface-muted"
                 >
                   {titulo(tema.titulo)}
-                  <Icon
-                    name={tema.icono}
-                    aria-hidden="true"
-                    class="h-6 w-6 shrink-0 text-grana opacity-0 transition-opacity duration-300 group-data-[activo]:opacity-100"
+                  <IconoTema
+                    slug={tema.slug}
+                    class="-my-2 h-11 w-[88px] shrink-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-data-[activo]:opacity-100"
                   />
                 </a>
               </li>
@@ -67,44 +63,86 @@ const compacta: Partial<Record<TemaSlug, string>> = {
         </ol>
       </nav>
     </div>
+
+    <!--
+      Celular y tablet: barra pegada bajo el header mientras pasan las tarjetas (sticky dentro de la
+      grilla). Dice el tema que se ve y, al tocarla, despliega la lista de temas.
+    -->
+    <div class="explora-franja sticky top-[69px] z-20 -mx-4 mt-8 px-4 md:-mx-8 md:px-8 lg:hidden" data-explora-barra>
+      <button
+        type="button"
+        aria-expanded="false"
+        aria-controls="explora-lista"
+        data-explora-boton
+        class="flex w-full items-center gap-3 py-3 text-left"
+      >
+        <span class="sr-only">Tema que estás viendo:</span>
+        <!-- Nombres apilados: el actual al centro, los anteriores arriba y los siguientes abajo. -->
+        <span class="relative block h-7 min-w-0 flex-1 overflow-hidden">
+          {items.map(({ tema }, i) => (
+            <span
+              data-explora-nombre={tema.slug}
+              data-pos={i === 0 ? 'actual' : 'abajo'}
+              aria-hidden={i === 0 ? undefined : 'true'}
+              class="explora-nombre absolute inset-0 truncate text-lg leading-7 font-bold text-cream"
+            >
+              {titulo(tema.titulo)}
+            </span>
+          ))}
+        </span>
+        <span class="sr-only">. Cambiar de tema</span>
+        <span class="flex shrink-0 items-center text-ink" aria-hidden="true">
+          <Icon name="lucide:chevron-down" data-explora-flecha class="h-5 w-5 transition-transform duration-200" />
+        </span>
+      </button>
+      <ul id="explora-lista" hidden class="explora-lista mb-3 rounded-3xl px-4 py-2">
+        {items.map(({ tema }) => (
+          <li class="border-b border-white/10 last:border-b-0">
+            <a
+              href={`#explora-${tema.slug}`}
+              data-explora-opcion={tema.slug}
+              class="flex items-center gap-3 px-2 py-3.5 text-ink aria-[current=true]:font-bold aria-[current=true]:text-cream"
+            >
+              <span class="flex-1">{titulo(tema.titulo)}</span>
+              <IconoTema slug={tema.slug} class="h-5 w-10 shrink-0" />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+
     <!-- Escritorio: mucho aire entre tarjetas para ver una a la vez, y la primera más abajo. -->
-    <div class="explora-tarjetas mt-10 flex flex-col gap-8 lg:mt-0 lg:gap-[35vh] lg:pt-[18vh] lg:pb-[12vh]">
+    <div class="explora-tarjetas mt-6 flex flex-col gap-8 lg:mt-0 lg:gap-[20vh] lg:pt-[18vh] lg:pb-[12vh]">
         {
           items.map(({ tema, h }) => (
             <article
               id={`explora-${tema.slug}`}
               data-explora-tarjeta={tema.slug}
               aria-labelledby={`explora-${tema.slug}-t`}
-              class="explora-tarjeta scroll-mt-28 rounded-2xl border border-border bg-surface p-5 md:p-8"
+              class="explora-tarjeta scroll-mt-40 rounded-2xl lg:scroll-mt-28 border border-border bg-surface p-5 md:p-8"
             >
-              <p class="text-xs font-bold tracking-[0.18em] text-grana uppercase">{tema.titulo}</p>
+              <p class="text-xs font-bold tracking-[0.18em] text-ink uppercase">{tema.titulo}</p>
               <h3 id={`explora-${tema.slug}-t`} class="mt-3 text-xl leading-snug font-bold text-brand md:text-2xl">
                 {h.titulo}
               </h3>
 
               <!--
-                Gráfica del hallazgo principal del tema (la misma de /resultados). Va directo sobre
-                la tarjeta (bg-surface): los rótulos de la gráfica se recortan con ese color.
+                Gráfica del hallazgo principal del tema (la misma de /resultados), en un panel oscuro
+                (.explora-media, --color-grafica-visor #0F1729 como la maqueta); los rótulos se
+                recortan con el color del panel (ver estilos). Sin frase destacada: solo gráfica, dato y pregunta.
               -->
               <div
                 id={`explora-${tema.slug}-grafica`}
-                class:list={['mt-6 border-t border-border pt-6', compacta[tema.slug]]}
+                class="explora-media mt-6 dark:rounded-2xl dark:bg-grafica-visor dark:p-4 dark:md:p-6"
                 data-descarga={`${h.id}-grafica`}
                 data-titulo={h.titulo}
                 data-tema={h.etiqueta}
               >
-                <GraficaVisor hallazgo={h} uid={`e-${h.id}`} />
+                <div class="lg:hidden"><GraficaVisor hallazgo={h} uid={`e-${h.id}`} /></div>
+                <div class="max-lg:hidden"><GraficaVisor hallazgo={h} uid={`ea-${h.id}`} ancho={ANCHO_LG} /></div>
               </div>
 
               <div class="mt-6 flex flex-wrap items-center justify-end gap-3">
-                <button
-                  type="button"
-                  data-tarjeta={`visor-${h.id}`}
-                  aria-haspopup="dialog"
-                  class="inline-flex items-center gap-2 rounded-full border border-border-strong px-5 py-2.5 font-semibold text-ink transition-colors hover:border-cream hover:bg-cream hover:text-navy"
-                >
-                  Ver detalle<span class="sr-only">: {h.titulo}</span>
-                </button>
                 <LinkButton href={temaHref(tema.slug)} icon="lucide:arrow-right" variant="primary">
                   Ver resultados<span class="sr-only"> de {tema.titulo}</span>
                 </LinkButton>
@@ -135,13 +173,60 @@ const compacta: Partial<Record<TemaSlug, string>> = {
       opacity: calc(1 - 0.85 * var(--b));
       will-change: translate, scale, filter;
     }
-    .explora[data-intro] .explora-nav {
-      opacity: var(--m);
-      translate: 0 calc((1 - var(--m)) * 1.5rem);
+    /* Menú: cada tema entra desde la izquierda y desvanecido, escalonado (el siguiente arranca
+       0,1 de --m después) y a medida que baja el scroll, como el stagger de la maqueta. */
+    .explora[data-intro] .explora-tab {
+      --t: clamp(0, calc((var(--m) - var(--i) * 0.1) / 0.5), 1);
+      opacity: var(--t);
+      translate: calc((1 - var(--t)) * -3.75rem) 0;
     }
     .explora[data-intro] .explora-tarjetas {
-      padding-top: 190vh;
+      padding-top: 110vh;
     }
+  }
+
+  /*
+   * Tarjeta como la maqueta (tema oscuro): vidrio azul noche sin borde y gráfica sin panel propio,
+   * con marcas en blanco/azul claro. --color-surface imita el tono de la tarjeta para que los
+   * contornos de rótulos y puntos de las gráficas lo igualen.
+   */
+  :global(:root[data-theme='dark']) .explora-tarjeta {
+    background-color: rgb(19 28 48 / 0.75);
+    border-color: transparent;
+    --color-ink: #fafafa;
+  }
+  /* No en la imagen descargable, que va en tema claro (isla data-theme="light"). */
+  :global(:root[data-theme='dark']) .explora-media:not(:global([data-theme='light'] *)) {
+    /* Los colores de la gráfica vienen de .grafica-visor (global.css, paleta de la maqueta). */
+    --color-surface: var(--color-grafica-visor); /* halos de rótulos y puntos = fondo del panel */
+  }
+
+  /* Barra de temas del celular, pegada al header: franja del color de la página con blur (como la
+     maqueta) y lista de vidrio azul noche como las tarjetas. Sin bordes. */
+  .explora-franja {
+    background-color: color-mix(in srgb, var(--color-page) 82%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+  .explora-lista {
+    background-color: var(--color-surface);
+  }
+  :global(:root[data-theme='dark']) .explora-lista {
+    background-color: rgb(19 28 48 / 0.95);
+  }
+  /* Nombre del tema: el que sale sube y el siguiente entra desde abajo (al revés si se sube). */
+  .explora-nombre {
+    transition:
+      translate 0.45s cubic-bezier(0.23, 1, 0.32, 1),
+      opacity 0.3s ease;
+  }
+  .explora-nombre[data-pos='arriba'] {
+    translate: 0 -100%;
+    opacity: 0;
+  }
+  .explora-nombre[data-pos='abajo'] {
+    translate: 0 100%;
+    opacity: 0;
   }
 
   /* Aparición suave de cada tarjeta al entrar en pantalla (solo con JS y sin movimiento reducido). */
@@ -199,7 +284,8 @@ const compacta: Partial<Record<TemaSlug, string>> = {
         const n = inicioDoc - y; // top de la columna en pantalla si no estuviera fija
         const pasado = TOPE_FIJO - n; // cuánto se ha bajado con la columna ya fija
         const b = 1 - clamp((vh * 0.95 - n) / (vh * 0.95 - TOPE_FIJO));
-        const m = suave(clamp((pasado - vh * 0.3) / (vh * 0.6)));
+        // Pausa de 0,15 pantallas con el título aclarado; luego pasa a la izquierda en 0,35.
+        const m = suave(clamp((pasado - vh * 0.15) / (vh * 0.35)));
         seccion.style.setProperty('--b', String(b));
         seccion.style.setProperty('--m', String(m));
       };
@@ -250,8 +336,18 @@ const compacta: Partial<Record<TemaSlug, string>> = {
   const links = [...document.querySelectorAll<HTMLElement>('[data-explora-link]')];
 
   if (tarjetas.length && 'IntersectionObserver' in window) {
-    const activar = (slug: string) =>
+    const nombres = [...document.querySelectorAll<HTMLElement>('[data-explora-nombre]')];
+    const opciones = [...document.querySelectorAll<HTMLElement>('[data-explora-opcion]')];
+    const activar = (slug: string) => {
       links.forEach((a) => a.toggleAttribute('data-activo', a.dataset.exploraLink === slug));
+      // Barra del celular: los nombres antes del actual quedan arriba y los siguientes abajo.
+      const k = nombres.findIndex((n) => n.dataset.exploraNombre === slug);
+      nombres.forEach((n, i) => {
+        n.dataset.pos = i < k ? 'arriba' : i > k ? 'abajo' : 'actual';
+        n.toggleAttribute('aria-hidden', i !== k);
+      });
+      opciones.forEach((o) => o.setAttribute('aria-current', String(o.dataset.exploraOpcion === slug)));
+    };
 
     // Tema activo: la última tarjeta que ya llegó a la mitad de la pantalla.
     let pendiente = false;
@@ -270,6 +366,30 @@ const compacta: Partial<Record<TemaSlug, string>> = {
 
     actualizar();
     window.addEventListener('scroll', programar, { passive: true });
+
+    // Lista desplegable de la barra del celular; al elegir un tema, el enlace baja a su tarjeta.
+    const barra = document.querySelector<HTMLElement>('[data-explora-barra]');
+    const boton = barra?.querySelector<HTMLButtonElement>('[data-explora-boton]');
+    const lista = document.getElementById('explora-lista');
+    const flecha = barra?.querySelector<SVGElement>('[data-explora-flecha]');
+    if (barra && boton && lista) {
+      const abrir = (si: boolean) => {
+        lista.hidden = !si;
+        boton.setAttribute('aria-expanded', String(si));
+        if (flecha) flecha.style.rotate = si ? '180deg' : '';
+      };
+      boton.addEventListener('click', () => abrir(lista.hidden !== false));
+      lista.addEventListener('click', () => abrir(false));
+      document.addEventListener('click', (e) => {
+        if (!lista.hidden && !barra.contains(e.target as Node)) abrir(false);
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !lista.hidden) {
+          abrir(false);
+          boton.focus();
+        }
+      });
+    }
     window.addEventListener('resize', programar);
 
     if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {

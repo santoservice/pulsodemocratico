@@ -108,7 +108,7 @@ export const quiz = {
       curioso: {
         valores: [5, 6, 7, 8, 9, 10],
         prefijo: 'Solo',
-        texto: 'les da 5 o más a los líderes del bando contrario',
+        texto: 'les dan 5 o más a los líderes del bando contrario',
       },
       distribucion: [
         { valor: 0, n: 766 },

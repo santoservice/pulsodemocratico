@@ -7,13 +7,16 @@ import { CLS, SEQ_FILL, SEQ_TEXTO, ZONA, fmt, fmtN } from '../../lib/visor/comun
 import { GRUPOS_EDAD } from '../../lib/visor/principales';
 import type { GraficaVisor } from '../../lib/visor/tipos';
 
-type Props = Omit<Extract<GraficaVisor, { tipo: 'apiladas-edad' }>, 'tipo'>;
+type Props = Omit<Extract<GraficaVisor, { tipo: 'apiladas-edad' }>, 'tipo'> & {
+  /** Ancho de dibujo (px): la gráfica se dibuja a este ancho y se muestra 1:1, sin ampliarse. */
+  ancho?: number;
+};
 
-const { C, aria } = Astro.props;
+const { C, aria, ancho = 320 } = Astro.props;
 const K = C.categorias;
 // Pasos de la rampa para las 4 respuestas (como el visor: 1, 3, 4, 5 de su escala).
 const PASOS = [0, 2, 3, 5];
-const W = 320;
+const W = ancho;
 const alto = 40;
 const fila = 108;
 const H = GRUPOS_EDAD.length * fila + 4;

@@ -1,0 +1,102 @@
+---
+/**
+ * Ícono ilustrado de cada tema (menú de «Explora los temas principales»), copiado de la maqueta
+ * (ART en docs/pulso-democratico-limpio.html): 160×80, con los colores de la maqueta.
+ */
+export interface Props {
+  slug: string;
+  class?: string;
+}
+
+const { slug, class: className } = Astro.props;
+const filas = [0, 1, 2, 3, 4, 5, 6];
+---
+
+<svg viewBox="0 0 160 80" aria-hidden="true" class:list={['icono-tema', className]}>
+  {slug === 'polarizacion' && (
+    <>
+      <path d="M70 14a26 26 0 000 52" fill="var(--it-mark)" />
+      <path d="M90 14a26 26 0 010 52" fill="var(--it-gold)" />
+      <path d="M80 8v64" stroke="var(--it-ink)" stroke-width="2" stroke-dasharray="3 5" />
+      <circle cx="30" cy="40" r="4" fill="var(--it-mark)" opacity=".6" />
+      <circle cx="18" cy="40" r="3" fill="var(--it-mark)" opacity=".35" />
+      <circle cx="130" cy="40" r="4" fill="var(--it-gold)" opacity=".7" />
+      <circle cx="142" cy="40" r="3" fill="var(--it-gold)" opacity=".4" />
+    </>
+  )}
+  {slug === 'populismo' && (
+    <>
+      {filas.map((i) =>
+        [0, 1, 2].map((j) => (
+          <circle cx={22 + i * 12} cy={34 + j * 14} r="4.5" fill="var(--it-mark)" opacity={0.45 + j * 0.25} />
+        )),
+      )}
+      <rect x="118" y="18" width="12" height="54" rx="2" fill="var(--it-gold)" />
+      <rect x="134" y="30" width="12" height="42" rx="2" fill="var(--it-gold)" opacity=".6" />
+      <path d="M104 46h8" stroke="var(--it-ink)" stroke-width="2" />
+    </>
+  )}
+  {slug === 'desinformacion' && (
+    <>
+      <rect x="36" y="10" width="56" height="62" rx="4" fill="var(--it-surface)" stroke="var(--it-ink)" stroke-width="2" />
+      <path d="M46 24h36M46 34h36M46 44h24M46 54h30" stroke="var(--it-mark-soft)" stroke-width="4" stroke-linecap="round" />
+      <circle cx="104" cy="46" r="20" fill="var(--it-gold)" />
+      <path d="M96 38l16 16M112 38l-16 16" stroke="#fff" stroke-width="3.5" stroke-linecap="round" />
+    </>
+  )}
+  {slug === 'inteligencia-artificial' && (
+    <>
+      <rect x="60" y="20" width="40" height="40" rx="6" fill="var(--it-mark)" />
+      <rect x="70" y="30" width="20" height="20" rx="3" fill="var(--it-gold)" />
+      {[0, 1, 2].map((i) => (
+        <path
+          d={`M${68 + i * 12} 20v-10M${68 + i * 12} 60v10M60 ${28 + i * 12}h-10M100 ${28 + i * 12}h10`}
+          stroke="var(--it-ink)"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        />
+      ))}
+      <circle cx="28" cy="40" r="5" fill="var(--it-mark-soft)" />
+      <circle cx="132" cy="40" r="5" fill="var(--it-mark-soft)" />
+    </>
+  )}
+  {slug === 'consumo-mediatico' && (
+    <>
+      <rect x="22" y="18" width="62" height="42" rx="4" fill="var(--it-mark)" />
+      <path d="M40 68h26" stroke="var(--it-ink)" stroke-width="3" stroke-linecap="round" />
+      <rect x="98" y="14" width="30" height="54" rx="6" fill="var(--it-surface)" stroke="var(--it-ink)" stroke-width="2" />
+      <rect x="104" y="22" width="18" height="10" rx="2" fill="var(--it-gold)" />
+      <rect x="104" y="36" width="18" height="6" rx="2" fill="var(--it-mark-soft)" />
+      <rect x="104" y="46" width="12" height="6" rx="2" fill="var(--it-mark-soft)" />
+      <path d="M136 30a14 14 0 010 20M142 24a22 22 0 010 32" fill="none" stroke="var(--it-gold)" stroke-width="2.5" stroke-linecap="round" />
+    </>
+  )}
+  {slug === 'comportamiento-juvenil' && (
+    <>
+      <path d="M20 66h120" stroke="var(--it-ink)" stroke-width="2" />
+      <rect x="34" y="46" width="16" height="20" rx="2" fill="var(--it-mark-soft)" />
+      <rect x="58" y="36" width="16" height="30" rx="2" fill="var(--it-mark-soft)" />
+      <rect x="82" y="26" width="16" height="40" rx="2" fill="var(--it-mark)" />
+      <rect x="106" y="14" width="16" height="52" rx="2" fill="var(--it-gold)" />
+      <path d="M42 36l24-12 24 4 28-18" fill="none" stroke="var(--it-ink)" stroke-width="2" stroke-dasharray="3 4" />
+    </>
+  )}
+</svg>
+
+<style>
+  /* Colores de la maqueta: claro (sus tokens base) y oscuro (los que toma en el menú de temas). */
+  .icono-tema {
+    --it-mark: #1f4fa3;
+    --it-mark-soft: #afc1e3;
+    --it-gold: #b87a0c;
+    --it-ink: #6b768f;
+    --it-surface: #ffffff;
+  }
+  :global([data-theme='dark']) .icono-tema:not(:where([data-theme='light'] *)) {
+    --it-mark: #5e8be0;
+    --it-mark-soft: #3d5a92;
+    --it-gold: #d9e1ef;
+    --it-ink: #fafafa;
+    --it-surface: #131c30;
+  }
+</style>

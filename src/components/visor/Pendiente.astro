@@ -8,11 +8,14 @@ import { GRUPOS_EDAD } from '../../lib/visor/principales';
 import type { GraficaVisor } from '../../lib/visor/tipos';
 import MarcaSerie from './MarcaSerie.astro';
 
-type Props = Omit<Extract<GraficaVisor, { tipo: 'pendiente' }>, 'tipo'>;
+type Props = Omit<Extract<GraficaVisor, { tipo: 'pendiente' }>, 'tipo'> & {
+  /** Ancho de dibujo (px): la gráfica se dibuja a este ancho y se muestra 1:1, sin ampliarse. */
+  ancho?: number;
+};
 
-const { C, aria } = Astro.props;
+const { C, aria, ancho = 320 } = Astro.props;
 const R = C.rondas;
-const W = 320;
+const W = ancho;
 const H = 290;
 const m = { t: 48, b: 14 };
 const MAX = 60;

@@ -28,7 +28,7 @@ export interface NavItem {
   children?: { label: string; href: string }[];
 }
 
-/** Menú principal. Regla del cliente: títulos con mayúscula inicial (`titulo()`). */
+/** Menú principal. Regla del cliente: títulos solo con mayúscula inicial (`titulo()`). */
 export const nav: NavItem[] = [
   { label: 'Inicio', href: ruta('/') },
   {

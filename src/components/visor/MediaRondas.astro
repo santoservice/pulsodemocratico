@@ -7,11 +7,14 @@
 import { CLS, HALO, ZONA, fmt, fmtN, meta } from '../../lib/visor/comun';
 import type { GraficaVisor } from '../../lib/visor/tipos';
 
-type Props = Omit<Extract<GraficaVisor, { tipo: 'media-rondas' }>, 'tipo'>;
+type Props = Omit<Extract<GraficaVisor, { tipo: 'media-rondas' }>, 'tipo'> & {
+  /** Ancho de dibujo (px): la gráfica se dibuja a este ancho y se muestra 1:1, sin ampliarse. */
+  ancho?: number;
+};
 
-const { G, polos, min, max, alto, aria } = Astro.props;
+const { G, polos, min, max, alto, aria, ancho = 320 } = Astro.props;
 const R = G.rondas;
-const W = 320;
+const W = ancho;
 const H = 350;
 const m = { t: 70, r: 10, b: 50, l: 24 };
 const dia = (t: string) => new Date(`${t}T12:00:00`).getTime();

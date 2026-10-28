@@ -47,6 +47,13 @@
   --color-surface-highlight: #f7efd9; /* 7499 */
   --color-page: #faf7ed; /* fondo de página: 7499 aclarado */
 
+  /* Relleno translúcido de tarjetas de vidrio (tema oscuro). */
+  --glass-fill: rgba(19, 28, 48, 0.75);
+
+  /* Tarjetas de hallazgos y su gráfica interior (maqueta, tema oscuro: --ex-card y --ex-media). */
+  --color-tarjeta-visor: #131c30;
+  --color-grafica-visor: #0f1729;
+
   /* Bordes y esqueletos (tintas de Pantone Black) */
   --color-border: #e3d7b6; /* 7499 oscurecido: borde de tarjetas */
   --color-border-strong: #969492; /* Black 50 % */
@@ -71,6 +78,8 @@
   --color-chart-accent: #00387d;
   --color-chart-muted: #93aac9;
   --color-chart-track: #d9e1ef;
+  /* Parte «no» de una barra o figura (el resto, la base de un embudo). */
+  --color-chart-no: #d9e1ef;
   /*
    * Series del visor de hallazgos (medios, grupos de edad…): color + forma de punto.
    * 1 = 286, 2 = Gold 871C (grupo 31+ / titulares falsos), 3 = negro 70 %, 4 = 292.
@@ -88,6 +97,13 @@
   --color-seq-4: #4a6fc7;
   --color-seq-5: #193f9e;
   --color-seq-6: #001c64;
+  /* Texto legible sobre cada paso de la rampa. */
+  --color-seq-texto-1: #2d2926;
+  --color-seq-texto-2: #2d2926;
+  --color-seq-texto-3: #2d2926;
+  --color-seq-texto-4: #ffffff;
+  --color-seq-texto-5: #ffffff;
+  --color-seq-texto-6: #ffffff;
   /* Franjas de edad (1 = 18 a 30 años, resaltada; 4 = 61 o más). */
   --color-edad-1: #00387d;
   --color-edad-2: #4a6fc7;
@@ -114,8 +130,15 @@
  */
 @custom-variant hover (&:hover);
 
-/* `dark:` = tema oscuro activado con <html data-theme="dark"> (no depende del sistema). */
-@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+/*
+ * `dark:` = tema oscuro activado con <html data-theme="dark"> (no depende del sistema).
+ * No aplica dentro de una isla clara (data-theme="light"): footer, imágenes descargables.
+ */
+@custom-variant dark {
+  &:where([data-theme='dark'], [data-theme='dark'] *):not(:where([data-theme='light'], [data-theme='light'] *)) {
+    @slot;
+  }
+}
 
 @layer base {
   html {
@@ -161,7 +184,7 @@
     --color-tu: #ffffff;
     --color-on-tu: #00205b;
 
-    --color-page: #071735;
+    --color-page: #00102e; /* fondo de la maqueta aprobada */
     --color-surface: #0e2550;
     --color-surface-muted: #15305f;
     --color-surface-sunken: #0a1c40;
@@ -185,7 +208,7 @@
     --color-chart-track: #1c3563;
     /* Series del visor: 292 · dorado · crema · azul medio (todas ≥ 3:1 sobre surface). */
     --color-serie-1: #93aac9;
-    --color-serie-2: #d7b36b;
+    --color-serie-2: #ffb400; /* amarillo de los collages (diseñadora) */
     --color-serie-3: #f7efd9;
     --color-serie-4: #6a8cc2;
     --color-chart-eleccion: #f7efd9;
@@ -208,27 +231,126 @@
   }
 
   /*
-   * Isla de tema claro dentro del oscuro (footer, bloque de logos): data-theme="light" en el
-   * contenedor. Repite solo los tokens claros que usan esas piezas (logos a color sobre crema).
+   * Degradado de fondo de la maqueta aprobada (docs/pulso-democratico-limpio.html), en todas las
+   * páginas: luz crema arriba a la derecha, azul abajo a la derecha y halos azules que alternan
+   * de lado cada ~130vh sobre la base azul noche.
+   */
+  :root[data-theme='dark'] {
+    background:
+      radial-gradient(ellipse 88vw 130vh at 102% -14vh, #f7efd9 0%, rgb(247 239 217 / 0.9) 22%, rgb(247 239 217 / 0.45) 46%, rgb(247 239 217 / 0.12) 64%, rgb(247 239 217 / 0) 78%),
+      radial-gradient(ellipse 85vw 150vh at 104% 115vh, rgb(52 116 255 / 0.95) 0%, rgb(52 116 255 / 0.6) 32%, rgb(52 116 255 / 0.2) 58%, rgb(52 116 255 / 0) 80%),
+      radial-gradient(ellipse 75vw 130vh at -6% 210vh, rgb(52 116 255 / 0.55) 0%, rgb(52 116 255 / 0.22) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 140vh at 100% 360vh, rgb(52 116 255 / 0.45) 0%, rgb(52 116 255 / 0) 75%),
+      radial-gradient(ellipse 80vw 130vh at -8% 480vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at 106% 610vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at -8% 740vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at 106% 870vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at -8% 1000vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at 106% 1130vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at -8% 1260vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at 106% 1390vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at -8% 1520vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at 106% 1650vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at -8% 1780vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      radial-gradient(ellipse 80vw 130vh at 106% 1910vh, rgb(52 116 255 / 0.5) 0%, rgb(52 116 255 / 0.2) 45%, rgb(52 116 255 / 0) 78%),
+      linear-gradient(180deg, #0a2a6b 0%, #00102e 38%, #00102e 100%);
+    background-color: var(--color-page);
+    background-repeat: no-repeat;
+  }
+
+  /*
+   * Isla de tema claro dentro del oscuro (footer, imágenes descargables de las gráficas):
+   * data-theme="light" en el contenedor. Repite los tokens claros de @theme, gráficas incluidas.
    */
   [data-theme='dark'] [data-theme='light'] {
     color-scheme: light;
     color: var(--color-ink);
 
     --color-brand: #00205b;
+    --color-brand-strong: #001640;
+    --color-brand-light: #93aac9;
     --color-grana: #a6192e;
+    --color-on-grana: #ffffff;
+    --color-tu: #a6192e;
+    --color-on-tu: #ffffff;
     --color-page: #faf7ed;
     --color-surface: #f7efd9;
     --color-surface-muted: #f0e6c9;
     --color-surface-sunken: #d9e1ef;
+    --color-surface-highlight: #f7efd9;
     --color-border: #e3d7b6;
     --color-border-strong: #969492;
+    --color-placeholder: #969492;
+    --color-skeleton: #c0bfbe;
     --color-ink: #2d2926;
     --color-ink-muted: #575451;
     --color-on-accent: #ffffff;
     --color-accent: #00387d;
     --color-accent-hover: #00205b;
     --color-focus: #00387d;
+
+    --color-chart-accent: #00387d;
+    --color-chart-muted: #93aac9;
+    --color-chart-track: #d9e1ef;
+    --color-serie-1: #00387d;
+    --color-serie-2: #89764b;
+    --color-serie-3: #575451;
+    --color-serie-4: #6f8fbf;
+    --color-chart-eleccion: #89764b;
+    --color-seq-1: #e0edff;
+    --color-seq-2: #b3cbf4;
+    --color-seq-3: #7f9fe0;
+    --color-seq-4: #4a6fc7;
+    --color-seq-5: #193f9e;
+    --color-seq-6: #001c64;
+    --color-edad-1: #00387d;
+    --color-edad-2: #4a6fc7;
+    --color-edad-3: #8fa9e6;
+    --color-edad-4: #a3b6e3;
+  }
+
+  /*
+   * Gráficas del visor en tema oscuro: paleta de la maqueta aprobada (.vz de
+   * docs/pulso-democratico-limpio.html). Solo dentro de la gráfica (.grafica-visor), no en la
+   * imagen descargable (isla clara). Equivalencias: serie 1–4 = --cat-1…4; seq 1·2·3·4·6 =
+   * --seq-1…5 (el 5 queda entre medio); acento = --serie; pista = --pista; texto = --tinta.
+   */
+  [data-theme='dark'] .grafica-visor:not(:where([data-theme='light'] *)) {
+    --color-ink: #f3f5fa;
+    --color-ink-muted: #b3c1d8;
+    --color-chart-accent: #d9e1ef;
+    --color-chart-muted: #93aac9;
+    --color-chart-track: rgb(217 225 239 / 0.08);
+    --color-chart-no: rgb(217 225 239 / 0.12);
+    --color-chart-eleccion: #f7efd9;
+    --color-serie-1: #d9e1ef;
+    --color-serie-2: #5e8be0;
+    --color-serie-3: #f7efd9;
+    --color-serie-4: #93aac9;
+    --color-seq-1: #e6ecf5;
+    --color-seq-2: #b7c6dd;
+    --color-seq-3: #93aac9;
+    --color-seq-4: #7894ca;
+    --color-seq-5: #698dd3;
+    --color-seq-6: #5a86dc;
+    --color-seq-texto-1: #0c1322;
+    --color-seq-texto-2: #0c1322;
+    --color-seq-texto-3: #0c1322;
+    --color-seq-texto-4: #0c1322;
+    --color-seq-texto-5: #0c1322;
+    --color-seq-texto-6: #0c1322;
+    --color-edad-1: #d9e1ef;
+    --color-edad-2: #93aac9;
+    --color-edad-3: #5e8be0;
+    --color-edad-4: #f7efd9;
+  }
+
+  /*
+   * Barras redondeadas como la maqueta (.vz-slot rect{rx:6px}), salvo las zonas invisibles de
+   * datos y las columnas, que traen su propio radio.
+   */
+  .grafica-visor svg rect:not([fill='transparent']):not(.columna) {
+    rx: 6px;
   }
 
   /* Tailwind v4 deja los botones con cursor normal: todo lo clicable muestra la mano. */

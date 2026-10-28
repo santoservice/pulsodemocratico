@@ -490,7 +490,7 @@ function jovCredibilidad(): HallazgoVisor {
     titulo: '¿Distinguen los jóvenes las noticias falsas de las verdaderas?',
     leyenda: {
       items: [
-        { texto: 'Titulares verdaderos', tipo: 'serie', i: 0 },
+        { texto: 'Titulares verdaderos', tipo: 'serie', i: 0, color: 2 },
         { texto: 'Titulares falsos', tipo: 'serie', i: 1 },
       ],
       nota: `Credibilidad promedio que le dan, de 1 (definitivamente falsa) a 5 (definitivamente verdadera) · ${rondaCorta(Rd)}`,
@@ -882,7 +882,8 @@ function popIdeologia(): HallazgoVisor {
     etiqueta: 'Populismo · Ideología',
     titulo: '¿Son más populistas los extremos ideológicos?',
     leyenda: {
-      items: K.map((k, i) => ({ texto: k.nombre, tipo: 'grupo', i })),
+      // Derecha: serie 1; izquierda: serie 4 (como la maqueta).
+      items: K.map((k) => ({ texto: k.nombre, tipo: 'grupo', i: k.clave === 'izquierda' ? 3 : 0 })),
       nota: `Promedio de acuerdo, de 0 (total desacuerdo) a 5 (total acuerdo), según la autoubicación de 0 (izquierda) a 10 (derecha) · ${rondaCorta(Rd)}`,
     },
     grafica: {
@@ -975,7 +976,7 @@ function conChats(): HallazgoVisor {
   const R = C.rondas;
   const K = C.cats;
   const dif = Math.round(R[1]!.pct_si) - Math.round(R[0]!.pct_si);
-  const BG = ['bg-chart-track', 'bg-seq-2', 'bg-seq-4', 'bg-seq-6'];
+  const BG = ['bg-seq-1', 'bg-seq-2', 'bg-seq-4', 'bg-seq-6'];
   return {
     id: 'cch',
     tema: 'consumo-mediatico',
@@ -1027,7 +1028,7 @@ function conOdio(): HallazgoVisor {
   const P = C.pasos;
   const K = C.cats;
   const Rd = C.ronda;
-  const BG = ['bg-chart-track', 'bg-seq-2', 'bg-seq-4', 'bg-seq-6'];
+  const BG = ['bg-seq-1', 'bg-seq-2', 'bg-seq-4', 'bg-seq-6'];
   const siNo = (p: (typeof P)[number]) => 'si_no' in p && p.si_no;
   return {
     id: 'cod',

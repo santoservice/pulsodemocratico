@@ -7,15 +7,18 @@
 import { HALO, SERIE_FILL, ZONA, fmt, fmtN } from '../../lib/visor/comun';
 import type { GraficaVisor } from '../../lib/visor/tipos';
 
-type Props = Omit<Extract<GraficaVisor, { tipo: 'titulares' }>, 'tipo'>;
+type Props = Omit<Extract<GraficaVisor, { tipo: 'titulares' }>, 'tipo'> & {
+  /** Ancho de dibujo (px): la gráfica se dibuja a este ancho y se muestra 1:1, sin ampliarse. */
+  ancho?: number;
+};
 
-const { C, origen, medio, polos, medida, alto, bajo, aria } = Astro.props;
-// Falsos: dorado (serie 2); verdaderos: azul claro (serie 1).
+const { C, origen, medio, polos, medida, alto, bajo, aria, ancho = 320 } = Astro.props;
+// Falsos: serie 2; verdaderos: serie 3 (como la maqueta: cat-2 y cat-3).
 const S = [
   { k: 'falsos', et: 'Titulares falsos', col: SERIE_FILL[1]! },
-  { k: 'verdaderos', et: 'Titulares verdaderos', col: SERIE_FILL[0]! },
+  { k: 'verdaderos', et: 'Titulares verdaderos', col: SERIE_FILL[2]! },
 ] as const;
-const W = 320;
+const W = ancho;
 const m = { l: 12, r: 12 };
 const cab = 50;
 const fila = 38;
