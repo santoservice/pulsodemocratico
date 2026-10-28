@@ -7,16 +7,19 @@
 import { CLS, HALO, SEQ_FILL, ZONA, fmt, pasoSeq } from '../../lib/visor/comun';
 import type { GraficaVisor } from '../../lib/visor/tipos';
 
-type Props = Omit<Extract<GraficaVisor, { tipo: 'distribucion' }>, 'tipo'>;
+type Props = Omit<Extract<GraficaVisor, { tipo: 'distribucion' }>, 'tipo'> & {
+  /** Ancho de dibujo (px): la gráfica se dibuja a este ancho y se muestra 1:1, sin ampliarse. */
+  ancho?: number;
+};
 
-const { it, aria } = Astro.props;
+const { it, aria, ancho: anchoDibujo = 320 } = Astro.props;
 const cats = it.cats ?? ['0', '1', '2', '3', '4', '5'];
 const N = cats.length;
 const [ta, tb] = (it.tramo ?? [4, 5]) as [number, number];
 const nombre = (k: number) => cats[k]!.replace('|', ' ');
 const extremo = (k: number) =>
   !it.polos ? '' : k === 0 ? ` (${it.polos[0]!.toLowerCase()})` : k === N - 1 ? ` (${it.polos[1]!.toLowerCase()})` : '';
-const W = 320;
+const W = anchoDibujo;
 const H = 306;
 const m = { t: 58, b: 62, l: 4, r: 4 };
 const slot = (W - m.l - m.r) / N;

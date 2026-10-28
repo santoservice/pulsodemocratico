@@ -21,7 +21,7 @@ const { filas, aria } = Astro.props;
       <div
         class:list={[
           'flex h-[26px] min-w-[34px] items-center justify-center rounded text-[15px] font-extrabold tabular-nums',
-          f.base ? 'bg-chart-track text-ink' : 'cursor-pointer bg-chart-accent text-navy',
+          f.base ? 'bg-chart-no text-ink' : 'cursor-pointer bg-chart-accent text-navy',
         ]}
         style={`width:${f.pct}%`}
         data-tip={f.tip}

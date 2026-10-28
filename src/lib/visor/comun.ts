@@ -68,13 +68,13 @@ export interface TablaVisor {
  */
 export const CLS = {
   /** Rótulo principal de un grupo o ronda ("1.ª ronda"). */
-  et: 'fill-ink text-[12.5px] font-extrabold',
+  et: 'fill-ink text-[12.5px]',
   /** Texto secundario (fechas, "promedio 2,1"). */
   fecha: 'fill-ink-muted text-[11.5px]',
   /** Marcas de eje. */
   tic: 'fill-ink-muted text-[12px]',
   /** Rótulo de fila (embudos, mancuernas). */
-  fila: 'fill-ink-muted text-[12.5px] font-bold',
+  fila: 'fill-ink-muted text-[12.5px]',
   /** Valores y cambios pequeños en negrilla. */
   dato: 'fill-ink-muted text-[12px] font-extrabold',
   /** Valor al final de una serie. */
@@ -96,8 +96,15 @@ export const SERIE_BG = ['bg-serie-1', 'bg-serie-2', 'bg-serie-3', 'bg-serie-4']
 
 /** Rampa de un solo tono (6 pasos). */
 export const SEQ_FILL = ['fill-seq-1', 'fill-seq-2', 'fill-seq-3', 'fill-seq-4', 'fill-seq-5', 'fill-seq-6'];
-/** Texto legible sobre cada paso de la rampa (en tema oscuro los pasos altos son claros). */
-export const SEQ_TEXTO = ['fill-ink', 'fill-ink', 'fill-ink', 'fill-navy', 'fill-navy', 'fill-navy'];
+/** Texto legible sobre cada paso de la rampa (tokens --color-seq-texto-*, cambian con el tema). */
+export const SEQ_TEXTO = [
+  'fill-seq-texto-1',
+  'fill-seq-texto-2',
+  'fill-seq-texto-3',
+  'fill-seq-texto-4',
+  'fill-seq-texto-5',
+  'fill-seq-texto-6',
+];
 /** Paso de la rampa para la posición k de n categorías (de la menor a la mayor). */
 export const pasoSeq = (k: number, n: number) => Math.round((k * 5) / Math.max(n - 1, 1));
 

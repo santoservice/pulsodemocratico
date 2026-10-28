@@ -61,7 +61,30 @@ const ilustraciones: Record<TemaSlug, Ilustracion> = {
 
 // Temas cuyas gráficas se leen mejor anchas: dos columnas en vez de tres (en Polarización,
 // las de polarización ideológica y percibida quedan una al lado de la otra).
-const dosColumnas: TemaSlug[] = ['polarizacion', 'consumo-mediatico', 'comportamiento-juvenil'];
+const dosColumnas: TemaSlug[] = [
+  'polarizacion',
+  'populismo',
+  'desinformacion',
+  'inteligencia-artificial',
+  'consumo-mediatico',
+  'comportamiento-juvenil',
+];
+
+// Orden propio de algunos temas (ids del visor): en dos columnas, las gráficas de alto parecido
+// van en la misma fila.
+const orden: Partial<Record<TemaSlug, string[]>> = {
+  polarizacion: ['pex', 'wsk', 'pol', 'pll'],
+  desinformacion: ['dti', 'dco', 'dia', 'dpr', 'dve'],
+  'consumo-mediatico': ['cma', 'cpu', 'cre', 'cod', 'cch'],
+};
+
+// Hallazgos con gráficas largas: van al final y ocupan las dos columnas (ids del visor).
+const anchos = new Set([
+  'pit', // Populismo: ¿con qué ideas populistas están de acuerdo?
+  'dve', // Desinformación: ¿a qué recurren para verificar una noticia?
+  'cch', // Consumo: ¿reciben o comparten política por chats y redes?
+  'jco', // Jóvenes: ¿comparten más sus opiniones políticas en plataformas digitales?
+]);
 
 // La pregunta del inicio del texto del tema va como título; el resto, como bajada.
 const items = temas.map((t) => {
@@ -70,7 +93,11 @@ const items = temas.map((t) => {
     tema: t,
     pregunta: t.intro.slice(0, corte),
     bajada: t.intro.slice(corte).trim(),
-    hallazgos: otrosHallazgosTema(t.slug),
+    hallazgos: otrosHallazgosTema(t.slug).toSorted((a, b) => {
+      const o = orden[t.slug];
+      if (o) return o.indexOf(a.id) - o.indexOf(b.id);
+      return Number(anchos.has(a.id)) - Number(anchos.has(b.id));
+    }),
     img: ilustraciones[t.slug],
   };
 });
@@ -93,7 +120,7 @@ const items = temas.map((t) => {
         aria-selected={i === 0 ? 'true' : 'false'}
         tabindex={i === 0 ? 0 : -1}
         data-tema={tema.slug}
-        class="flex min-h-11 items-center justify-center rounded-full px-3 py-1.5 text-center text-sm leading-tight font-bold text-ink transition-colors hover:bg-surface aria-selected:bg-cream aria-selected:text-navy md:hover:bg-[#13306b]"
+        class="flex min-h-11 items-center justify-center rounded-full px-3 py-1.5 text-center text-sm leading-tight font-bold text-ink transition-colors hover:bg-cream hover:text-navy aria-selected:bg-cream aria-selected:text-navy"
       >
         {titulo(tema.titulo)}
       </button>
@@ -188,13 +215,15 @@ const items = temas.map((t) => {
       <ul
         aria-label={`Hallazgos sobre ${tema.titulo}`}
         class:list={[
-          'mt-6 grid gap-5 sm:grid-cols-2',
+          // Las tarjetas aparecen una tras otra al asomarse con el scroll (Aparecer).
+          'aparece-hijos mt-6 grid gap-5 sm:grid-cols-2',
           !dosColumnas.includes(tema.slug) && 'lg:grid-cols-3',
         ]}
       >
         {hallazgos.map((h) => (
-          <li class="min-w-0">
-            <TarjetaVisor hallazgo={h} as="h4" />
+          <li class:list={['min-w-0', anchos.has(h.id) && 'sm:col-span-2']}>
+            <!-- Ancho de la gráfica desde lg: media fila (468 px) o la fila entera (1024 px). -->
+            <TarjetaVisor hallazgo={h} as="h4" anchoLg={anchos.has(h.id) ? 1024 : 468} />
           </li>
         ))}
       </ul>

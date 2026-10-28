@@ -10,10 +10,12 @@ export interface Props {
   filas: FilaMancuerna[];
   evolucion?: { titulo: string; grupos: { valores: number[]; tip: string }[] };
   aria: string;
+  /** Ancho de dibujo (px): la gráfica se dibuja a este ancho y se muestra 1:1, sin ampliarse. */
+  ancho?: number;
 }
 
-const { filas, evolucion, aria } = Astro.props;
-const W = 320;
+const { filas, evolucion, aria, ancho = 320 } = Astro.props;
+const W = ancho;
 const P = 26; // alto de cada pista
 const x = (v: number) => 30 + (v / 100) * (W - 60);
 const COLOR = ['text-serie-1', 'text-serie-2'];

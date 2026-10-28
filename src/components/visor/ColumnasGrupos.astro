@@ -6,9 +6,12 @@
 import { CLS, SERIE_FILL, ZONA, fmt, fmtN } from '../../lib/visor/comun';
 import type { GraficaVisor } from '../../lib/visor/tipos';
 
-type Props = Omit<Extract<GraficaVisor, { tipo: 'columnas-grupos' }>, 'tipo'>;
+type Props = Omit<Extract<GraficaVisor, { tipo: 'columnas-grupos' }>, 'tipo'> & {
+  /** Ancho de dibujo (px): la gráfica se dibuja a este ancho y se muestra 1:1, sin ampliarse. */
+  ancho?: number;
+};
 
-const { C, aria } = Astro.props;
+const { C, aria, ancho: anchoDibujo = 320 } = Astro.props;
 const I = C.items;
 const Gs = [
   { k: 'creen', et: 'Les creen', det: 'más de 3' },
@@ -16,7 +19,7 @@ const Gs = [
 ] as const;
 // Una serie por afirmación: 1 = azul claro, 2 = azul medio (como cat-1 y cat-4 del visor).
 const COL = [SERIE_FILL[0], SERIE_FILL[3]];
-const W = 320;
+const W = anchoDibujo;
 const H = 290;
 const m = { t: 26, b: 48, l: 24 };
 const slot = (W - m.l) / Gs.length;

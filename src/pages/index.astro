@@ -4,9 +4,6 @@ import { Image } from 'astro:assets';
 import imagenInicio from '../assets/images/inicio.webp';
 import ExploraTemas from '../components/ui/ExploraTemas.astro';
 import EscenaQuiz from '../components/ui/EscenaQuiz.astro';
-import QuestionModal from '../components/results/QuestionModal.astro';
-import DetalleVisor from '../components/visor/DetalleVisor.astro';
-import { principales } from '../lib/visor/principales';
 import { cifrasEncuesta, sitio } from '../data/sitio';
 import { getStats } from '../lib/tablero';
 import { entero } from '../lib/format';
@@ -79,7 +76,4 @@ const cifras = cifrasEncuesta(getStats(), entero);
   <ExploraTemas />
 
   <!-- "Ver detalle" de los hallazgos de Explora (a pantalla completa). -->
-  <QuestionModal>
-    {principales.map((h) => <DetalleVisor hallazgo={h} />)}
-  </QuestionModal>
 </BaseLayout>

@@ -6,13 +6,16 @@
 import { CLS, SERIE_FILL, SERIE_TEXT, ZONA, fmt, fmtN } from '../../lib/visor/comun';
 import type { GraficaVisor } from '../../lib/visor/tipos';
 
-type Props = Omit<Extract<GraficaVisor, { tipo: 'lineas-ideologia' }>, 'tipo'>;
+type Props = Omit<Extract<GraficaVisor, { tipo: 'lineas-ideologia' }>, 'tipo'> & {
+  /** Ancho de dibujo (px): la gráfica se dibuja a este ancho y se muestra 1:1, sin ampliarse. */
+  ancho?: number;
+};
 
-const { C, aria } = Astro.props;
+const { C, aria, ancho = 320 } = Astro.props;
 const T = C.tramos;
 const K = C.constructos;
-const IDX: Record<string, number> = { derecha: 0, izquierda: 1 };
-const W = 320;
+const IDX: Record<string, number> = { derecha: 0, izquierda: 3 }; // como la maqueta: cat-1 y cat-4
+const W = ancho;
 const H = 300;
 const m = { t: 14, b: 62, l: 24, r: 8 };
 const slot = (W - m.l - m.r) / T.length;

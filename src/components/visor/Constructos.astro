@@ -6,13 +6,16 @@
 import { CLS, HALO, SERIE_FILL, ZONA, fmt, fmtN } from '../../lib/visor/comun';
 import type { GraficaVisor } from '../../lib/visor/tipos';
 
-type Props = Omit<Extract<GraficaVisor, { tipo: 'constructos' }>, 'tipo'>;
+type Props = Omit<Extract<GraficaVisor, { tipo: 'constructos' }>, 'tipo'> & {
+  /** Ancho de dibujo (px): la gráfica se dibuja a este ancho y se muestra 1:1, sin ampliarse. */
+  ancho?: number;
+};
 
-const { C, aria } = Astro.props;
+const { C, aria, ancho = 320 } = Astro.props;
 const K = C.constructos;
-// Derecha: serie 1 (azul claro); izquierda: serie 2 (dorado).
-const COL: Record<string, string> = { derecha: SERIE_FILL[0]!, izquierda: SERIE_FILL[1]! };
-const W = 320;
+// Derecha: serie 1; izquierda: serie 4 (como la maqueta: cat-1 y cat-4).
+const COL: Record<string, string> = { derecha: SERIE_FILL[0]!, izquierda: SERIE_FILL[3]! };
+const W = ancho;
 const m = { r: 44 };
 const cab = 50;
 const fila = 38;

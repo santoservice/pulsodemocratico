@@ -8,8 +8,9 @@
  */
 import { Icon } from 'astro-icon/components';
 import GraficaVisor from '../visor/GraficaVisor.astro';
+import IconoTema from './IconoTema.astro';
 import LinkButton from './LinkButton.astro';
-import { temas, temaHref, type TemaSlug } from '../../data/temas';
+import { temas, temaHref } from '../../data/temas';
 import { titulo } from '../../lib/format';
 import { principalPorTema } from '../../lib/visor/principales';
 
@@ -19,13 +20,8 @@ const items = temas.flatMap((tema) => {
   return h ? [{ tema, h }] : [];
 });
 
-// Gráficas altas: un poco más angostas (y, la de filas, más juntas) para que la tarjeta quepa
-// en pantallas bajas. El SVG escala con el ancho, así que también baja de alto.
-const compacta: Partial<Record<TemaSlug, string>> = {
-  polarizacion: '[&>div]:max-w-[22rem]',
-  'consumo-mediatico': '[&>div]:max-w-[22rem]',
-  'comportamiento-juvenil': '[&>div]:max-w-[22rem] [&_[role=img]]:gap-1.5',
-};
+// Ancho de la gráfica en la tarjeta desde lg (px): ahí se dibuja a ese ancho para llenarla 1:1.
+const ANCHO_LG = 606; // 654 de la tarjeta menos el relleno del panel (24 px por lado)
 ---
 
 <section aria-labelledby="temas-titulo" class="explora" data-explora>
@@ -53,13 +49,12 @@ const compacta: Partial<Record<TemaSlug, string>> = {
                 <a
                   href={`#explora-${tema.slug}`}
                   data-explora-link={tema.slug}
-                  class="group flex items-center justify-between gap-3 rounded-full px-6 py-4 text-lg font-semibold text-ink transition-[background-color,box-shadow,color] duration-300 hover:bg-white/60 data-[activo]:bg-white data-[activo]:text-brand data-[activo]:shadow-md data-[activo]:ring-4 data-[activo]:ring-white/60 dark:hover:bg-surface/60 dark:data-[activo]:bg-surface-sunken dark:data-[activo]:ring-surface-muted"
+                  class="group flex items-center justify-between gap-3 rounded-[20px] px-6 py-4 text-lg font-semibold text-ink transition-[background-color,box-shadow,color] duration-300 hover:bg-white/60 data-[activo]:bg-white data-[activo]:text-brand data-[activo]:shadow-md data-[activo]:ring-4 data-[activo]:ring-white/60 dark:hover:bg-surface/60 dark:data-[activo]:bg-surface-sunken dark:data-[activo]:ring-surface-muted"
                 >
                   {titulo(tema.titulo)}
-                  <Icon
-                    name={tema.icono}
-                    aria-hidden="true"
-                    class="h-6 w-6 shrink-0 text-serie-2 opacity-0 transition-opacity duration-300 group-data-[activo]:opacity-100"
+                  <IconoTema
+                    slug={tema.slug}
+                    class="-my-2 h-11 w-[88px] shrink-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-data-[activo]:opacity-100"
                   />
                 </a>
               </li>
@@ -109,7 +104,7 @@ const compacta: Partial<Record<TemaSlug, string>> = {
               class="flex items-center gap-3 px-2 py-3.5 text-ink aria-[current=true]:font-bold aria-[current=true]:text-cream"
             >
               <span class="flex-1">{titulo(tema.titulo)}</span>
-              <Icon name={tema.icono} class="h-5 w-5 shrink-0 text-serie-2" aria-hidden="true" />
+              <IconoTema slug={tema.slug} class="h-5 w-10 shrink-0" />
             </a>
           </li>
         ))}
@@ -126,35 +121,28 @@ const compacta: Partial<Record<TemaSlug, string>> = {
               aria-labelledby={`explora-${tema.slug}-t`}
               class="explora-tarjeta scroll-mt-40 rounded-2xl lg:scroll-mt-28 border border-border bg-surface p-5 md:p-8"
             >
-              <p class="text-xs font-bold tracking-[0.18em] text-serie-2 uppercase">{tema.titulo}</p>
+              <p class="text-xs font-bold tracking-[0.18em] text-ink uppercase">{tema.titulo}</p>
               <h3 id={`explora-${tema.slug}-t`} class="mt-3 text-xl leading-snug font-bold text-brand md:text-2xl">
                 {h.titulo}
               </h3>
 
               <!--
-                Gráfica del hallazgo principal del tema (la misma de /resultados), en un panel propio
-                (.explora-media) sin panel propio, con tonos claros como la maqueta; los rótulos se
-                recortan con el color de la tarjeta (ver estilos). Sin frase destacada: solo gráfica, dato y pregunta.
+                Gráfica del hallazgo principal del tema (la misma de /resultados), en un panel oscuro
+                (.explora-media, --color-grafica-visor #0F1729 como la maqueta); los rótulos se
+                recortan con el color del panel (ver estilos). Sin frase destacada: solo gráfica, dato y pregunta.
               -->
               <div
                 id={`explora-${tema.slug}-grafica`}
-                class:list={['explora-media mt-6', compacta[tema.slug]]}
+                class="explora-media mt-6 dark:rounded-2xl dark:bg-grafica-visor dark:p-4 dark:md:p-6"
                 data-descarga={`${h.id}-grafica`}
                 data-titulo={h.titulo}
                 data-tema={h.etiqueta}
               >
-                <GraficaVisor hallazgo={h} uid={`e-${h.id}`} />
+                <div class="lg:hidden"><GraficaVisor hallazgo={h} uid={`e-${h.id}`} /></div>
+                <div class="max-lg:hidden"><GraficaVisor hallazgo={h} uid={`ea-${h.id}`} ancho={ANCHO_LG} /></div>
               </div>
 
               <div class="mt-6 flex flex-wrap items-center justify-end gap-3">
-                <button
-                  type="button"
-                  data-tarjeta={`visor-${h.id}`}
-                  aria-haspopup="dialog"
-                  class="inline-flex items-center gap-2 rounded-full border border-border-strong px-5 py-2.5 font-semibold text-ink transition-colors hover:border-cream hover:bg-cream hover:text-navy"
-                >
-                  Ver detalle<span class="sr-only">: {h.titulo}</span>
-                </button>
                 <LinkButton href={temaHref(tema.slug)} icon="lucide:arrow-right" variant="primary">
                   Ver resultados<span class="sr-only"> de {tema.titulo}</span>
                 </LinkButton>
@@ -207,13 +195,10 @@ const compacta: Partial<Record<TemaSlug, string>> = {
     border-color: transparent;
     --color-ink: #fafafa;
   }
-  :global(:root[data-theme='dark']) .explora-media {
-    --color-surface: #101a31; /* tono aproximado de la tarjeta (vidrio sobre la página) */
-    --color-chart-accent: #d9e1ef;
-    --color-chart-muted: #93aac9;
-    --color-serie-1: #d9e1ef;
-    --color-ink: #d9e1ef;
-    --color-ink-muted: #b4c3da;
+  /* No en la imagen descargable, que va en tema claro (isla data-theme="light"). */
+  :global(:root[data-theme='dark']) .explora-media:not(:global([data-theme='light'] *)) {
+    /* Los colores de la gráfica vienen de .grafica-visor (global.css, paleta de la maqueta). */
+    --color-surface: var(--color-grafica-visor); /* halos de rótulos y puntos = fondo del panel */
   }
 
   /* Barra de temas del celular, pegada al header: franja del color de la página con blur (como la
@@ -393,7 +378,7 @@ const compacta: Partial<Record<TemaSlug, string>> = {
         boton.setAttribute('aria-expanded', String(si));
         if (flecha) flecha.style.rotate = si ? '180deg' : '';
       };
-      boton.addEventListener('click', () => abrir(lista.hidden));
+      boton.addEventListener('click', () => abrir(lista.hidden !== false));
       lista.addEventListener('click', () => abrir(false));
       document.addEventListener('click', (e) => {
         if (!lista.hidden && !barra.contains(e.target as Node)) abrir(false);

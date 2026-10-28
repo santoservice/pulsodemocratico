@@ -6,18 +6,21 @@
 import { CLS, SEQ_FILL, SEQ_TEXTO, ZONA, fmt, fmtN, rangoCorto } from '../../lib/visor/comun';
 import type { GraficaVisor } from '../../lib/visor/tipos';
 
-type Props = Omit<Extract<GraficaVisor, { tipo: 'chats' }>, 'tipo'>;
+type Props = Omit<Extract<GraficaVisor, { tipo: 'chats' }>, 'tipo'> & {
+  /** Ancho de dibujo (px): la gráfica se dibuja a este ancho y se muestra 1:1, sin ampliarse. */
+  ancho?: number;
+};
 
-const { C, aria } = Astro.props;
+const { C, aria, ancho = 320 } = Astro.props;
 const R = C.rondas;
 const K = C.cats;
-// "No" en la pista; las demás respuestas en la rampa (como el visor).
-const COL = ['fill-chart-track', SEQ_FILL[1]!, SEQ_FILL[3]!, SEQ_FILL[5]!];
-const TXT = ['fill-ink', SEQ_TEXTO[1]!, SEQ_TEXTO[3]!, SEQ_TEXTO[5]!];
+// Todas las respuestas en la rampa, «No» en el paso más claro (como la maqueta).
+const COL = [SEQ_FILL[0]!, SEQ_FILL[1]!, SEQ_FILL[3]!, SEQ_FILL[5]!];
+const TXT = [SEQ_TEXTO[0]!, SEQ_TEXTO[1]!, SEQ_TEXTO[3]!, SEQ_TEXTO[5]!];
 // Vías: 1.ª ronda en azul medio, 3.ª en azul claro.
 const CR = ['fill-serie-4', 'fill-serie-1'];
 const dif = Math.round(R[1]!.pct_si) - Math.round(R[0]!.pct_si);
-const W = 320;
+const W = ancho;
 const alto = 30;
 const fila = 62;
 const cab = 26;

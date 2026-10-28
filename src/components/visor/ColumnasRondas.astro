@@ -10,16 +10,21 @@ import type { RondaColumna } from '../../lib/visor/principales';
 export interface Props {
   rondas: RondaColumna[];
   aria: string;
+  /** Ancho de dibujo (px): la gráfica se dibuja a este ancho y se muestra 1:1, sin ampliarse. */
+  ancho?: number;
+  /** Versión más baja (mosaico de escritorio): columnas más anchas que altas. */
+  baja?: boolean;
 }
 
-const { rondas, aria } = Astro.props;
-const W = 320;
-const H = 300;
+const { rondas, aria, ancho: anchoDibujo = 320, baja = false } = Astro.props;
+const W = anchoDibujo;
+const H = baja ? 196 : 300;
 // l: 40 (el visor usa 30): el rótulo «100 %» cabe sin salirse del SVG (se corta en las descargas).
 const m = { t: 56, b: 42, l: 40 };
 const slot = (W - m.l) / rondas.length;
 const ancho = Math.min(slot * 0.58, 90);
 const alto = H - m.t - m.b;
+const radio = Math.min(14, ancho / 2);
 const y = (v: number) => m.t + (1 - v / 100) * alto;
 const contorno = 'paint-order:stroke;stroke:var(--color-surface);stroke-width:5px;stroke-linejoin:round';
 const MESES = ['may', 'jun'];
@@ -40,11 +45,9 @@ const MESES = ['may', 'jun'];
     const yv = y(r.pct);
     return (
       <>
-        <rect x={x0} y={m.t} width={ancho} height={alto} rx="4" class="fill-chart-track" />
-        <path
-          d={`M${x0},${y(0)}V${yv + 4}Q${x0},${yv} ${x0 + 4},${yv}H${x0 + ancho - 4}Q${x0 + ancho},${yv} ${x0 + ancho},${yv + 4}V${y(0)}Z`}
-          class="fill-chart-accent"
-        />
+        <!-- Columna entera y parte «sí», con los extremos redondeados como la maqueta. -->
+        <rect x={x0} y={m.t} width={ancho} height={alto} rx={radio} class="columna fill-chart-no" />
+        <rect x={x0} y={yv} width={ancho} height={Math.max(0, y(0) - yv)} rx={radio} class="columna fill-chart-accent" />
         <text x={cx} y={m.t - 24} text-anchor="middle" class="fill-ink text-[26px] font-extrabold">
           {Math.round(r.pct)} %
         </text>
@@ -53,7 +56,7 @@ const MESES = ['may', 'jun'];
             {r.cambio}
           </text>
         )}
-        <text x={cx} y={H - m.b + 20} text-anchor="middle" class="fill-ink text-[12.5px] font-extrabold">
+        <text x={cx} y={H - m.b + 20} text-anchor="middle" class="fill-ink text-[12.5px]">
           {r.label}
         </text>
         <text x={cx} y={H - m.b + 36} text-anchor="middle" class="fill-ink-muted text-[11.5px]">

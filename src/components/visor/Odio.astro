@@ -6,16 +6,19 @@
 import { CLS, SEQ_FILL, SEQ_TEXTO, ZONA, fmt, fmtN } from '../../lib/visor/comun';
 import type { GraficaVisor } from '../../lib/visor/tipos';
 
-type Props = Omit<Extract<GraficaVisor, { tipo: 'odio' }>, 'tipo'>;
+type Props = Omit<Extract<GraficaVisor, { tipo: 'odio' }>, 'tipo'> & {
+  /** Ancho de dibujo (px): la gráfica se dibuja a este ancho y se muestra 1:1, sin ampliarse. */
+  ancho?: number;
+};
 
-const { C, aria } = Astro.props;
+const { C, aria, ancho: anchoDibujo = 320 } = Astro.props;
 const P = C.pasos;
 const K = C.cats;
-const COL = ['fill-chart-track', SEQ_FILL[1]!, SEQ_FILL[3]!, SEQ_FILL[5]!];
-const TXT = ['fill-ink', SEQ_TEXTO[1]!, SEQ_TEXTO[3]!, SEQ_TEXTO[5]!];
-const SN = ['fill-chart-track', SEQ_FILL[3]!];
-const SN_TXT = ['fill-ink', SEQ_TEXTO[3]!];
-const W = 320;
+const COL = [SEQ_FILL[0]!, SEQ_FILL[1]!, SEQ_FILL[3]!, SEQ_FILL[5]!];
+const TXT = [SEQ_TEXTO[0]!, SEQ_TEXTO[1]!, SEQ_TEXTO[3]!, SEQ_TEXTO[5]!];
+const SN = ['fill-chart-muted', SEQ_FILL[3]!];
+const SN_TXT = [SEQ_TEXTO[2]!, SEQ_TEXTO[3]!];
+const W = anchoDibujo;
 const fila = 58;
 const alto = 26;
 const et = 20;

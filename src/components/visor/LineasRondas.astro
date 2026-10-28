@@ -10,8 +10,10 @@ import type { GraficaVisor } from '../../lib/visor/tipos';
 import MarcaSerie from './MarcaSerie.astro';
 
 type Props = Omit<Extract<GraficaVisor, { tipo: 'lineas' }>, 'tipo'> & {
-  /** Versión apaisada (tarjeta ancha del mosaico de escritorio). */
+  /** Versión apaisada (más baja). */
   ancha?: boolean;
+  /** Ancho de dibujo (px): la gráfica se dibuja a este ancho y se muestra 1:1, sin ampliarse. */
+  ancho?: number;
 };
 
 const {
@@ -27,9 +29,10 @@ const {
   signo = false,
   polos,
   ancha = false,
+  ancho = 320,
 } = Astro.props;
-const W = ancha ? 560 : 320;
-const H = ancha ? 230 : 300;
+const W = ancho;
+const H = ancha ? 215 : 300;
 // l: 36 (el visor usa 26): el rótulo «50 %» cabe sin salirse del SVG (se corta en las descargas).
 const m = { t: 44, r: 38, b: 44, l: 36 };
 const dia = (t: string) => new Date(`${t}T12:00:00`).getTime();

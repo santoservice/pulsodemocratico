@@ -34,28 +34,37 @@ export interface Props {
   hallazgo: HallazgoVisor;
   /** Prefijo de ids SVG (la gráfica sale en la tarjeta y en su detalle). */
   uid: string;
-  /** Gráfica apaisada (solo líneas) para la tarjeta ancha del mosaico. */
-  ancha?: boolean;
+  /**
+   * Ancho de dibujo (px). Debe ser el ancho que tiene la gráfica en su tarjeta: así llena la
+   * tarjeta de lado a lado con letras y grosores reales (1:1), como la maqueta.
+   */
+  ancho?: number;
+  /** Versión apaisada (más baja) de líneas y columnas, para tarjetas bajas del mosaico. */
+  apaisada?: boolean;
 }
 
-const { hallazgo: h, uid, ancha = false } = Astro.props;
+const { hallazgo: h, uid, ancho = 320, apaisada = false } = Astro.props;
 const g = h.grafica;
 ---
 
-<div class:list={['mx-auto w-full', ancha ? 'max-w-[40rem]' : 'max-w-[26rem]']}>
+<!--
+  Como la maqueta, la gráfica nunca se amplía: llega como máximo a su ancho de dibujo (escala
+  1:1) y solo se encoge si la tarjeta es más angosta.
+-->
+<div class="grafica-visor mx-auto w-full" style={`max-width:${ancho}px`}>
   {(h.leyenda.items.length > 0 || h.leyenda.nota) && (
     <div class="mb-3 flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[12.5px] text-ink-muted">
       {h.leyenda.items.map((it) => (
         <span class="inline-flex items-center gap-1.5">
-          {it.tipo === 'si' && <i class="inline-block h-[11px] w-[11px] rounded-[2px] bg-chart-accent"></i>}
-          {it.tipo === 'no' && <i class="inline-block h-[11px] w-[11px] rounded-[2px] bg-chart-track"></i>}
-          {it.tipo === 'color' && <i class:list={['inline-block h-[11px] w-[11px] rounded-[2px]', it.bg]}></i>}
+          {it.tipo === 'si' && <i class="inline-block h-[11px] w-[11px] rounded-full bg-chart-accent"></i>}
+          {it.tipo === 'no' && <i class="inline-block h-[11px] w-[11px] rounded-full bg-chart-no"></i>}
+          {it.tipo === 'color' && <i class:list={['inline-block h-[11px] w-[11px] rounded-full', it.bg]}></i>}
           {(it.tipo === 'serie' || it.tipo === 'grupo' || it.tipo === 'edad') && (
             <svg
               width="14"
               height="14"
               viewBox="0 0 14 14"
-              class={it.tipo === 'edad' ? EDAD_TEXT[it.i ?? 0] : SERIE_TEXT[it.i ?? 0]}
+              class={it.tipo === 'edad' ? EDAD_TEXT[it.i ?? 0] : SERIE_TEXT[it.color ?? it.i ?? 0]}
               aria-hidden="true"
             >
               <MarcaSerie i={it.tipo === 'grupo' ? 0 : (it.i ?? 0)} x={7} y={7} r={5} plano />
@@ -67,30 +76,30 @@ const g = h.grafica;
       {h.leyenda.nota && <small class="text-xs">{h.leyenda.nota}</small>}
     </div>
   )}
-  {g.tipo === 'columnas' && <ColumnasRondas rondas={g.rondas} aria={g.aria} />}
+  {g.tipo === 'columnas' && <ColumnasRondas rondas={g.rondas} aria={g.aria} ancho={ancho} baja={apaisada} />}
   {g.tipo === 'pictograma' && (
-    <PictogramaRondas rondas={g.rondas} aria={g.aria} entre={g.entre} cambio={g.cambio} uid={uid} />
+    <PictogramaRondas rondas={g.rondas} aria={g.aria} entre={g.entre} cambio={g.cambio} uid={uid} ancho={ancho} baja={apaisada} />
   )}
   {g.tipo === 'embudo' && <Embudo filas={g.filas} aria={g.aria} />}
-  {g.tipo === 'lineas' && <LineasRondas {...g} ancha={ancha} />}
-  {g.tipo === 'mancuernas' && <Mancuernas filas={g.filas} evolucion={g.evolucion} aria={g.aria} />}
-  {g.tipo === 'media-rondas' && <MediaRondas {...g} />}
-  {g.tipo === 'pendiente' && <Pendiente {...g} />}
-  {g.tipo === 'credibilidad' && <Credibilidad {...g} />}
+  {g.tipo === 'lineas' && <LineasRondas {...g} ancho={ancho} ancha={apaisada} />}
+  {g.tipo === 'mancuernas' && <Mancuernas filas={g.filas} evolucion={g.evolucion} aria={g.aria} ancho={ancho} />}
+  {g.tipo === 'media-rondas' && <MediaRondas {...g} ancho={ancho} />}
+  {g.tipo === 'pendiente' && <Pendiente {...g} ancho={ancho} />}
+  {g.tipo === 'credibilidad' && <Credibilidad {...g} ancho={ancho} />}
   {g.tipo === 'embudo-doble' && <EmbudoDoble {...g} />}
-  {g.tipo === 'mini-lineas' && <MiniLineas {...g} />}
-  {g.tipo === 'apiladas-edad' && <ApiladasEdad {...g} />}
-  {g.tipo === 'columnas-grupos' && <ColumnasGrupos {...g} />}
-  {g.tipo === 'ranking' && <Ranking {...g} />}
-  {g.tipo === 'pesas-rondas' && <PesasRondas {...g} />}
-  {g.tipo === 'constructos' && <Constructos {...g} />}
-  {g.tipo === 'lineas-ideologia' && <LineasIdeologia {...g} />}
-  {g.tipo === 'distribucion' && <Distribucion {...g} />}
-  {g.tipo === 'chats' && <Chats {...g} />}
-  {g.tipo === 'odio' && <Odio {...g} />}
-  {g.tipo === 'titulares' && <Titulares {...g} />}
-  {g.tipo === 'puntos-ie' && <PuntosIE {...g} />}
-  {g.tipo === 'sankey' && <Sankey {...g} />}
+  {g.tipo === 'mini-lineas' && <MiniLineas {...g} ancho={ancho} />}
+  {g.tipo === 'apiladas-edad' && <ApiladasEdad {...g} ancho={ancho} />}
+  {g.tipo === 'columnas-grupos' && <ColumnasGrupos {...g} ancho={ancho} />}
+  {g.tipo === 'ranking' && <Ranking {...g} ancho={ancho} />}
+  {g.tipo === 'pesas-rondas' && <PesasRondas {...g} ancho={ancho} />}
+  {g.tipo === 'constructos' && <Constructos {...g} ancho={ancho} />}
+  {g.tipo === 'lineas-ideologia' && <LineasIdeologia {...g} ancho={ancho} />}
+  {g.tipo === 'distribucion' && <Distribucion {...g} ancho={ancho} />}
+  {g.tipo === 'chats' && <Chats {...g} ancho={ancho} />}
+  {g.tipo === 'odio' && <Odio {...g} ancho={ancho} />}
+  {g.tipo === 'titulares' && <Titulares {...g} ancho={ancho} />}
+  {g.tipo === 'puntos-ie' && <PuntosIE {...g} ancho={ancho} />}
+  {g.tipo === 'sankey' && <Sankey {...g} ancho={ancho} />}
 </div>
 
 <script>

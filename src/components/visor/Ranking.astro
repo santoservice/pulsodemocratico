@@ -3,15 +3,18 @@
  * Barras horizontales ordenadas, la primera resaltada (fuentes para verificar, redes sociales).
  * Réplica del visor: sobre cada barra el nombre y, opcionalmente, un dato pequeño.
  */
-import { CLS, HALO, ZONA, fmt } from '../../lib/visor/comun';
+import { CLS, ZONA, fmt } from '../../lib/visor/comun';
 import type { GraficaVisor } from '../../lib/visor/tipos';
 
-type Props = Omit<Extract<GraficaVisor, { tipo: 'ranking' }>, 'tipo'>;
+type Props = Omit<Extract<GraficaVisor, { tipo: 'ranking' }>, 'tipo'> & {
+  /** Ancho de dibujo (px): la gráfica se dibuja a este ancho y se muestra 1:1, sin ampliarse. */
+  ancho?: number;
+};
 
-const { filas, max, aria } = Astro.props;
-const W = 320;
-const fila = 46;
-const alto = 20;
+const { filas, max, aria, ancho = 320 } = Astro.props;
+const W = ancho;
+const fila = 42;
+const alto = 16;
 const et = 18;
 const m = { r: 64 };
 const H = filas.length * fila + 4;
@@ -24,7 +27,8 @@ const x = (v: number) => (v / MAX) * (W - m.r);
     const y = i * fila;
     return (
       <>
-        <text x="0" y={y + 13} class={CLS.et}>
+        <!-- Nombres sin negrilla; el % va sin contorno, solo con su color. -->
+        <text x="0" y={y + 13} class="fill-ink text-[12.5px]">
           {f.nombre}{f.sub && <tspan dx="6" class={CLS.fecha}>{f.sub}</tspan>}
         </text>
         <rect x="0" y={y + et} width={W - m.r} height={alto} rx="4" class="fill-chart-track" />
@@ -33,7 +37,6 @@ const x = (v: number) => (v / MAX) * (W - m.r);
           x={x(f.pct) + 8}
           y={y + et + alto / 2 + 4.5}
           class:list={['font-extrabold', i === 0 ? 'fill-ink text-[15px]' : 'fill-ink-muted text-[13px]']}
-          style={HALO}
         >
           {fmt(f.pct)} %
         </text>

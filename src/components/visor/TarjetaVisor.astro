@@ -1,7 +1,8 @@
 ---
 /**
- * Tarjeta de un hallazgo del visor: etiqueta del tema, pregunta, leyenda y gráfica.
- * "Ver detalle" abre el detalle a pantalla completa (QuestionModal + DetalleVisor) con la
+ * Tarjeta de un hallazgo del visor: pregunta, leyenda y gráfica (sin chip de tema).
+ * En el mosaico (`compacta`, desde lg) va como la maqueta: tema en texto y a su lado «Ver más»,
+ * que abre el detalle. "Ver detalle" abre el detalle a pantalla completa (QuestionModal + DetalleVisor) con la
  * tabla de datos, "¿Cómo se midió?" y las descargas; el ícono descarga solo la gráfica.
  */
 import { Icon } from 'astro-icon/components';
@@ -14,48 +15,83 @@ export interface Props {
   as?: 'h2' | 'h3' | 'h4';
   class?: string;
   /**
-   * Mosaico de escritorio (Principales hallazgos): título y márgenes más chicos desde lg.
-   * `ancha`: la tarjeta ocupa dos columnas y, desde lg, la gráfica de líneas sale apaisada.
+   * Mosaico de escritorio (Principales hallazgos): desde lg, tema en texto, título y márgenes más
+   * chicos, solo «Ver más» junto al tema (abre el detalle) y la gráfica de 320 encogida a la tarjeta.
+   * `apaisada`: líneas más bajas (tarjeta de dos columnas del mosaico).
+   * `anchoLg`: ancho (px) de la gráfica en esta tarjeta desde lg; ahí se dibuja a ese ancho para
+   * llenarla 1:1 (GraficaVisor). Debajo de lg se usa la versión de 320.
    */
   compacta?: boolean;
-  ancha?: boolean;
+  anchoLg?: number;
+  apaisada?: boolean;
 }
 
-const { hallazgo: h, as: Titulo = 'h3', class: className, compacta = false, ancha = false } = Astro.props;
+const {
+  hallazgo: h,
+  as: Titulo = 'h3',
+  class: className,
+  compacta = false,
+  anchoLg,
+  apaisada = false,
+} = Astro.props;
 const idGrafica = `tarjeta-${h.id}-grafica`;
+// En el mosaico el tema comparte fila con «Ver más»: «Inteligencia artificial» no cabe.
+const temaCorto = h.etiqueta === 'Inteligencia artificial' ? 'IA' : h.etiqueta;
 ---
 
 <article
   aria-labelledby={`tarjeta-${h.id}-t`}
   class:list={[
-    'flex h-full min-w-0 flex-col rounded-2xl border border-border bg-surface p-5 dark:border-transparent dark:bg-tarjeta-visor',
+    'relative flex h-full min-w-0 flex-col rounded-2xl border border-border bg-surface p-5 dark:border-transparent dark:bg-tarjeta-visor',
     compacta && 'lg:p-4',
     className,
   ]}
 >
-  <span class="self-start rounded bg-surface-sunken px-2.5 py-0.5 text-[11.5px] font-bold tracking-[0.08em] text-ink uppercase">
-    {h.etiqueta}
-  </span>
+  {compacta && (
+    <div class="mb-1.5 flex items-center justify-between gap-2 max-lg:hidden">
+      <p class="text-[11px] font-bold tracking-[0.14em] text-ink uppercase">{temaCorto}</p>
+      <button
+        type="button"
+        data-tarjeta={`visor-${h.id}`}
+        aria-haspopup="dialog"
+        class="inline-flex shrink-0 items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-[11px] font-semibold text-negro transition-colors hover:bg-cream focus-visible:ring-2 focus-visible:ring-focus focus-visible:outline-none"
+      >
+        Ver más<span class="sr-only">: {h.titulo}</span>
+        <Icon name="lucide:arrow-right" class="h-3 w-3" aria-hidden="true" />
+      </button>
+    </div>
+  )}
   <Titulo
     id={`tarjeta-${h.id}-t`}
     class:list={[
-      'mt-2.5 text-xl leading-tight font-extrabold text-brand md:min-h-[3.75rem]',
-      compacta && 'lg:min-h-0 lg:text-base',
+      'text-xl leading-tight font-extrabold text-brand md:min-h-[3.75rem]',
+      compacta && 'lg:min-h-0 lg:text-[14px] lg:leading-snug',
     ]}
   >
     {h.titulo}
   </Titulo>
-  <div id={idGrafica} class="mt-3.5 dark:rounded-2xl dark:bg-grafica-visor dark:p-3" data-descarga={`${h.id}-grafica`} data-titulo={h.titulo} data-tema={h.etiqueta}>
-    {ancha ? (
+  <div
+    id={idGrafica}
+    class:list={[
+      // El fondo de la gráfica llega hasta los botones y la gráfica va centrada en él, para que
+      // las tarjetas de una misma fila no se vean descuadradas.
+      'mt-3.5 flex flex-1 flex-col justify-center dark:rounded-2xl dark:bg-grafica-visor dark:p-3',
+      compacta && 'lg:justify-start',
+      // Mosaico, como la maqueta: sin la nota de la leyenda y la gráfica más chica (zoom y alto
+      // máximo) para que todo quepa en una pantalla.
+      compacta &&
+        'lg:mt-2.5 lg:flex-1 lg:[zoom:0.85] lg:[&_.grafica-visor>div:first-child_small]:hidden lg:[&_svg[role=img]]:max-h-[12rem]',
+    ]} data-descarga={`${h.id}-grafica`} data-titulo={h.titulo} data-tema={h.etiqueta}>
+    {anchoLg ? (
       <>
         <div class="lg:hidden"><GraficaVisor hallazgo={h} uid={`t-${h.id}`} /></div>
-        <div class="max-lg:hidden"><GraficaVisor hallazgo={h} uid={`ta-${h.id}`} ancha /></div>
+        <div class="max-lg:hidden"><GraficaVisor hallazgo={h} uid={`ta-${h.id}`} ancho={anchoLg} apaisada={apaisada} /></div>
       </>
     ) : (
-      <GraficaVisor hallazgo={h} uid={`t-${h.id}`} />
+      <GraficaVisor hallazgo={h} uid={`t-${h.id}`} apaisada={apaisada} />
     )}
   </div>
-  <div class:list={['mt-auto flex items-center justify-between gap-3 pt-5', compacta && 'lg:pt-3']}>
+  <div class:list={['mt-auto flex items-center justify-between gap-3 pt-5', compacta && 'lg:hidden']}>
     <button
       type="button"
       data-tarjeta={`visor-${h.id}`}
